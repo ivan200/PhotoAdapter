@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <CheckBoxPreference
+        android:key="fullScreenMode"
+        android:title="Full screen mode"
+        android:defaultValue="true"
+        app:iconSpaceReserved="false">
+    </CheckBoxPreference>
+    <CheckBoxPreference
+        android:key="previewImage"
+        android:title="Preview image"
+        android:defaultValue="true"
+        app:iconSpaceReserved="false">
+    </CheckBoxPreference>
+    <CheckBoxPreference
+        android:key="facingBack"
+        android:title="Facing back"
+        android:defaultValue="true"
+        app:iconSpaceReserved="false">
+    </CheckBoxPreference>
+    <CheckBoxPreference
+        android:key="changeCameraAllowed"
+        android:title="Change camera allowed"
+        android:defaultValue="true"
+        app:iconSpaceReserved="false">
+    </CheckBoxPreference>
+    <CheckBoxPreference
+        android:key="allowMultipleImages"
+        android:title="Multiple images taking"
+        android:defaultValue="true"
+        app:iconSpaceReserved="false">
+    </CheckBoxPreference>
+    <CheckBoxPreference
+        android:key="useSnapshot"
+        android:title="Use snapshot"
+        android:defaultValue="true"
+        app:iconSpaceReserved="false">
+    </CheckBoxPreference>
+    <CheckBoxPreference
+        android:key="saveToGallery"
+        android:title="Save to phone gallery also"
+        android:defaultValue="false"
+        app:iconSpaceReserved="false">
+    </CheckBoxPreference>
+    <CheckBoxPreference
+        android:key="lockRotate"
+        android:title="Lock rotate screen"
+        android:defaultValue="true"
+        app:iconSpaceReserved="false">
+    </CheckBoxPreference>
+</PreferenceScreen>

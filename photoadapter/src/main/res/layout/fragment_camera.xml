@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorCameraBackground">
+
+    <View
+        android:id="@+id/statusView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
+
+    <com.otaliastudios.cameraview.CameraView
+        android:id="@+id/cameraView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/action_layout"
+        android:layout_below="@id/statusView"
+        android:keepScreenOn="true"
+        android:visibility="visible"
+        app:cameraAudio="off"
+        app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker"
+        app:cameraEngine="camera2"
+        app:cameraFacing="back"
+        app:cameraFlash="off"
+        app:cameraGestureLongTap="none"
+        app:cameraGesturePinch="zoom"
+        app:cameraGestureScrollHorizontal="none"
+        app:cameraGestureScrollVertical="exposureCorrection"
+        app:cameraGestureTap="autoFocus"
+        app:cameraGrid="off"
+        app:cameraMode="picture"
+        app:cameraPictureSizeMaxWidth="1200"
+        app:cameraPlaySounds="false"
+        app:cameraPreview="glSurface"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/torch_switch"
+        android:layout_width="@dimen/size_icon_bounding"
+        android:layout_height="@dimen/size_icon_bounding"
+        android:layout_below="@id/statusView"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:background="?selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:scaleType="center"
+        android:visibility="visible"
+        app:srcCompat="@drawable/ic_photo_flash_off"
+        tools:visibility="visible" />
+
+    <View
+        android:id="@+id/flashView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.5"
+        android:background="@color/colorCameraBackground"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/action_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:background="@color/colorActionLayout"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/capture"
+            android:layout_alignBottom="@id/capture"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/capture"
+            android:layout_toLeftOf="@id/capture">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/switch_camera"
+                android:layout_width="@dimen/size_icon_bounding"
+                android:layout_height="@dimen/size_icon_bounding"
+                android:layout_gravity="center"
+                android:background="?selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="center"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_photo_camera_rear"
+                tools:visibility="visible" />
+        </FrameLayout>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/capture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@color/colorTransparent"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingTop="@dimen/margin_default"
+            android:paddingBottom="@dimen/margin_default"
+            app:srcCompat="@drawable/ic_photo_take_picture" />
+
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/capture"
+            android:layout_alignBottom="@id/capture"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/capture"
+            android:layout_toRightOf="@id/capture"
+            android:gravity="center">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/result"
+                android:layout_width="@dimen/size_icon_bounding"
+                android:layout_height="@dimen/size_icon_bounding"
+                android:layout_gravity="center"
+                android:background="?selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </FrameLayout>
+    </RelativeLayout>
+</RelativeLayout>
+

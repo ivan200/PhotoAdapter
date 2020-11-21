@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.FitWindowsFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_frame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorCameraBackground"
+    android:keepScreenOn="true"
+    tools:activity="com.ivan200.photoadapter.CameraActivity">
+
+    <FrameLayout
+        android:id="@+id/frame_camera"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <fragment
+            class="com.ivan200.photoadapter.fragments.CameraFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_camera" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/frame_gallery"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible">
+
+        <fragment
+            class="com.ivan200.photoadapter.fragments.GalleryFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/photo_fragment_gallery" />
+    </FrameLayout>
+
+</androidx.appcompat.widget.FitWindowsFrameLayout>

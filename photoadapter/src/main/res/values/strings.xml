@@ -1,0 +1,17 @@
+<resources>
+    <string name="title_confirm">Confirm</string>
+
+    <string name="delete_dialog">Delete current photo?</string>
+    <string name="save_photos_dialog">Save taken photos?</string>
+
+    <string name="button_yes">Yes</string>
+    <string name="button_no">No</string>
+    <string name="button_delete">Delete</string>
+
+    <string name="permission_camera_rationale">Please go to settings and allow access to the camera.</string>
+    <string name="permission_notification_rationale">Access to the disable sound is needed.</string>
+    <string name="perm_storage_unavailable">The SD card is not writable.</string>
+    <string name="permission_sdcard_rationale">To save images to the gallery, you need access to the SD card.</string>
+    <string name="photo_fail_message">The photo didn\'t pass verification.\nPlease retake the photo.</string>
+
+</resources>

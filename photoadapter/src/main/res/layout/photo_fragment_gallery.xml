@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorCameraBackground">
+
+    <View
+        android:id="@+id/statusView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pager_images"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/action_layout_gallery"
+        android:layout_below="@id/statusView"
+        android:background="@color/colorCameraLayout">
+
+    </androidx.viewpager2.widget.ViewPager2>
+
+    <me.relex.circleindicator.CircleIndicator3
+        android:id="@+id/indicator"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_above="@id/action_layout_gallery"
+        android:gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <RelativeLayout
+        android:id="@+id/action_layout_gallery"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:background="@color/colorActionLayout"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/btn_accept"
+            android:layout_alignBottom="@id/btn_accept"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/btn_accept"
+            tools:ignore="RtlHardcoded">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_deletePicture"
+                android:layout_width="@dimen/size_icon_bounding"
+                android:layout_height="@dimen/size_icon_bounding"
+                android:layout_gravity="center"
+                android:background="?selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_photo_delete" />
+
+        </FrameLayout>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn_accept"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@color/colorTransparent"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingTop="@dimen/margin_default"
+            android:paddingBottom="@dimen/margin_default"
+            app:srcCompat="@drawable/ic_photo_accept_picture" />
+
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/btn_accept"
+            android:layout_alignBottom="@id/btn_accept"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/btn_accept"
+            android:layout_toRightOf="@id/btn_accept">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_more"
+                android:layout_width="@dimen/size_icon_bounding"
+                android:layout_height="@dimen/size_icon_bounding"
+                android:layout_gravity="center"
+                android:background="?selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_photo_more" />
+
+        </FrameLayout>
+    </RelativeLayout>
+
+</RelativeLayout>
+

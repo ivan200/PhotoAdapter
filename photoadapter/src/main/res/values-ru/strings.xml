@@ -1,0 +1,17 @@
+<resources>
+    <string name="title_confirm">Подтверждение</string>
+
+    <string name="delete_dialog">Удалить текущее фото?</string>
+    <string name="save_photos_dialog">Сохранить сделанные фотографии?</string>
+
+    <string name="button_yes">Да</string>
+    <string name="button_no">Нет</string>
+    <string name="button_delete">Удалить</string>
+
+    <string name="permission_camera_rationale">Пожалуйста, перейдите в настройки и разрешите доступ к камере.</string>
+    <string name="permission_notification_rationale">Необходимо разрешение на отключение звука.</string>
+    <string name="perm_storage_unavailable">SD карта недоступна для записи.</string>
+    <string name="permission_sdcard_rationale">Для сохранения изображений в галерею, требуется доступ к SD карте.</string>
+    <string name="photo_fail_message">Фото не прошло проверку.\nПожалуйста, повторите фото.</string>
+
+</resources>

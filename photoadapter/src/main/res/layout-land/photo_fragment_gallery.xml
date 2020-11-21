@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorCameraBackground">
+
+    <View
+        android:id="@+id/statusView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pager_images"
+        android:layout_below="@id/statusView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@id/action_layout_gallery"
+        android:background="#212121"
+        tools:ignore="RtlHardcoded"
+        >
+
+    </androidx.viewpager2.widget.ViewPager2>
+
+    <me.relex.circleindicator.CircleIndicator3
+        android:id="@+id/indicator"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@id/action_layout_gallery"
+        android:visibility="gone"
+        tools:ignore="RtlHardcoded"
+        tools:visibility="visible" />
+
+
+    <RelativeLayout
+        android:id="@+id/action_layout_gallery"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:background="@color/colorActionLayout"
+        android:gravity="left"
+        android:orientation="vertical"
+        android:visibility="visible"
+        tools:ignore="RtlHardcoded">
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn_accept"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@color/colorTransparent"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingLeft="@dimen/margin_default"
+            android:paddingRight="@dimen/margin_default"
+            app:srcCompat="@drawable/ic_photo_accept_picture" />
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_above="@id/btn_accept"
+            android:layout_alignLeft="@id/btn_accept"
+            android:layout_alignRight="@id/btn_accept">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_more"
+                android:layout_width="@dimen/size_icon_bounding"
+                android:layout_height="@dimen/size_icon_bounding"
+                android:layout_gravity="center"
+                android:background="?selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_photo_more" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_below="@id/btn_accept"
+            android:layout_alignLeft="@id/btn_accept"
+            android:layout_alignRight="@id/btn_accept">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_deletePicture"
+                android:layout_width="@dimen/size_icon_bounding"
+                android:layout_height="@dimen/size_icon_bounding"
+                android:layout_gravity="center"
+                android:background="?selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_photo_delete" />
+
+        </FrameLayout>
+    </RelativeLayout>
+</RelativeLayout>
