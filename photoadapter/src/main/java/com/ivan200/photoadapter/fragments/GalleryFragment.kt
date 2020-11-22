@@ -19,7 +19,6 @@ import me.relex.circleindicator.CircleIndicator3
 //
 // Created by Ivan200 on 16.10.2019.
 //
-
 class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsListener {
 
     private val cameraViewModel: CameraViewModel by lazy {
@@ -45,14 +44,14 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
         cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
         pagerAdapter = GalleryAdapter(cameraViewModel::updateOnCurrentPageLoaded)
         pagerImages.adapter = pagerAdapter
-        pagerImages.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback(){
+        pagerImages.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 cameraViewModel.imageNumber = position
             }
         })
 
-        if(cameraBuilder.fullScreenMode){
+        if (cameraBuilder.fullScreenMode) {
             //Очищаем значение обозначающее что вью галереи должно быть над панелью кнопок
             (pagerImages.layoutParams as? RelativeLayout.LayoutParams)?.apply {
                 arrayOf(RelativeLayout.BELOW, RelativeLayout.ABOVE, RelativeLayout.LEFT_OF, RelativeLayout.RIGHT_OF).forEach {
@@ -63,8 +62,8 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
         indicator.setViewPager(pagerImages)
         pagerAdapter.registerAdapterDataObserver(indicator.adapterDataObserver)
 
-        cameraViewModel.pictures.observeVal(requireActivity()){
-            if(it.size == 0){
+        cameraViewModel.pictures.observeVal(requireActivity()) {
+            if (it.size == 0) {
                 cameraViewModel.changeFragment(true)
             }
             indicator.showIf { it.size > 1 }
@@ -75,20 +74,20 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
             showDialogDeletePage(cameraViewModel::deleteCurrentPage)
         }
 
-        cameraViewModel.scrollToPage.observeVal(requireActivity()){
+        cameraViewModel.scrollToPage.observeVal(requireActivity()) {
             pagerImages.setCurrentItem(cameraViewModel.imageNumber, false)
         }
 
         btnMore.showIf(cameraBuilder::allowMultipleImages)
-                .onClick(this::onMorePhotosPressed)
+            .onClick(this::onMorePhotosPressed)
 
         btnAccept.onClick(cameraViewModel::success)
 
-        cameraViewModel.backPressed.observeVal(requireActivity()){
+        cameraViewModel.backPressed.observeVal(requireActivity()) {
             onMorePhotosPressed()
         }
 
-        cameraViewModel.rotate.observeVal(requireActivity()){
+        cameraViewModel.rotate.observeVal(requireActivity()) {
             rotateItems(it, btnAccept, btnDelete, btnMore)
         }
 
@@ -97,11 +96,11 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
         }
     }
 
-    fun onMorePhotosPressed(){
-        if(cameraBuilder.allowMultipleImages){
+    fun onMorePhotosPressed() {
+        if (cameraBuilder.allowMultipleImages) {
             cameraViewModel.needScrollToPage(0)
             cameraViewModel.changeFragment(true)
-        } else{
+        } else {
             showDialogDeletePage {
                 cameraViewModel.deleteCurrentPage()
             }
@@ -117,7 +116,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
         }
     }
 
-    fun setWindowInsets(insets: WindowInsetsCompat){
+    fun setWindowInsets(insets: WindowInsetsCompat) {
         actionLayout.padBottomViewWithInsets(insets)
         if (!cameraBuilder.fullScreenMode) {
             statusView.padTopViewWithInsets(insets)
@@ -126,15 +125,15 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
 
     fun showDialogDeletePage(onOk: () -> Unit) {
         AlertDialog.Builder(activity, cameraBuilder.dialogTheme)
-                .setTitle(R.string.title_confirm)
-                .setMessage(R.string.delete_dialog)
-                .setPositiveButton(R.string.button_yes) { dialog, id ->
-                    onOk.invoke()
-                    dialog.dismiss()
-                }
-                .setNegativeButton(android.R.string.cancel) { dialog, id -> dialog.dismiss() }
-                .create()
-                .show()
+            .setTitle(R.string.title_confirm)
+            .setMessage(R.string.delete_dialog)
+            .setPositiveButton(R.string.button_yes) { dialog, id ->
+                onOk.invoke()
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel) { dialog, id -> dialog.dismiss() }
+            .create()
+            .show()
     }
 
 }

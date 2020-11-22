@@ -36,7 +36,7 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = GalleryAdapter(Prefs(requireContext()).sortedImages)
 
-        val span = if(resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 5 else 3
+        val span = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 5 else 3
         recyclerView.layoutManager = GridLayoutManager(mActivity, span)
     }
 
@@ -72,7 +72,7 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         override fun onBindViewHolder(holder: GalleryViewHolder, position: Int) {
             val imageFile = File(images[position])
             val thumbFile = File(ImageUtils.getThumbsDir(holder.itemView.context), imageFile.name)
-            val loadFile = if(thumbFile.exists())  thumbFile else imageFile
+            val loadFile = if (thumbFile.exists()) thumbFile else imageFile
             (holder.itemView as ImageView).setImageURI(Uri.fromFile(loadFile))
             holder.itemView.setOnClickListener {
                 Prefs(it.context).imagePreviewNumber = position
@@ -80,6 +80,6 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
             }
         }
 
-        class GalleryViewHolder (view: View) : RecyclerView.ViewHolder(view)
+        class GalleryViewHolder(view: View) : RecyclerView.ViewHolder(view)
     }
 }

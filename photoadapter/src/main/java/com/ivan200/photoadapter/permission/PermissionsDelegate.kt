@@ -154,7 +154,7 @@ open class PermissionsDelegate(
         Intent()
             .setAction(action)
             .apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     putExtra(Intent.EXTRA_PACKAGE_NAME, activity.packageName)
                 }
             }

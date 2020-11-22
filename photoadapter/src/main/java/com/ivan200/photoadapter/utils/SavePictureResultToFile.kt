@@ -12,15 +12,15 @@ class SavePictureResultToFile(
     val fixJpegBytes: Boolean = false
 ) : (PictureResult) -> File {
     override fun invoke(p1: PictureResult): File {
-        if(fixJpegBytes) {
+        if (fixJpegBytes) {
             saveBytesFixJpeg(p1.data, file)
-        } else{
+        } else {
             saveBytes(p1.data, file)
         }
         return file
     }
 
-    private fun saveBytes(bytes: ByteArray, saveFile: File){
+    private fun saveBytes(bytes: ByteArray, saveFile: File) {
         FileOutputStream(saveFile).buffered().use {
             it.write(bytes)
         }
@@ -28,7 +28,7 @@ class SavePictureResultToFile(
 
     // Some servers can't handle jpeg if it has the wrong first or last 2 bytes. (ffd8 and ffd9)
     // So we have to check and edit it manually
-    private fun saveBytesFixJpeg(bytes: ByteArray, saveFile: File){
+    private fun saveBytesFixJpeg(bytes: ByteArray, saveFile: File) {
         FileOutputStream(saveFile).buffered().use {
             val properStart = bytes[0] == 0xff.toByte() && bytes[1] == 0xd8.toByte()
             val properEnd = bytes[bytes.size - 2] == 0xff.toByte() && bytes[bytes.size - 1] == 0xd9.toByte()

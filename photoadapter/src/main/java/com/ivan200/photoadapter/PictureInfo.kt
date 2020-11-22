@@ -1,10 +1,12 @@
 package com.ivan200.photoadapter
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 import java.io.File
 
 //
 // Created by Ivan200 on 21.10.2019.
 //
-
-data class PictureInfo(val file: File, val thumbFile: File?)
+@Parcelize
+data class PictureInfo(val file: File, val thumbFile: File?) : Parcelable
 

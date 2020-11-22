@@ -8,8 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ivan200.photoadapter.CameraBuilder
-import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.permission.PermissionsDelegate
+import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapterexample.Prefs
 import com.ivan200.photoadapterexample.R
 

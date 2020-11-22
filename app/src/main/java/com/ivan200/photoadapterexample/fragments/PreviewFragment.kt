@@ -63,6 +63,6 @@ class PreviewFragment : Fragment(R.layout.fragment_preview) {
             (holder.itemView as PhotoView).setImageURI(Uri.fromFile(File(images[position])))
         }
 
-        class PreviewViewHolder (view: View) : RecyclerView.ViewHolder(view)
+        class PreviewViewHolder(view: View) : RecyclerView.ViewHolder(view)
     }
 }

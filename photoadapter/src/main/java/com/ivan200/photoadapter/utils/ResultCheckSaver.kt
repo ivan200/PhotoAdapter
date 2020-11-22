@@ -12,12 +12,12 @@ import kotlin.math.max
 //
 
 
-class ResultCheckSaver (
-        private var activity: FragmentActivity,
-        private var result: PictureResult,
-        private var cameraBuilder: CameraBuilder,
-        private var onCheckSaved: (ResultCheckSaver)-> Unit
-){
+class ResultCheckSaver(
+    private var activity: FragmentActivity,
+    private var result: PictureResult,
+    private var cameraBuilder: CameraBuilder,
+    private var onCheckSaved: (ResultCheckSaver) -> Unit
+) {
     private var isFileSaved = false
     private var isThumbSaved = !cameraBuilder.hasThumbnails
     private var isPhotoChecked = cameraBuilder.photoChecker == null
@@ -39,11 +39,11 @@ class ResultCheckSaver (
         }
     }
 
-    fun checkSave(){
+    fun checkSave() {
         saveInBackground(Runnable {
             photoFile = SavePictureResultToFile(photoFile, cameraBuilder.fixJpegBytes).invoke(result)
             isFileSaved = true
-            if(isPhotoChecked && !checkResult){
+            if (isPhotoChecked && !checkResult) {
                 isThumbSaved = true
                 onSomeThing()
                 return@Runnable
@@ -69,17 +69,17 @@ class ResultCheckSaver (
         }
     }
 
-    private fun onSomeThing(){
-        if(isPhotoChecked && !checkResult){
-            photoFile.applyIf(isFileSaved){
-                if(exists()) delete()
+    private fun onSomeThing() {
+        if (isPhotoChecked && !checkResult) {
+            photoFile.applyIf(isFileSaved) {
+                if (exists()) delete()
             }
-            thumbsFile?.applyIf(isThumbSaved){
-                if(exists()) delete()
+            thumbsFile?.applyIf(isThumbSaved) {
+                if (exists()) delete()
             }
         }
 
-        if(isFileSaved && isThumbSaved && isPhotoChecked){
+        if (isFileSaved && isThumbSaved && isPhotoChecked) {
             onCheckSaved.invoke(this)
         }
     }
@@ -88,6 +88,7 @@ class ResultCheckSaver (
     private fun saveInBackground(runnable: Runnable) {
         saveHandler.post(runnable)
     }
+
     @Synchronized
     private fun checkInBackground(runnable: Runnable) {
         checkHandler.post(runnable)

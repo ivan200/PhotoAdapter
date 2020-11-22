@@ -26,7 +26,7 @@ fun <T : View> T.onClick(function: () -> Unit): T {
     return this
 }
 
-fun <T:View> T.show() : T {
+fun <T : View> T.show(): T {
     if (visibility != View.VISIBLE) visibility = View.VISIBLE
     return this
 }
@@ -36,7 +36,7 @@ fun <T : View> T.hide(): T {
     return this
 }
 
-fun <T : View> T.invisible() : T {
+fun <T : View> T.invisible(): T {
     if (visibility != View.INVISIBLE) visibility = View.INVISIBLE
     return this
 }
@@ -54,8 +54,8 @@ fun <T : View> T.invisibleIf(condition: () -> Boolean): T {
 }
 
 @SuppressLint("InlinedApi")
-inline fun <T> T.applyIf(condition: Boolean ,block: T.() -> Unit): T {
-    return if(condition) this.apply(block) else this
+inline fun <T> T.applyIf(condition: Boolean, block: T.() -> Unit): T {
+    return if (condition) this.apply(block) else this
 }
 
 fun <T> Function1<T, Unit?>.observe(): Observer<T> {
@@ -63,11 +63,11 @@ fun <T> Function1<T, Unit?>.observe(): Observer<T> {
 }
 
 fun <T> LiveData<T>.observeVal(owner: LifecycleOwner, function: Function1<T, Unit>) {
-    val viewLifecycleOwner = if(owner is Fragment) owner.viewLifecycleOwner else owner
+    val viewLifecycleOwner = if (owner is Fragment) owner.viewLifecycleOwner else owner
     observe(viewLifecycleOwner, { function.invoke(it) })
 }
 
-fun  <T : Activity> T.lockOrientation() {
+fun <T : Activity> T.lockOrientation() {
     val windowManager = getSystemService(Context.WINDOW_SERVICE) as? WindowManager
     if (windowManager != null) {
         val rotation = windowManager.defaultDisplay.rotation
@@ -88,7 +88,7 @@ fun  <T : Activity> T.lockOrientation() {
     }
 }
 
-fun <T: View> T.hideSystemUI(){
+fun <T : View> T.hideSystemUI() {
     var flag = View.SYSTEM_UI_FLAG_LOW_PROFILE or
             View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -107,7 +107,7 @@ fun <T: View> T.hideSystemUI(){
 fun <T : View> T.showSystemUI() {
     var flag = View.SYSTEM_UI_FLAG_VISIBLE
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-        flag = flag or 
+        flag = flag or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -122,16 +122,18 @@ fun <T : Activity> T.unlockOrientation() {
 internal fun View.padBottomViewWithInsets(insets: WindowInsetsCompat) {
     val land = this.resources.getBoolean(R.bool.is_land)
     this.setPadding(
-            if (land) 0 else insets.systemWindowInsetLeft,
-            if (land) insets.systemWindowInsetTop else 0,
-            insets.systemWindowInsetRight,
-            insets.systemWindowInsetBottom)
+        if (land) 0 else insets.systemWindowInsetLeft,
+        if (land) insets.systemWindowInsetTop else 0,
+        insets.systemWindowInsetRight,
+        insets.systemWindowInsetBottom
+    )
 }
+
 internal fun View.padTopViewWithInsets(insets: WindowInsetsCompat) {
     this.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, insets.systemWindowInsetTop)
 }
 
-internal fun rotateItems(angle: Int, vararg views: View){
+internal fun rotateItems(angle: Int, vararg views: View) {
     val rotationDuration = 200L
     views.forEach {
         it.animate().rotation(angle.toFloat()).setDuration(rotationDuration).start()

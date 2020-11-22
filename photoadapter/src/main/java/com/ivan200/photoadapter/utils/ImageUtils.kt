@@ -81,7 +81,7 @@ object ImageUtils {
     @Suppress("DEPRECATION")
     fun copyImagesToGalleryBelowQ(context: Context, images: Array<File>, ALBUM: String) {
         //Checks if external storage is available for read and write
-        if(Environment.MEDIA_MOUNTED != Environment.getExternalStorageState()) return
+        if (Environment.MEDIA_MOUNTED != Environment.getExternalStorageState()) return
 
         val externalStoragePublicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
         val albumStorageDir = if (ALBUM.isEmpty()) externalStoragePublicDirectory else File(externalStoragePublicDirectory, ALBUM)
@@ -108,7 +108,7 @@ object ImageUtils {
 
         val collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         val uri = resolver.insert(collection, contentValues)
-                ?: throw IOException("Failed to create new MediaStore record.")
+            ?: throw IOException("Failed to create new MediaStore record.")
 
         var outputStream: OutputStream? = null
         try {
@@ -118,7 +118,7 @@ object ImageUtils {
             contentValues.clear()
             contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
             resolver.update(uri, contentValues, null, null)
-        } catch (e: Exception ){
+        } catch (e: Exception) {
             resolver.delete(uri, null, null)
             throw e
         } finally {
@@ -159,7 +159,8 @@ object ImageUtils {
 
         // Tell the media scanner about the new file so that it is
         // immediately available to the user.
-        MediaScannerConnection.scanFile(context, files.map { it.toString() }.toTypedArray(), null
+        MediaScannerConnection.scanFile(
+            context, files.map { it.toString() }.toTypedArray(), null
         ) { path, uri ->
             Log.i("ExternalStorage", "Scanned $path:")
             Log.i("ExternalStorage", "-> uri=$uri")
@@ -187,8 +188,9 @@ object ImageUtils {
                 cameraIdList.firstOrNull()?.let {
                     val characteristics = getCameraCharacteristics(it)
                     val support = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
-                    if(support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL ||
-                        support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3){
+                    if (support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL ||
+                        support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3
+                    ) {
                         return true
                     }
                 }
@@ -203,9 +205,9 @@ object ImageUtils {
             val numberOfCameras: Int = Camera.getNumberOfCameras()
             for (i in 0 until numberOfCameras) {
                 Camera.getCameraInfo(i, cameraInfo)
-                if(facing == null){
+                if (facing == null) {
                     facing = cameraInfo.facing
-                } else if(facing != cameraInfo.facing){
+                } else if (facing != cameraInfo.facing) {
                     return true
                 }
             }
@@ -216,9 +218,9 @@ object ImageUtils {
             ?.apply {
                 cameraIdList.forEach {
                     val characteristics = getCameraCharacteristics(it)
-                    if(facing == null){
+                    if (facing == null) {
                         facing = characteristics.get(CameraCharacteristics.LENS_FACING)
-                    } else if(facing != characteristics.get(CameraCharacteristics.LENS_FACING)){
+                    } else if (facing != characteristics.get(CameraCharacteristics.LENS_FACING)) {
                         return true
                     }
                 }

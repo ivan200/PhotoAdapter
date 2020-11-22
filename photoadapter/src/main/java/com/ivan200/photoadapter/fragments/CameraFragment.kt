@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.ivan200.photoadapter.fragments
 
 import android.annotation.SuppressLint
@@ -27,7 +25,6 @@ import com.otaliastudios.cameraview.controls.Flash
 //
 // Created by Ivan200 on 15.10.2019.
 //
-
 class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     private val flashView get() = requireView().findViewById<View>(R.id.flashView)
     private val cameraView get() = requireView().findViewById<CameraView>(R.id.cameraView)

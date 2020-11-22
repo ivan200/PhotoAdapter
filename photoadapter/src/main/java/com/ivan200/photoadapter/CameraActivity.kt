@@ -2,6 +2,8 @@ package com.ivan200.photoadapter
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -24,10 +26,9 @@ class CameraActivity : AppCompatActivity() {
     val frameCamera: FrameLayout get() = findViewById(R.id.frame_camera)
     val frameGallery: FrameLayout get() = findViewById(R.id.frame_gallery)
 
-    lateinit var cameraBuilder: CameraBuilder
+    val cameraBuilder: CameraBuilder by lazy { intent.getParcelableExtra(KEY_CAMERA_BUILDER)!! }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        cameraBuilder = intent?.getParcelableExtra(CameraBuilder::class.java.simpleName) ?: CameraBuilder()
         setTheme(if (cameraBuilder.fullScreenMode) R.style.AppThemePhoto_FullScreen else R.style.AppThemePhoto)
 
         super.onCreate(savedInstanceState)
@@ -55,7 +56,7 @@ class CameraActivity : AppCompatActivity() {
         if (showCamera) showCamera() else showGallery()
     }
 
-    fun showCamera(){
+    fun showCamera() {
         frameCamera.show()
         frameGallery.invisible()
     }
@@ -68,7 +69,7 @@ class CameraActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        if(cameraBuilder.fullScreenMode) {
+        if (cameraBuilder.fullScreenMode) {
             container.postDelayed({
                 container.hideSystemUI()
             }, IMMERSIVE_FLAG_TIMEOUT)
@@ -90,18 +91,18 @@ class CameraActivity : AppCompatActivity() {
 
     fun showConfirmSaveDialog(onYes: () -> Unit, onNo: () -> Unit) {
         AlertDialog.Builder(this, cameraBuilder.dialogTheme)
-                .setTitle(R.string.title_confirm)
-                .setMessage(R.string.save_photos_dialog)
-                .setPositiveButton(R.string.button_yes) { dialog, id ->
-                    onYes.invoke()
-                    dialog.dismiss()
-                }
-                .setNegativeButton(R.string.button_no) { dialog, id ->
-                    onNo.invoke()
-                    dialog.dismiss()
-                }
-                .create()
-                .show()
+            .setTitle(R.string.title_confirm)
+            .setMessage(R.string.save_photos_dialog)
+            .setPositiveButton(R.string.button_yes) { dialog, id ->
+                onYes.invoke()
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.button_no) { dialog, id ->
+                onNo.invoke()
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     fun cancelActivity() {
@@ -120,7 +121,7 @@ class CameraActivity : AppCompatActivity() {
 
             try {
                 ImageUtils.copyImagesToGallery(this, pics.map { it.file }.toTypedArray(), cameraBuilder.galleryName)
-            } catch (ex: Throwable){
+            } catch (ex: Throwable) {
                 ex.printStackTrace()
             }
         }
@@ -141,7 +142,24 @@ class CameraActivity : AppCompatActivity() {
         return super.onKeyDown(keyCode, event)
     }
 
-    companion object{
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        cameraViewModel.onRestoreInstanceState(savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        cameraViewModel.onSaveInstanceState(outState)
+    }
+
+    companion object {
+        private const val KEY_CAMERA_BUILDER = "KEY_CAMERA_BUILDER"
+
+        fun getIntent(context: Context, builder: CameraBuilder) =
+            Intent(context, CameraActivity::class.java)
+                .putExtra(KEY_CAMERA_BUILDER, builder)
+
         const val photosExtraName = "photos"
         const val thumbsExtraName = "thumbs"
         private const val IMMERSIVE_FLAG_TIMEOUT = 500L

@@ -1,5 +1,6 @@
 package com.ivan200.photoadapter
 
+import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,13 +17,13 @@ class CameraViewModel : ViewModel() {
     var imageNumber: Int = 0
         set(value) {
             var newV = value
-            if(newV >=_pictures.value!!.size) newV = _pictures.value!!.size - 1
-            if(newV < 0) newV = 0
+            if (newV >= _pictures.value!!.size) newV = _pictures.value!!.size - 1
+            if (newV < 0) newV = 0
             field = newV
         }
 
     //вызывается галереей или камерой чтоб поменять текущий фрагмент
-    private val _showCamera = MutableLiveData(true)
+    private val _showCamera = MutableLiveData(defaultShowCamera)
     val showCamera: LiveData<Boolean> = _showCamera
     fun changeFragment(showCamera: Boolean) {
         _showCamera.value = showCamera
@@ -65,7 +66,7 @@ class CameraViewModel : ViewModel() {
     private val _rotate = MutableLiveData(0)
     val rotate: LiveData<Int> = _rotate
     fun rotate(angle: Int) {
-        if(_rotate.value != angle) {
+        if (_rotate.value != angle) {
             _rotate.value = angle
         }
     }
@@ -77,7 +78,7 @@ class CameraViewModel : ViewModel() {
         _volumeKeyPressed.value = _volumeKeyPressed.value
     }
 
-    fun deleteCurrentPage(){
+    fun deleteCurrentPage() {
         val deletedPicture = _pictures.value!!.getOrNull(imageNumber) ?: return
 
         _pictures.value!!.removeAt(imageNumber)
@@ -87,25 +88,44 @@ class CameraViewModel : ViewModel() {
         deletePage(deletedPicture)
     }
 
-    fun deleteAllFiles(){
+    fun deleteAllFiles() {
         imageNumber = 0
         _pictures.value!!.forEach { deletePage(it) }
     }
 
-    fun deletePage(page: PictureInfo){
+    fun deletePage(page: PictureInfo) {
         page.apply {
-            if(file.exists()){
+            if (file.exists()) {
                 file.delete()
             }
-            if(thumbFile?.exists() == true){
+            if (thumbFile?.exists() == true) {
                 thumbFile.delete()
             }
         }
     }
 
-    fun onFileSaved(fileToSave: File, thumbToSave: File?){
+    fun onFileSaved(fileToSave: File, thumbToSave: File?) {
         _pictures.value!!.add(imageNumber, PictureInfo(fileToSave, thumbToSave))
         _pictures.value = _pictures.value   //this need to call liveData update
     }
 
+
+    fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelableArray(KEY_Pictures, pictures.value?.toTypedArray() ?: emptyArray())
+        outState.putBoolean(KEY_ShowCamera, showCamera.value ?: defaultShowCamera)
+    }
+
+    fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        val savedPictureList = savedInstanceState.getParcelableArray(KEY_Pictures)
+            ?.filterIsInstance(PictureInfo::class.java)
+            ?.toMutableList()
+        _pictures.value = savedPictureList ?: arrayListOf()
+        _showCamera.value = savedInstanceState.getBoolean(KEY_ShowCamera, defaultShowCamera)
+    }
+
+    companion object {
+        private const val defaultShowCamera = true
+        private const val KEY_Pictures = "KEY_Pictures"
+        private const val KEY_ShowCamera = "KEY_ShowCamera"
+    }
 }

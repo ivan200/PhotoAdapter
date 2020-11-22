@@ -1,7 +1,6 @@
 package com.ivan200.photoadapter
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Parcelable
 import androidx.annotation.AnyRes
@@ -55,17 +54,15 @@ data class CameraBuilder(
     fun withPhotoChecker(photoChecker: PhotoChecker?) = apply { this.photoChecker = photoChecker }
 
     fun start(activity: Activity) {
-        activity.startActivityForResult(getIntent(activity), getCode())
+        activity.startActivityForResult(CameraActivity.getIntent(activity, this), getCode())
     }
 
     fun start(fragment: Fragment) {
-        fragment.startActivityForResult(getIntent(fragment.context), getCode())
+        fragment.startActivityForResult(CameraActivity.getIntent(fragment.requireContext(), this), getCode())
     }
 
     private fun getCode() = if (requestCode == 0) REQUEST_IMAGE_CAPTURE else requestCode
 
-    private fun getIntent(context: Context?) =
-        Intent(context, CameraActivity::class.java).putExtra(this::class.java.simpleName, this)
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, onSuccess: Consumer<List<String>>, onCancel: Runnable? = null) {
         if (requestCode == getCode()) {

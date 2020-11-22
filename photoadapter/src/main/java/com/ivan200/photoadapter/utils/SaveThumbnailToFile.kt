@@ -10,12 +10,12 @@ import kotlin.math.min
 // Created by Ivan200 on 23.10.2019.
 //
 class SaveThumbnailToFile(
-        private val thumbnailFile: File?,
-        private val maxThumbSize: Int
+    private val thumbnailFile: File?,
+    private val maxThumbSize: Int
 ) : (File?) -> File? {
 
     override fun invoke(origFile: File?): File? {
-        if(origFile == null || thumbnailFile == null) return null
+        if (origFile == null || thumbnailFile == null) return null
 
         val bitmapOptions = BitmapFactory.Options()
         bitmapOptions.inJustDecodeBounds = true // obtain the size of the image, without loading it in memory
