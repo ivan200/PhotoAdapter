@@ -183,8 +183,8 @@ object ImageUtils {
     fun allowCamera2Support(activity: Activity): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return false
 
-        (activity.getSystemService(Context.CAMERA_SERVICE) as? CameraManager)
-            ?.apply {
+        (activity.getSystemService(Context.CAMERA_SERVICE) as? CameraManager)?.apply {
+            try {
                 cameraIdList.firstOrNull()?.let {
                     val characteristics = getCameraCharacteristics(it)
                     val support = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
@@ -194,35 +194,48 @@ object ImageUtils {
                         return true
                     }
                 }
+            } catch (ex: Throwable) {
+                return false
             }
+        }
         return false
     }
 
-    fun hasDifferentFacings(activity: Activity): Boolean {
+    fun hasDifferentFacingsOldWay(): Boolean {
         var facing: Int? = null
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            val cameraInfo: Camera.CameraInfo = Camera.CameraInfo()
-            val numberOfCameras: Int = Camera.getNumberOfCameras()
-            for (i in 0 until numberOfCameras) {
-                Camera.getCameraInfo(i, cameraInfo)
-                if (facing == null) {
-                    facing = cameraInfo.facing
-                } else if (facing != cameraInfo.facing) {
-                    return true
-                }
+        val cameraInfo: Camera.CameraInfo = Camera.CameraInfo()
+        val numberOfCameras: Int = Camera.getNumberOfCameras()
+        for (i in 0 until numberOfCameras) {
+            Camera.getCameraInfo(i, cameraInfo)
+            if (facing == null) {
+                facing = cameraInfo.facing
+            } else if (facing != cameraInfo.facing) {
+                return true
             }
-            return false
+        }
+        return false
+    }
+
+
+    fun hasDifferentFacings(activity: Activity): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return hasDifferentFacingsOldWay()
         }
 
+        var facing: Int? = null
         (activity.getSystemService(Context.CAMERA_SERVICE) as? CameraManager)
             ?.apply {
-                cameraIdList.forEach {
-                    val characteristics = getCameraCharacteristics(it)
-                    if (facing == null) {
-                        facing = characteristics.get(CameraCharacteristics.LENS_FACING)
-                    } else if (facing != characteristics.get(CameraCharacteristics.LENS_FACING)) {
-                        return true
+                try {
+                    cameraIdList.forEach {
+                        val characteristics = getCameraCharacteristics(it)
+                        if (facing == null) {
+                            facing = characteristics.get(CameraCharacteristics.LENS_FACING)
+                        } else if (facing != characteristics.get(CameraCharacteristics.LENS_FACING)) {
+                            return true
+                        }
                     }
+                } catch (ex: Throwable) {
+                    return hasDifferentFacingsOldWay()
                 }
             }
         return false

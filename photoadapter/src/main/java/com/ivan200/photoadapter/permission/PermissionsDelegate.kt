@@ -3,6 +3,7 @@ package com.ivan200.photoadapter.permission
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -59,10 +60,22 @@ open class PermissionsDelegate(
         }
     }
 
+    open fun isCameraAvailable(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            mActivity.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
+        } else {
+            mActivity.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
+        }
+    }
+
     /**
      * Главный метод запроса разрешений
      */
     open fun requestPermissions() {
+        if(!isCameraAvailable()){
+            return
+        }
+
         permissionStates = ArrayList(mPermissions.map { PermissionState(it) })
 
         if (permissionStates.any { !it.hasPermission(mActivity) }) {
