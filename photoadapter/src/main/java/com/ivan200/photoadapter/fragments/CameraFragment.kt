@@ -85,6 +85,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             )
         }
 
+
+
         cameraView.setLifecycleOwner(requireActivity())
         cameraView.addCameraListener(Listener())
 

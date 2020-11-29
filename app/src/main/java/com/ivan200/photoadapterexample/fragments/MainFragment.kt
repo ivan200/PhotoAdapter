@@ -22,7 +22,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     private val fabGallery get() = requireView().findViewById<FloatingActionButton>(R.id.fabGallery)
 
     private var cameraBuilder = CameraBuilder()
-    private lateinit var permissionsDelegate: PermissionsDelegate
+    private var permissionsDelegate: PermissionsDelegate? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -41,7 +41,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         )
         fabPhoto.setOnClickListener {
             updateCameraBuilder()
-            permissionsDelegate.requestPermissions()
+            permissionsDelegate?.requestPermissions()
         }
     }
 
@@ -67,17 +67,17 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        permissionsDelegate.savedInstanceState(outState)
+        permissionsDelegate?.saveInstanceState(outState)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionsDelegate.onRequestPermissionsResult(requestCode)
+        permissionsDelegate?.onRequestPermissionsResult(requestCode)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        permissionsDelegate.onActivityResult(requestCode)
+        permissionsDelegate?.onActivityResult(requestCode)
         cameraBuilder.onActivityResult(requestCode, resultCode, data, this::onImagesTaken)
     }
 

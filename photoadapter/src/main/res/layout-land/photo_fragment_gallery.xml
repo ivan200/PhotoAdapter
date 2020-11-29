@@ -17,7 +17,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_toLeftOf="@id/action_layout_gallery"
-        android:background="#212121"
         tools:ignore="RtlHardcoded"
         >
 

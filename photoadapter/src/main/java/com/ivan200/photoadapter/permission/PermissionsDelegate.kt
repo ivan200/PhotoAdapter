@@ -46,14 +46,14 @@ open class PermissionsDelegate(
      * так как после перехода в настройки приложения и изменения пермишенов, активити может умереть,
      * требуется сохранить и восстановить данные по пермишенам чтобы их коректно обработать
      */
-    fun savedInstanceState(outState: Bundle) {
+    fun saveInstanceState(outState: Bundle) {
         outState.putSerializable(KEY_PERMISSION_STATES, permissionStates)
     }
 
     init {
         savedInstanceState?.apply {
             @Suppress("UNCHECKED_CAST")
-            permissionStates = getSerializable(KEY_PERMISSION_STATES) as ArrayList<PermissionState>
+            (getSerializable(KEY_PERMISSION_STATES) as? ArrayList<PermissionState>)?.let { permissionStates = it }
         }
     }
 

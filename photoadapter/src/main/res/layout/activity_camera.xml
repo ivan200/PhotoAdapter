@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.FitWindowsFrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.FitWindowsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content_frame"
     android:layout_width="match_parent"
@@ -9,30 +8,19 @@
     android:keepScreenOn="true"
     tools:activity="com.ivan200.photoadapter.CameraActivity">
 
-    <FrameLayout
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/frame_camera"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <fragment
-            class="com.ivan200.photoadapter.fragments.CameraFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout="@layout/fragment_camera" />
-
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/frame_gallery"
+        android:name="com.ivan200.photoadapter.fragments.CameraFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible">
+        android:tag="CameraFragment" />
 
-        <fragment
-            class="com.ivan200.photoadapter.fragments.GalleryFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout="@layout/photo_fragment_gallery" />
-    </FrameLayout>
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/frame_gallery"
+        android:name="com.ivan200.photoadapter.fragments.GalleryFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:tag="GalleryFragment"
+        android:visibility="invisible" />
 
 </androidx.appcompat.widget.FitWindowsFrameLayout>
