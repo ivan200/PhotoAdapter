@@ -25,7 +25,7 @@ class PreviewFragment : Fragment(R.layout.fragment_preview) {
 
         mActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setHasOptionsMenu(true)
-        mActivity.title = "Preview"
+        mActivity.title = getString(R.string.preview)
 
         pagerAdapter = PreviewAdapter(Prefs(requireContext()).sortedImages)
         pagerImages.adapter = pagerAdapter

@@ -26,7 +26,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
     }
 
     private class SpacesItemDecoration(private val space: Int) : ItemDecoration() {
-        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State){
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
             outRect.bottom = if (parent.getChildAdapterPosition(view) == state.itemCount - 1) space else 0
         }
     }

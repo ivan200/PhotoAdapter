@@ -10,7 +10,7 @@
     <string name="previewImage_description">После фотографирования будет возможность просмотреть то что получилось на фото, чтобы убедиться что фото не смазалось, с возможностью удалить.</string>
 
     <string name="facingBack">Использовать заднюю камеру</string>
-    <string name="facingBack_description">Использование задней камеры телефона, если она есть в наличии,  Иначе - фронталка для снятия селфи.</string>
+    <string name="facingBack_description">Использование задней камеры телефона, если она есть в наличии.\nИначе - фронталка для снятия селфи.</string>
 
     <string name="changeCameraAllowed">Возможность менять камеру</string>
     <string name="changeCameraAllowed_description">Дать возможность переключать камеру между задней и передней.</string>
@@ -26,4 +26,7 @@
 
     <string name="lockRotate">Блокировка поворота</string>
     <string name="lockRotate_description">Блокирует поворот активити камеры и перерисовку вью при наклоне телефона.</string>
+
+    <string name="gallery">Галерея</string>
+    <string name="preview">Просмотр</string>
 </resources>

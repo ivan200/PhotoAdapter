@@ -53,19 +53,19 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         super.onViewCreated(view, savedInstanceState)
         cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
 
-        cameraViewModel.pictures.observeVal(requireActivity()){
+        cameraViewModel.pictures.observeVal(requireActivity()) {
             if (!cameraBuilder.previewImage) {
                 if (!cameraBuilder.allowMultipleImages && it.isNotEmpty()) {
                     cameraViewModel.success()
                 } else {
                     loadThumbImage(it.firstOrNull())
                 }
-            } else if(it.size == 0){
+            } else if (it.size == 0) {
                 resultImage.hide()
             }
         }
 
-        cameraViewModel.curPageLoaded.observeVal(requireActivity()){
+        cameraViewModel.curPageLoaded.observeVal(requireActivity()) {
             if (cameraBuilder.previewImage) {
                 loadThumbImage(it)
             }
@@ -80,7 +80,9 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             }
         }
         if (cameraBuilder.fitMode) {
-            cameraView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            cameraView.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            )
         }
 
         cameraView.setLifecycleOwner(requireActivity())
@@ -94,15 +96,15 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             cameraView.engine = Engine.CAMERA2
         }
 
-        cameraView.facing = if(cameraBuilder.facingBack) Facing.BACK else Facing.FRONT
+        cameraView.facing = if (cameraBuilder.facingBack) Facing.BACK else Facing.FRONT
         switchCamera.showIf { cameraBuilder.changeCameraAllowed && ImageUtils.hasDifferentFacings(requireActivity()) }
         switchCamera.onClick {
             setFlash(Flash.OFF)
             cameraView.toggleFacing()
         }
 
-        cameraViewModel.showCamera.observeVal(requireActivity()){
-            if(it){
+        cameraViewModel.showCamera.observeVal(requireActivity()) {
+            if (it) {
                 setFlash(currentFlash)
             } else {
                 setFlash(Flash.OFF)
@@ -113,8 +115,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             rotateItems(it, capture, torchSwitch, resultImage, switchCamera)
         }
 
-        cameraViewModel.volumeKeyPressed.observeVal(requireActivity()){
-            if(cameraViewModel.showCamera.value!!){
+        cameraViewModel.volumeKeyPressed.observeVal(requireActivity()) {
+            if (cameraViewModel.showCamera.value!!) {
                 capture.simulateClick()
             }
         }
@@ -132,9 +134,9 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         if (cameraBuilder.allowMultipleImages && pictureInfo != null) {
             resultImage.show()
             Glide.with(requireActivity())
-                    .load(pictureInfo.thumbFile ?: pictureInfo.file)
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(resultImage)
+                .load(pictureInfo.thumbFile ?: pictureInfo.file)
+                .apply(RequestOptions.circleCropTransform())
+                .into(resultImage)
         } else {
             resultImage.hide()
         }
@@ -149,7 +151,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
     }
 
-    private fun setWindowInsets(insets: WindowInsetsCompat){
+    private fun setWindowInsets(insets: WindowInsetsCompat) {
         actionLayout.padBottomViewWithInsets(insets)
         if (!cameraBuilder.fullScreenMode) {
             statusView.padTopViewWithInsets(insets)
@@ -159,7 +161,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     private fun takePicture() {
         if (cameraView.isTakingPicture) return
         toast?.cancel()
-        if(cameraBuilder.useSnapshot){
+        if (cameraBuilder.useSnapshot) {
             cameraView.takePictureSnapshot()
         } else {
             cameraView.takePicture()
@@ -179,26 +181,27 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
     private fun nextFlash() {
         var index = supportedFlash.indexOf(currentFlash) + 1
-        if(index >= supportedFlash.size) index = 0
+        if (index >= supportedFlash.size) index = 0
 
         setFlash(supportedFlash[index])
     }
 
-    private fun setFlash(flash: Flash){
+    private fun setFlash(flash: Flash) {
         cameraView.flash = flash
         this.currentFlash = flash
         torchSwitch.setImageResource(
-            when(flash){
+            when (flash) {
                 Flash.OFF -> R.drawable.ic_photo_flash_off
                 Flash.ON -> R.drawable.ic_photo_flash_on
                 Flash.AUTO -> R.drawable.ic_photo_flash_auto
                 Flash.TORCH -> R.drawable.ic_photo_flash_torch
-            })
+            }
+        )
     }
 
     override fun onStart() {
         super.onStart()
-        if(cameraBuilder.lockRotate){
+        if (cameraBuilder.lockRotate) {
             requireActivity().lockOrientation()
         }
     }
@@ -207,7 +210,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         super.onStop()
 
         toast?.cancel()
-        if(cameraBuilder.lockRotate){
+        if (cameraBuilder.lockRotate) {
             requireActivity().unlockOrientation()
         }
     }
@@ -215,13 +218,13 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     //вызывается после снятия фотки, при провале проверки картинки
     //для показа диалога что фото не очень
     @SuppressLint("InflateParams")
-    fun onVerificationFailed(){
+    fun onVerificationFailed() {
         toast = Toast.makeText(requireActivity(), "", Toast.LENGTH_SHORT)
-                .apply {
-                    val padd = requireActivity().resources.getDimensionPixelOffset(R.dimen.height_toolbar)
-                    setGravity(Gravity.TOP, 0, padd)
-                    view = layoutInflater.inflate(R.layout.toast_custom, null)
-                }
+            .apply {
+                val padd = requireActivity().resources.getDimensionPixelOffset(R.dimen.height_toolbar)
+                setGravity(Gravity.TOP, 0, padd)
+                view = layoutInflater.inflate(R.layout.toast_custom, null)
+            }
         toast?.show()
     }
 
@@ -235,13 +238,13 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         override fun onPictureTaken(result: PictureResult) {
             super.onPictureTaken(result)
             ResultCheckSaver(requireActivity(), result, cameraBuilder, this::onCheckSaved)
-                    .checkSave()
+                .checkSave()
         }
 
-        private fun onCheckSaved(resultCheckSaver: ResultCheckSaver){
-            if(!resultCheckSaver.checkResult){
+        private fun onCheckSaved(resultCheckSaver: ResultCheckSaver) {
+            if (!resultCheckSaver.checkResult) {
                 onVerificationFailed()
-            } else{
+            } else {
                 cameraViewModel.onFileSaved(resultCheckSaver.photoFile, resultCheckSaver.thumbsFile)
             }
         }
@@ -249,19 +252,19 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         override fun onCameraError(exception: CameraException) {
             super.onCameraError(exception)
             AlertDialog.Builder(activity, cameraBuilder.dialogTheme)
-                    .setTitle(android.R.string.dialog_alert_title)
-                    .setMessage(exception.localizedMessage)
-                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .create()
-                    .show()
+                .setTitle(android.R.string.dialog_alert_title)
+                .setMessage(exception.localizedMessage)
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+                .show()
         }
 
         //Rotate items on screen if orientation locked
         override fun onOrientationChanged(orientation: Int) {
             super.onOrientationChanged(orientation)
-            if(!cameraBuilder.lockRotate) return
+            if (!cameraBuilder.lockRotate) return
 
             val invertAngle = when (orientation) {
                 90 -> 270; 270 -> 90; else -> orientation

@@ -26,10 +26,7 @@ data class PermissionState(val permission: String) : Serializable {
 
 
     fun hasPermission(activity: Activity): Boolean {
-        return ContextCompat.checkSelfPermission(
-            activity,
-            permission
-        ) == PackageManager.PERMISSION_GRANTED
+        return ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
     }
 
     fun getState(activity: Activity): StateEnum {
@@ -68,11 +65,10 @@ data class PermissionState(val permission: String) : Serializable {
             }
             else -> throw Exception()
         }
-        Log.w(
-            this::class.java.simpleName,
-            "state for ${permission.split(".").last()}=${state.name}"
-        )
-
+//        Log.w(
+//            this::class.java.simpleName,
+//            "state for ${permission.split(".").last()}=${state.name}"
+//        )
         return state
     }
 

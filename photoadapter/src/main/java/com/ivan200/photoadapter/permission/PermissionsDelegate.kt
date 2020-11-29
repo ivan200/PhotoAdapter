@@ -28,9 +28,6 @@ open class PermissionsDelegate(
     var onPermissionGranted: (() -> Unit)? = null,
     var onPermissionRejected: (() -> Unit)? = null
 ) {
-
-    private var codeForRequestPermissions = 3254
-
     /**
      * Пермишены для фотографирования и сохранения фоток в галерею
      */
@@ -72,7 +69,7 @@ open class PermissionsDelegate(
      * Главный метод запроса разрешений
      */
     open fun requestPermissions() {
-        if(!isCameraAvailable()){
+        if (!isCameraAvailable()) {
             return
         }
 
@@ -189,5 +186,6 @@ open class PermissionsDelegate(
 
     companion object {
         private const val KEY_PERMISSION_STATES = "KEY_PERMISSION_STATES"
+        private const val codeForRequestPermissions = 3254
     }
 }

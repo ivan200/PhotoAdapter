@@ -31,7 +31,7 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         super.onViewCreated(view, savedInstanceState)
         mActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setHasOptionsMenu(true)
-        mActivity.title = "Gallery"
+        mActivity.title = getString(R.string.gallery)
 
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = GalleryAdapter(Prefs(requireContext()).sortedImages)

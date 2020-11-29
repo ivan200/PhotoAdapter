@@ -27,4 +27,7 @@
 
     <string name="lockRotate">Lock rotate screen</string>
     <string name="lockRotate_description">Blocks rotation of the camera activity and redrawing of the view when the phone is rotated.</string>
+
+    <string name="gallery">Gallery</string>
+    <string name="preview">Preview</string>
 </resources>
