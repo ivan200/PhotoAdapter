@@ -2,12 +2,12 @@
 
 buildscript {
     ext {
-        kotlin_version = '1.4.10'   //https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk7
+        kotlin_version = '1.4.20'   //https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk7
 
         compileSdkVersion = 29
         minSdkVersion = 14
         targetSdkVersion = 29
-        buildToolsVersion = '29.0.0'
+        buildToolsVersion = '29.0.3'
     }
 
     repositories {
@@ -16,7 +16,7 @@ buildscript {
         
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.0'
+        classpath 'com.android.tools.build:gradle:4.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
