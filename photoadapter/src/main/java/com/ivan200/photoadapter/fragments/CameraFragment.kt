@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.core.view.WindowInsetsCompat
@@ -28,6 +29,7 @@ import com.otaliastudios.cameraview.controls.Flash
 class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     private val flashView get() = requireView().findViewById<View>(R.id.flashView)
     private val cameraView get() = requireView().findViewById<CameraView>(R.id.cameraView)
+    private val cameraFrame get() = requireView().findViewById<LinearLayout>(R.id.cameraFrame)
     private val statusView get() = requireView().findViewById<View>(R.id.statusView)
     private val switchCamera get() = requireView().findViewById<ImageButton>(R.id.switch_camera)
     private val capture get() = requireView().findViewById<ImageButton>(R.id.capture)
@@ -49,7 +51,6 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
 
         cameraViewModel.pictures.observeVal(requireActivity()){
@@ -72,11 +73,14 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
         if (cameraBuilder.fullScreenMode) {
             //Очищаем значение обозначающее что вью камеры должно быть над панелью кнопок
-            (cameraView.layoutParams as? RelativeLayout.LayoutParams)?.apply {
+            (cameraFrame.layoutParams as? RelativeLayout.LayoutParams)?.apply {
                 arrayOf(RelativeLayout.BELOW, RelativeLayout.ABOVE, RelativeLayout.LEFT_OF, RelativeLayout.RIGHT_OF).forEach {
                     addRule(it, 0)
                 }
             }
+        }
+        if (cameraBuilder.fitMode) {
+            cameraView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
         cameraView.setLifecycleOwner(requireActivity())

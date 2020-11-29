@@ -10,6 +10,12 @@
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
     <CheckBoxPreference
+        android:key="fitMode"
+        android:title="Fit mode"
+        android:defaultValue="true"
+        app:iconSpaceReserved="false">
+    </CheckBoxPreference>
+    <CheckBoxPreference
         android:key="previewImage"
         android:title="Preview image"
         android:defaultValue="true"

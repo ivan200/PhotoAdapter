@@ -11,30 +11,37 @@
         android:layout_width="match_parent"
         android:layout_height="0dp" />
 
-    <com.otaliastudios.cameraview.CameraView
-        android:id="@+id/cameraView"
+    <LinearLayout
+        android:id="@+id/cameraFrame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/statusView"
         android:layout_toLeftOf="@id/action_layout"
-        android:keepScreenOn="true"
-        android:visibility="visible"
-        app:cameraAudio="off"
-        app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker"
-        app:cameraEngine="camera2"
-        app:cameraFacing="back"
-        app:cameraFlash="off"
-        app:cameraGestureLongTap="none"
-        app:cameraGesturePinch="zoom"
-        app:cameraGestureScrollHorizontal="none"
-        app:cameraGestureScrollVertical="none"
-        app:cameraGestureTap="autoFocus"
-        app:cameraGrid="off"
-        app:cameraMode="picture"
-        app:cameraPlaySounds="false"
-        app:cameraPreview="glSurface"
-        tools:ignore="RtlHardcoded"
-        tools:visibility="visible" />
+        android:gravity="center">
+
+        <com.otaliastudios.cameraview.CameraView
+            android:id="@+id/cameraView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:keepScreenOn="true"
+            android:visibility="visible"
+            app:cameraAudio="off"
+            app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker"
+            app:cameraEngine="camera2"
+            app:cameraFacing="back"
+            app:cameraFlash="off"
+            app:cameraGestureLongTap="none"
+            app:cameraGesturePinch="zoom"
+            app:cameraGestureScrollHorizontal="none"
+            app:cameraGestureScrollVertical="none"
+            app:cameraGestureTap="autoFocus"
+            app:cameraGrid="off"
+            app:cameraMode="picture"
+            app:cameraPlaySounds="false"
+            app:cameraPreview="glSurface"
+            tools:ignore="RtlHardcoded"
+            tools:visibility="visible" />
+    </LinearLayout>
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/torch_switch"

@@ -16,6 +16,7 @@ class Prefs(context: Context) {
     var hasThumbnails by AnyPref(context, true)
     var maxImageSize by AnyPref(context, 1200)
     var useSnapshot by AnyPref(context, true)
+    var fitMode by AnyPref(context, true)
 
     var images by AnyPref(context, mutableSetOf<String>())
     var imagePreviewNumber by AnyPref(context, 0)

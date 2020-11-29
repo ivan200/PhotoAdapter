@@ -24,6 +24,7 @@ data class CameraBuilder(
     var lockRotate: Boolean = true,             //lock auto rotating activity to disable view recreating
     var galleryName: String? = null,            //allow to save images to phone gallery with specified name
     var fullScreenMode: Boolean = false,        //full screen (16/9) or normal (4/3) mode
+    var fitMode: Boolean = true,                //fit camera surfaceView into screen
     var hasThumbnails: Boolean = false,         //allow to save thumbnails along with photos
     var thumbnailsPath: File? = null,           //specify thumbnails path, if need
     var photosPath: File? = null,               //specify photos path, if need
@@ -42,6 +43,7 @@ data class CameraBuilder(
     fun withLockRotate(lockRotate: Boolean) = apply { this.lockRotate = lockRotate }
     fun withSavePhotoToGallery(galleryName: String?) = apply { this.galleryName = galleryName }
     fun withFullScreenMode(fullScreenMode: Boolean) = apply { this.fullScreenMode = fullScreenMode }
+    fun withFitMode(fitMode: Boolean) = apply { this.fitMode = fitMode }
     fun withPreviewImage(previewImage: Boolean) = apply { this.previewImage = previewImage }
     fun withThumbnails(hasThumbnails: Boolean) = apply { this.hasThumbnails = hasThumbnails }
     fun withThumbnailsPath(thumbnailsPath: File) = apply { this.thumbnailsPath = thumbnailsPath }
@@ -71,7 +73,7 @@ data class CameraBuilder(
     }
 
     companion object {
-        private const val REQUEST_IMAGE_CAPTURE = 7411   //number generated randomly
+        private const val REQUEST_IMAGE_CAPTURE = 7411   //random number
 
         fun onActivityResult(resultCode: Int, data: Intent?, onSuccess: Consumer<List<String>>, onCancel: Runnable? = null) {
             when (resultCode) {

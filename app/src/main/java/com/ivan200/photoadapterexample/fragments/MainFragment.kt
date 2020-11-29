@@ -55,12 +55,13 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             .withSavePhotoToGallery(if (prefs.saveToGallery) prefs.galleryName else null)
             .withPreviewImage(prefs.previewImage)
             .withFullScreenMode(prefs.fullScreenMode)
+            .withFitMode(prefs.fitMode)
             .withThumbnails(prefs.hasThumbnails)
             .withMaxImageSize(prefs.maxImageSize)
             .withUseSnapshot(prefs.useSnapshot)
     }
 
-    private fun takePicture(){
+    private fun takePicture() {
         cameraBuilder.start(this)
     }
 
@@ -69,11 +70,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         permissionsDelegate.savedInstanceState(outState)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionsDelegate.onRequestPermissionsResult(requestCode)
     }
