@@ -3,6 +3,7 @@ package com.ivan200.photoadapterexample.fragments
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
@@ -30,14 +31,13 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         mActivity.title = getString(R.string.app_name)
         fabGallery.setOnClickListener(navigateGallery::onClick)
 
-        updateCameraBuilder()
         permissionsDelegate = PermissionsDelegate(
             requireActivity(),
             this,
             savedInstanceState,
             cameraBuilder,
             this::takePicture,
-            null
+            this::onPermissionsRejected
         )
         fabPhoto.setOnClickListener {
             updateCameraBuilder()
@@ -59,10 +59,15 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             .withThumbnails(prefs.hasThumbnails)
             .withMaxImageSize(prefs.maxImageSize)
             .withUseSnapshot(prefs.useSnapshot)
+            .withDialogTheme(R.style.AppThemeDialog)
     }
 
     private fun takePicture() {
         cameraBuilder.start(this)
+    }
+
+    private fun onPermissionsRejected() {
+        Toast.makeText(requireContext(), getString(R.string.toast_permission_rejected), Toast.LENGTH_SHORT).show()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

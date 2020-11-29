@@ -62,7 +62,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
         indicator.setViewPager(pagerImages)
         pagerAdapter.registerAdapterDataObserver(indicator.adapterDataObserver)
 
-        cameraViewModel.pictures.observeVal(requireActivity()) {
+        cameraViewModel.pictures.observe(requireActivity()) {
             if (it.size == 0) {
                 cameraViewModel.changeFragment(true)
             }
@@ -74,7 +74,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
             showDialogDeletePage(cameraViewModel::deleteCurrentPage)
         }
 
-        cameraViewModel.scrollToPage.observeVal(requireActivity()) {
+        cameraViewModel.scrollToPage.observe(requireActivity()) {
             pagerImages.setCurrentItem(cameraViewModel.imageNumber, false)
         }
 
@@ -83,11 +83,11 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
 
         btnAccept.onClick(cameraViewModel::success)
 
-        cameraViewModel.backPressed.observeVal(requireActivity()) {
+        cameraViewModel.backPressed.observe(requireActivity()) {
             onMorePhotosPressed()
         }
 
-        cameraViewModel.rotate.observeVal(requireActivity()) {
+        cameraViewModel.rotate.observe(requireActivity()) {
             rotateItems(it, btnAccept, btnDelete, btnMore)
         }
 

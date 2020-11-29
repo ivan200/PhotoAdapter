@@ -56,7 +56,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         super.onViewCreated(view, savedInstanceState)
         cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
 
-        cameraViewModel.pictures.observeVal(requireActivity()) {
+        cameraViewModel.pictures.observe(requireActivity()) {
             if (!cameraBuilder.previewImage) {
                 if (!cameraBuilder.allowMultipleImages && it.isNotEmpty()) {
                     cameraViewModel.success()
@@ -68,7 +68,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             }
         }
 
-        cameraViewModel.curPageLoaded.observeVal(requireActivity()) {
+        cameraViewModel.curPageLoaded.observe(requireActivity()) {
             if (cameraBuilder.previewImage) {
                 loadThumbImage(it)
             }
@@ -118,19 +118,15 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             cameraView.toggleFacing()
         }
 
-        cameraViewModel.showCamera.observeVal(requireActivity()) {
-            if (it) {
-                setFlash(currentFlash)
-            } else {
-                setFlash(Flash.OFF)
-            }
+        cameraViewModel.showCamera.observe(requireActivity()) {
+            setFlash(if (it) currentFlash else Flash.OFF)
         }
 
-        cameraViewModel.rotate.observeVal(requireActivity()) {
+        cameraViewModel.rotate.observe(requireActivity()) {
             rotateItems(it, capture, torchSwitch, resultImage, switchCamera)
         }
 
-        cameraViewModel.volumeKeyPressed.observeVal(requireActivity()) {
+        cameraViewModel.volumeKeyPressed.observe(requireActivity()) {
             if (cameraViewModel.showCamera.value!!) {
                 capture.simulateClick()
             }

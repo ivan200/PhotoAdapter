@@ -17,7 +17,7 @@
     <string name="changeCameraAllowed_description">Allow you to switch the camera between the back and front.</string>
 
     <string name="allowMultipleImages">Multiple images taking</string>
-    <string name="allowMultipleImages_description">Allow you to take several photos in a row, with the return of an array of images.</string>
+    <string name="allowMultipleImages_description">Allow you to take several photos per session, with the return of an array of images.</string>
 
     <string name="useSnapshot">Use snapshot</string>
     <string name="useSnapshot_description">Instead of actually taking photos and waiting for the camera to return the image, a snapshot of the area that displays the image is used.\nMuch faster than a real photo, does not give the sound of taking a photo, but slightly less quality.</string>
@@ -30,4 +30,5 @@
 
     <string name="gallery">Gallery</string>
     <string name="preview">Preview</string>
+    <string name="toast_permission_rejected">Permission was not granted</string>
 </resources>

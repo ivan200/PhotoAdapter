@@ -19,20 +19,31 @@ import com.ivan200.photoadapter.utils.applyIf
 //
 // Created by Ivan200 on 25.10.2019.
 //
+/**
+ * Delegate for processing permissions
+ *
+ * @property mActivity activity for checking permissions
+ * @property fragment for requesting permissions
+ * @property cameraBuilder camera builder for checking if storage permissions needed
+ * @property onPermissionGranted function what called after permissions granted
+ * @property onPermissionRejected function what called after permissions rejected
+ * @param savedInstanceState instance state to restore state of this delegate
+ */
 @Suppress("MemberVisibilityCanBePrivate")
 open class PermissionsDelegate(
     var mActivity: Activity,
     var fragment: Fragment? = null,
     savedInstanceState: Bundle?,
-    var cameraBuilder: CameraBuilder,
+    var cameraBuilder: CameraBuilder? = null,
     var onPermissionGranted: (() -> Unit)? = null,
-    var onPermissionRejected: (() -> Unit)? = null
+    var onPermissionRejected: (() -> Unit)? = null,
+    val codeForRequestPermissions: Int = 3254
 ) {
     /**
      * Пермишены для фотографирования и сохранения фоток в галерею
      */
     var mPermissions: Array<String> = arrayListOf(Manifest.permission.CAMERA)
-        .applyIf(cameraBuilder.galleryName != null) {
+        .applyIf(cameraBuilder?.galleryName != null) {
             add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 add(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -115,7 +126,6 @@ open class PermissionsDelegate(
     }
 
     open fun showDialogOnPermissionRejected(blockedPermission: String) {
-        val action: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
         val messageId = when (blockedPermission) {
             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE -> {
                 R.string.permission_sdcard_rationale
@@ -126,12 +136,12 @@ open class PermissionsDelegate(
             else -> R.string.permission_camera_rationale
         }
 
-        AlertDialog.Builder(mActivity, cameraBuilder.dialogTheme)
+        AlertDialog.Builder(mActivity, cameraBuilder?.dialogTheme ?: 0)
             .setTitle(android.R.string.dialog_alert_title)
             .setMessage(messageId)
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 dialog.dismiss()
-                openAppSettings(mActivity, action)
+                openAppSettings(mActivity)
             }
             .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                 onPermissionRejected?.invoke()
@@ -160,18 +170,16 @@ open class PermissionsDelegate(
             .show()
     }
 
-    open fun openAppSettings(activity: Activity, action: String) {
+    open fun openAppSettings(activity: Activity) {
         Intent()
-            .setAction(action)
-            .apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    putExtra(Intent.EXTRA_PACKAGE_NAME, activity.packageName)
-                }
-            }
+            .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             .setData(Uri.fromParts("package", activity.packageName, null))
             .addCategory(Intent.CATEGORY_DEFAULT)
             .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
             .apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    putExtra(Intent.EXTRA_PACKAGE_NAME, activity.packageName)
+                }
                 try {
                     if (fragment != null) {
                         fragment!!.startActivityForResult(this, codeForRequestPermissions)
@@ -179,13 +187,12 @@ open class PermissionsDelegate(
                         activity.startActivityForResult(this, codeForRequestPermissions)
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    onPermissionRejected?.invoke()
                 }
             }
     }
 
     companion object {
         private const val KEY_PERMISSION_STATES = "KEY_PERMISSION_STATES"
-        private const val codeForRequestPermissions = 3254
     }
 }

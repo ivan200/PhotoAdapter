@@ -14,26 +14,47 @@ import java.io.File
 // Created by Ivan200 on 11.10.2019.
 //
 
+
+/**
+ * Camera builder
+ *
+ * @property facingBack            camera facing: back (normal) or front (selfie)
+ * @property changeCameraAllowed   allow to flip camera facing
+ * @property previewImage          show result image after each photo taken
+ * @property allowMultipleImages   allow take more than one image per session
+ * @property lockRotate            lock auto rotating activity to disable view recreating
+ * @property galleryName           allow to save images to phone gallery with specified name
+ * @property fullScreenMode        full screen (16/9) or normal (4/3) mode
+ * @property fitMode               fit camera surfaceView into screen
+ * @property hasThumbnails         allow to save thumbnails along with photos
+ * @property thumbnailsPath        specify thumbnails path, if need
+ * @property photosPath            specify photos path, if need
+ * @property maxImageSize          preferred result image size
+ * @property useSnapshot           take picture from snapshot (faster, no sound)
+ * @property requestCode           specify code for starting activity
+ * @property fixJpegBytes          extra fix first and last 2 bytes of saved jpeg images
+ * @property photoChecker          check photo if it must be approved (by tensorflow or other)
+ * @property dialogTheme           customize alert dialog theme
+ */
 @Suppress("unused")
 @Parcelize
 data class CameraBuilder(
-    var facingBack: Boolean = true,             //camera facing: back (normal) or front (selfie)
-    var changeCameraAllowed: Boolean = true,    //allow to flip camera facing
-    var previewImage: Boolean = true,           //show result image after each photo taken
-    var allowMultipleImages: Boolean = true,    //allow take more than one image per session
-    var lockRotate: Boolean = true,             //lock auto rotating activity to disable view recreating
-    var galleryName: String? = null,            //allow to save images to phone gallery with specified name
-    var fullScreenMode: Boolean = false,        //full screen (16/9) or normal (4/3) mode
-    var fitMode: Boolean = true,                //fit camera surfaceView into screen
-    var hasThumbnails: Boolean = false,         //allow to save thumbnails along with photos
-    var thumbnailsPath: File? = null,           //specify thumbnails path, if need
-    var photosPath: File? = null,               //specify photos path, if need
-    var maxImageSize: Int? = 1920,              //preferred result image size
-    var useSnapshot: Boolean = true,            //take picture from snapshot (faster, no sound)
-    var requestCode: Int = 0,                   //specify code for starting activity
-    var fixJpegBytes: Boolean = false,          //extra fix first and last 2 bytes of saved jpeg images
-    var photoChecker: PhotoChecker? = null,     //check photo if it must be approved (by tensorflow or other)
-    //customize alert dialog theme
+    var facingBack: Boolean = true,
+    var changeCameraAllowed: Boolean = true,
+    var previewImage: Boolean = true,
+    var allowMultipleImages: Boolean = true,
+    var lockRotate: Boolean = true,
+    var galleryName: String? = null,
+    var fullScreenMode: Boolean = false,
+    var fitMode: Boolean = false,
+    var hasThumbnails: Boolean = false,
+    var thumbnailsPath: File? = null,
+    var photosPath: File? = null,
+    var maxImageSize: Int? = 1920,
+    var useSnapshot: Boolean = true,
+    var requestCode: Int = 0,
+    var fixJpegBytes: Boolean = false,
+    var photoChecker: PhotoChecker? = null,
     var dialogTheme: Int = 0
 ) : Parcelable {
 

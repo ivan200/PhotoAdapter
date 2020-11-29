@@ -16,7 +16,7 @@
     <string name="changeCameraAllowed_description">Дать возможность переключать камеру между задней и передней.</string>
 
     <string name="allowMultipleImages">Разрешить несколько фото</string>
-    <string name="allowMultipleImages_description">Дать возможность делать несколько фото подряд, с возвратом массива картинок</string>
+    <string name="allowMultipleImages_description">Дать возможность делать несколько фото подряд за одну сессию, с возвратом массива картинок</string>
 
     <string name="useSnapshot">Использовать снимок</string>
     <string name="useSnapshot_description">Вместо реального фотографирования, и ожидания возврата изображения камерой, используется снимок области выводящей изображение.\nНамного быстрее, чем реальное фото, не даёт звука снятия фото, но чуть меньше качество.</string>
@@ -29,4 +29,5 @@
 
     <string name="gallery">Галерея</string>
     <string name="preview">Просмотр</string>
+    <string name="toast_permission_rejected">Разрешение не было получено</string>
 </resources>

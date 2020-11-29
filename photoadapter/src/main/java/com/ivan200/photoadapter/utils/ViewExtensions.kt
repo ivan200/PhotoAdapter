@@ -58,15 +58,6 @@ inline fun <T> T.applyIf(condition: Boolean, block: T.() -> Unit): T {
     return if (condition) this.apply(block) else this
 }
 
-fun <T> Function1<T, Unit?>.observe(): Observer<T> {
-    return Observer { this.invoke(it) }
-}
-
-fun <T> LiveData<T>.observeVal(owner: LifecycleOwner, function: Function1<T, Unit>) {
-    val viewLifecycleOwner = if (owner is Fragment) owner.viewLifecycleOwner else owner
-    observe(viewLifecycleOwner, { function.invoke(it) })
-}
-
 fun <T : Activity> T.lockOrientation() {
     val windowManager = getSystemService(Context.WINDOW_SERVICE) as? WindowManager
     if (windowManager != null) {
