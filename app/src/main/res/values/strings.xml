@@ -1,4 +1,30 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name" translatable="false">PhotoAdapterExample</string>
-    <string name="preferences">Preferences</string>
+
+    <string name="fullScreenMode">Full screen mode</string>
+    <string name="fullScreenMode_description">When turned on, the camera will be stretched to full screen and the navigation buttons will be hidden</string>
+
+    <string name="fitMode">Fit mode</string>
+    <string name="fitMode_description">When turned on, the camera will fit into the screen based on the size of the phone\'s matrix.\nAllows you to see the entire photo area without cropping the sides of the photo.</string>
+
+    <string name="previewImage">Preview image</string>
+    <string name="previewImage_description">After taking a photo, you will be able to view result of the photo to make sure that the photo is not blurred, with the option to delete it.</string>
+
+    <string name="facingBack">Facing back</string>
+    <string name="facingBack_description">Using the phone\'s rear camera, if available, Otherwise-a front-facing camera for taking selfies.</string>
+
+    <string name="changeCameraAllowed">Change camera allowed</string>
+    <string name="changeCameraAllowed_description">Allow you to switch the camera between the back and front.</string>
+
+    <string name="allowMultipleImages">Multiple images taking</string>
+    <string name="allowMultipleImages_description">Allow you to take several photos in a row, with the return of an array of images.</string>
+
+    <string name="useSnapshot">Use snapshot</string>
+    <string name="useSnapshot_description">Instead of actually taking photos and waiting for the camera to return the image, a snapshot of the area that displays the image is used.\nMuch faster than a real photo, does not give the sound of taking a photo, but slightly less quality.</string>
+
+    <string name="saveToGallery">Save to phone gallery also</string>
+    <string name="saveToGallery_description">Allows you to save photos, in addition to the app\'s memory, also to the phone\'s gallery for the user.</string>
+
+    <string name="lockRotate">Lock rotate screen</string>
+    <string name="lockRotate_description">Blocks rotation of the camera activity and redrawing of the view when the phone is rotated.</string>
 </resources>

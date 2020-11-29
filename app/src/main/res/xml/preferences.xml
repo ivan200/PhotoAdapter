@@ -5,55 +5,64 @@
     >
     <CheckBoxPreference
         android:key="fullScreenMode"
-        android:title="Full screen mode"
+        android:summary="@string/fullScreenMode_description"
+        android:title="@string/fullScreenMode"
         android:defaultValue="true"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
     <CheckBoxPreference
         android:key="fitMode"
-        android:title="Fit mode"
+        android:title="@string/fitMode"
+        android:summary="@string/fitMode_description"
         android:defaultValue="true"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
     <CheckBoxPreference
         android:key="previewImage"
-        android:title="Preview image"
+        android:title="@string/previewImage"
+        android:summary="@string/previewImage_description"
         android:defaultValue="true"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
     <CheckBoxPreference
         android:key="facingBack"
-        android:title="Facing back"
+        android:title="@string/facingBack"
+        android:summary="@string/facingBack_description"
         android:defaultValue="true"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
     <CheckBoxPreference
         android:key="changeCameraAllowed"
-        android:title="Change camera allowed"
+        android:title="@string/changeCameraAllowed"
+        android:summary="@string/changeCameraAllowed_description"
         android:defaultValue="true"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
     <CheckBoxPreference
         android:key="allowMultipleImages"
-        android:title="Multiple images taking"
+        android:title="@string/allowMultipleImages"
+        android:summary="@string/allowMultipleImages_description"
         android:defaultValue="true"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
     <CheckBoxPreference
         android:key="useSnapshot"
-        android:title="Use snapshot"
+        android:title="@string/useSnapshot"
+        android:summary="@string/useSnapshot_description"
         android:defaultValue="true"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
     <CheckBoxPreference
         android:key="saveToGallery"
-        android:title="Save to phone gallery also"
+        android:title="@string/saveToGallery"
+        android:summary="@string/saveToGallery_description"
         android:defaultValue="false"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
     <CheckBoxPreference
         android:key="lockRotate"
-        android:title="Lock rotate screen"
+        android:title="@string/lockRotate"
+        android:summary="@string/lockRotate_description"
         android:defaultValue="true"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
