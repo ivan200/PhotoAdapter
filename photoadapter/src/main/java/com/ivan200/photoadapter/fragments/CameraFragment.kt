@@ -21,6 +21,9 @@ import com.otaliastudios.cameraview.*
 import com.otaliastudios.cameraview.controls.Engine
 import com.otaliastudios.cameraview.controls.Facing
 import com.otaliastudios.cameraview.controls.Flash
+import com.otaliastudios.cameraview.size.AspectRatio
+import com.otaliastudios.cameraview.size.SizeSelector
+import com.otaliastudios.cameraview.size.SizeSelectors
 
 
 //
@@ -71,6 +74,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             }
         }
 
+        val selectors = mutableListOf<SizeSelector>()
+
         if (cameraBuilder.fullScreenMode) {
             //Очищаем значение обозначающее что вью камеры должно быть над панелью кнопок
             (cameraFrame.layoutParams as? RelativeLayout.LayoutParams)?.apply {
@@ -78,6 +83,9 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                     addRule(it, 0)
                 }
             }
+            selectors.add(SizeSelectors.aspectRatio(
+                AspectRatio.of(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels), 0.1f
+            ))
         }
         if (cameraBuilder.fitMode) {
             cameraView.layoutParams = LinearLayout.LayoutParams(
@@ -85,15 +93,20 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             )
         }
 
-
-
         cameraView.setLifecycleOwner(requireActivity())
         cameraView.addCameraListener(Listener())
 
         cameraBuilder.maxImageSize?.let {
             cameraView.snapshotMaxWidth = it
             cameraView.snapshotMaxHeight = it
+
+            selectors.add(SizeSelectors.and(SizeSelectors.maxWidth(it), SizeSelectors.maxHeight(it)))
         }
+
+        if(selectors.isNotEmpty()){
+            cameraView.setPictureSize(SizeSelectors.and(*selectors.toTypedArray()))
+        }
+
         if (ImageUtils.allowCamera2Support(requireActivity())) {
             cameraView.engine = Engine.CAMERA2
         }

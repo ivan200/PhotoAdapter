@@ -6,13 +6,13 @@
     <string name="fitMode">Режим вписывания</string>
     <string name="fitMode_description">При включении, камера будет вписана в экран исходя из размеров матрицы телефона.\nПозволяет увидеть всю область фотографирования без обрезания краёв фото.</string>
 
-    <string name="previewImage">Предпросмотр фотографии.</string>
+    <string name="previewImage">Предпросмотр фотографии</string>
     <string name="previewImage_description">После фотографирования будет возможность просмотреть то что получилось на фото, чтобы убедиться что фото не смазалось, с возможностью удалить.</string>
 
     <string name="facingBack">Использовать заднюю камеру</string>
     <string name="facingBack_description">Использование задней камеры телефона, если она есть в наличии.\nИначе - фронталка для снятия селфи.</string>
 
-    <string name="changeCameraAllowed">Возможность менять камеру</string>
+    <string name="changeCameraAllowed">Разрешить переключать камеру</string>
     <string name="changeCameraAllowed_description">Дать возможность переключать камеру между задней и передней.</string>
 
     <string name="allowMultipleImages">Разрешить несколько фото</string>

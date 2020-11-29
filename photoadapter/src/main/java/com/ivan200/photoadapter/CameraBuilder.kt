@@ -28,7 +28,7 @@ data class CameraBuilder(
     var hasThumbnails: Boolean = false,         //allow to save thumbnails along with photos
     var thumbnailsPath: File? = null,           //specify thumbnails path, if need
     var photosPath: File? = null,               //specify photos path, if need
-    var maxImageSize: Int? = 1200,              //preferred result image size
+    var maxImageSize: Int? = 1920,              //preferred result image size
     var useSnapshot: Boolean = true,            //take picture from snapshot (faster, no sound)
     var requestCode: Int = 0,                   //specify code for starting activity
     var fixJpegBytes: Boolean = false,          //extra fix first and last 2 bytes of saved jpeg images
