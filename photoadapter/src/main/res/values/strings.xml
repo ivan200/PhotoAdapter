@@ -8,10 +8,11 @@
     <string name="button_no">No</string>
     <string name="button_delete">Delete</string>
 
-    <string name="permission_camera_rationale">Please go to settings and allow access to the camera.</string>
-    <string name="permission_notification_rationale">Access to the disable sound is needed.</string>
-    <string name="perm_storage_unavailable">The SD card is not writable.</string>
-    <string name="permission_sdcard_rationale">To save images to the gallery, you need access to the SD card.</string>
+    <string name="permission_camera_rationale">We need to access your camera for taking photographs. Please grant access.</string>
+    <string name="permission_sdcard_rationale">To save images to the gallery, we need access to the SD card. Please grant access.</string>
+    <string name="permission_camera_rationale_goto_settings">We need to access your camera for taking photographs. Please go to settings and allow access.</string>
+    <string name="permission_sdcard_rationale_goto_settings">To save images to the gallery, we need access to the SD card. Please go to settings and allow access.</string>
+
     <string name="photo_fail_message">The photo didn\'t pass verification.\nPlease retake the photo.</string>
 
 </resources>

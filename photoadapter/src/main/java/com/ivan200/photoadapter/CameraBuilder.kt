@@ -10,11 +10,6 @@ import com.ivan200.photoadapter.utils.PhotoChecker
 import kotlinx.android.parcel.Parcelize
 import java.io.File
 
-//
-// Created by Ivan200 on 11.10.2019.
-//
-
-
 /**
  * Camera builder
  *
@@ -35,6 +30,8 @@ import java.io.File
  * @property fixJpegBytes          extra fix first and last 2 bytes of saved jpeg images
  * @property photoChecker          check photo if it must be approved (by tensorflow or other)
  * @property dialogTheme           customize alert dialog theme
+ *
+ * Created by Ivan200 on 11.10.2019.
  */
 @Suppress("unused")
 @Parcelize
@@ -57,6 +54,8 @@ data class CameraBuilder(
     var photoChecker: PhotoChecker? = null,
     var dialogTheme: Int = 0
 ) : Parcelable {
+
+    constructor() : this(facingBack = true) //explicit "empty" constructor, as seen by Java.
 
     fun withCameraFacingBack(facingBack: Boolean) = apply { this.facingBack = facingBack }
     fun withChangeCameraAllowed(changeCameraAllowed: Boolean) = apply { this.changeCameraAllowed = changeCameraAllowed }

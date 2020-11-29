@@ -16,56 +16,67 @@ import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.R
 import com.ivan200.photoadapter.utils.applyIf
 
-//
-// Created by Ivan200 on 25.10.2019.
-//
 /**
  * Delegate for processing permissions
  *
  * @property mActivity activity for checking permissions
  * @property fragment for requesting permissions
- * @property cameraBuilder camera builder for checking if storage permissions needed
  * @property onPermissionGranted function what called after permissions granted
  * @property onPermissionRejected function what called after permissions rejected
  * @param savedInstanceState instance state to restore state of this delegate
+ *
+ * Created by Ivan200 on 25.10.2019.
  */
 @Suppress("MemberVisibilityCanBePrivate")
 open class PermissionsDelegate(
     var mActivity: Activity,
     var fragment: Fragment? = null,
     savedInstanceState: Bundle?,
-    var cameraBuilder: CameraBuilder? = null,
     var onPermissionGranted: (() -> Unit)? = null,
     var onPermissionRejected: (() -> Unit)? = null,
     val codeForRequestPermissions: Int = 3254
 ) {
-    /**
-     * Пермишены для фотографирования и сохранения фоток в галерею
-     */
-    var mPermissions: Array<String> = arrayListOf(Manifest.permission.CAMERA)
-        .applyIf(cameraBuilder?.galleryName != null) {
-            add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                add(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
-        }.toTypedArray()
 
-    private var permissionStates = ArrayList(mPermissions.map { PermissionState(it) })
-
-    /**
-     * Сохранение состояния в бандл текущей активити
-     * так как после перехода в настройки приложения и изменения пермишенов, активити может умереть,
-     * требуется сохранить и восстановить данные по пермишенам чтобы их коректно обработать
-     */
-    fun saveInstanceState(outState: Bundle) {
-        outState.putSerializable(KEY_PERMISSION_STATES, permissionStates)
-    }
+    private var allPermissions: Array<String> = arrayListOf(Manifest.permission.CAMERA).toTypedArray()
+    private var allPermissionStates = ArrayList(allPermissions.map { PermissionState(it) })
+    private var dialogTheme: Int = 0
+    private var deniedPermissionsArray: Array<String> = emptyArray()
+    private var deniedPermissionsStates = ArrayList<PermissionState>()
 
     init {
+        @Suppress("UNCHECKED_CAST")
         savedInstanceState?.apply {
-            @Suppress("UNCHECKED_CAST")
-            (getSerializable(KEY_PERMISSION_STATES) as? ArrayList<PermissionState>)?.let { permissionStates = it }
+            (getSerializable(KEY_PERMISSION_STATES) as? ArrayList<PermissionState>)?.let { deniedPermissionsStates = it }
+            (getSerializable(KEY_ALL_PERMISSION_STATES) as? ArrayList<PermissionState>)?.let { allPermissionStates = it }
         }
+    }
+
+    /**
+     * Initializing the permissions list depending on the Builder parameters
+     */
+    open fun initWithBuilder(cameraBuilder: CameraBuilder? = null) {
+        allPermissions = arrayListOf(Manifest.permission.CAMERA)
+            .apply {
+                if (cameraBuilder?.galleryName != null && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                    add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        add(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
+                }
+            }.toTypedArray()
+        allPermissionStates = ArrayList(allPermissions.map { PermissionState(it) })
+        dialogTheme = cameraBuilder?.dialogTheme ?: 0
+    }
+
+
+    /**
+     * Saving the state in the bundle of the current activity
+     * since after going to the application settings and changing the permissions, the activity may die,
+     * you need to save and restore the data of the permissions in order to process them correctly
+     */
+    fun saveInstanceState(outState: Bundle) {
+        outState.putSerializable(KEY_PERMISSION_STATES, deniedPermissionsStates)
+        outState.putSerializable(KEY_ALL_PERMISSION_STATES, allPermissionStates)
     }
 
     open fun isCameraAvailable(): Boolean {
@@ -77,25 +88,21 @@ open class PermissionsDelegate(
     }
 
     /**
-     * Главный метод запроса разрешений
+     * Main method for requesting permissions
      */
     open fun requestPermissions() {
         if (!isCameraAvailable()) {
             return
         }
-
-        permissionStates = ArrayList(mPermissions.map { PermissionState(it) })
-
-        if (permissionStates.any { !it.hasPermission(mActivity) }) {
-            permissionStates.forEach { it.setBefore(mActivity) }
+        allPermissionStates = ArrayList(allPermissions.map { PermissionState(it) })
+        deniedPermissionsStates = ArrayList(allPermissionStates.filter { !it.hasPermission(mActivity) })
+        deniedPermissionsArray = deniedPermissionsStates.map { it.permission }.toTypedArray()
+        if (deniedPermissionsStates.isNotEmpty()) {
+            deniedPermissionsStates.forEach { it.setBefore(mActivity) }
             if (fragment != null) {
-                fragment!!.requestPermissions(mPermissions, codeForRequestPermissions)
+                fragment!!.requestPermissions(deniedPermissionsArray, codeForRequestPermissions)
             } else {
-                ActivityCompat.requestPermissions(
-                    mActivity,
-                    mPermissions,
-                    codeForRequestPermissions
-                )
+                ActivityCompat.requestPermissions(mActivity, deniedPermissionsArray, codeForRequestPermissions)
             }
         } else {
             //Если все пермишены разрешены, то ничего не делаем
@@ -104,44 +111,64 @@ open class PermissionsDelegate(
     }
 
     /**
-     * Метод, в который требуется возвращать результат запроса разрешений
+     * Method to return the result of a permission request
+     *
+     * @param requestCode code for request permissions
      */
     open fun onRequestPermissionsResult(requestCode: Int) {
         if (requestCode == codeForRequestPermissions) {
-            permissionStates.forEach { it.setAfter(mActivity) }
-
-            val deniedPermission = permissionStates.firstOrNull { it.isDenied(mActivity) }
+            deniedPermissionsStates.forEach { it.setAfter(mActivity) }
+            val permissionsMap = deniedPermissionsStates.map { Pair(it, it.getState(mActivity)) }
+            val deniedPermission = permissionsMap.firstOrNull { it.second.isDenied() }
             if (deniedPermission != null) {
-                showDialogOnPermissionRejected(deniedPermission.permission)
+                showDialogOnPermissionRejected(deniedPermission.first.permission, deniedPermission.second.canReAsk())
             } else {
                 onPermissionGranted?.invoke()
             }
         }
     }
 
+    /**
+     * Receive the result from a previous call to startActivityForResult(Intent, int)
+     *
+     * @param requestCode code for request permissions
+     */
     open fun onActivityResult(requestCode: Int) {
         if (requestCode == codeForRequestPermissions) {
             requestPermissions()
         }
     }
 
-    open fun showDialogOnPermissionRejected(blockedPermission: String) {
+
+    /**
+     * Show dialog on permission rejected
+     *
+     * @param blockedPermission String of permission which was rejected
+     * @param canReAsk if you can call system dialog for request permission once again
+     */
+    open fun showDialogOnPermissionRejected(blockedPermission: String, canReAsk: Boolean = false) {
         val messageId = when (blockedPermission) {
-            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE -> {
-                R.string.permission_sdcard_rationale
-            }
             Manifest.permission.CAMERA -> {
-                R.string.permission_camera_rationale
+                if (canReAsk) R.string.permission_camera_rationale
+                else R.string.permission_camera_rationale_goto_settings
             }
-            else -> R.string.permission_camera_rationale
+            else -> {
+                if (canReAsk) R.string.permission_sdcard_rationale
+                else R.string.permission_sdcard_rationale_goto_settings
+            }
         }
 
-        AlertDialog.Builder(mActivity, cameraBuilder?.dialogTheme ?: 0)
+        AlertDialog.Builder(mActivity, dialogTheme)
             .setTitle(android.R.string.dialog_alert_title)
+            .setIconAttribute(android.R.attr.alertDialogIcon)
             .setMessage(messageId)
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 dialog.dismiss()
-                openAppSettings(mActivity)
+                if (canReAsk) {
+                    requestPermissions()
+                } else {
+                    openAppSettings(mActivity)
+                }
             }
             .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                 onPermissionRejected?.invoke()
@@ -170,6 +197,11 @@ open class PermissionsDelegate(
             .show()
     }
 
+    /**
+     * Open application settings
+     *
+     * @param activity activity of application in which parameters we will go
+     */
     open fun openAppSettings(activity: Activity) {
         Intent()
             .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
@@ -194,5 +226,6 @@ open class PermissionsDelegate(
 
     companion object {
         private const val KEY_PERMISSION_STATES = "KEY_PERMISSION_STATES"
+        private const val KEY_ALL_PERMISSION_STATES = "KEY_ALL_PERMISSION_STATES"
     }
 }

@@ -7,14 +7,14 @@
         android:key="fullScreenMode"
         android:summary="@string/fullScreenMode_description"
         android:title="@string/fullScreenMode"
-        android:defaultValue="true"
+        android:defaultValue="false"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
     <CheckBoxPreference
         android:key="fitMode"
         android:title="@string/fitMode"
         android:summary="@string/fitMode_description"
-        android:defaultValue="true"
+        android:defaultValue="false"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
     <CheckBoxPreference

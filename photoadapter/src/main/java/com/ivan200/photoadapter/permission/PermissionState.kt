@@ -2,24 +2,36 @@ package com.ivan200.photoadapter.permission
 
 import android.app.Activity
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.io.Serializable
 
 /**
- * Параметры разрешений до и после их запроса
+ * Permission parameters before and after requesting them
+ *
+ * Created by Ivan200 on 21.11.2020.
  */
 @Suppress("MemberVisibilityCanBePrivate")
 data class PermissionState(val permission: String) : Serializable {
-    var beforeRat: Boolean? = null
-    var afterRat: Boolean? = null
+
+    private var beforeRat: Boolean? = null
+    private var afterRat: Boolean? = null
 
 
+    /**
+     * Set rationale state before requestPermissions
+     *
+     * @param activity to request shouldShowRequestPermissionRationale
+     */
     fun setBefore(activity: Activity) {
         beforeRat = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
     }
 
+    /**
+     * Set rationale state after requestPermissions
+     *
+     * @param activity to request shouldShowRequestPermissionRationale
+     */
     fun setAfter(activity: Activity) {
         afterRat = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
     }
@@ -30,15 +42,13 @@ data class PermissionState(val permission: String) : Serializable {
     }
 
     fun getState(activity: Activity): StateEnum {
-        val state = when {
+        return when {
             beforeRat == null || afterRat == null -> StateEnum.UNKNOWN
 
-            //И до и после запроса пермишены были запрещены
             beforeRat!! && afterRat!! -> {
                 StateEnum.REJECTED_ALL
             }
 
-            //толко что были разрешены, в первый раз
             beforeRat!! && !afterRat!! -> {
                 if (!hasPermission(activity)) {
                     StateEnum.FIRST_NEVER_ASK
@@ -48,14 +58,11 @@ data class PermissionState(val permission: String) : Serializable {
             }
             !beforeRat!! && afterRat!! -> {
                 if (!hasPermission(activity)) {
-                    //только что были запрещены
                     StateEnum.FIRST_DENIED
                 } else {
-                    //были запрещены, и теперь юзер разрешил
                     StateEnum.SECOND_GRANTED
                 }
             }
-            //и до и после не нужно показывать диалог
             !beforeRat!! && !afterRat!! -> {
                 if (!hasPermission(activity)) {
                     StateEnum.REJECTED_NEVER_ASK
@@ -65,19 +72,5 @@ data class PermissionState(val permission: String) : Serializable {
             }
             else -> throw Exception()
         }
-//        Log.w(
-//            this::class.java.simpleName,
-//            "state for ${permission.split(".").last()}=${state.name}"
-//        )
-        return state
-    }
-
-    fun isDenied(activity: Activity): Boolean {
-        val state = getState(activity)
-
-        return state == StateEnum.REJECTED_ALL
-                || state == StateEnum.FIRST_DENIED
-                || state == StateEnum.FIRST_NEVER_ASK
-                || state == StateEnum.REJECTED_NEVER_ASK
     }
 }

@@ -35,12 +35,12 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             requireActivity(),
             this,
             savedInstanceState,
-            cameraBuilder,
             this::takePicture,
             this::onPermissionsRejected
         )
         fabPhoto.setOnClickListener {
             updateCameraBuilder()
+            permissionsDelegate?.initWithBuilder(cameraBuilder)
             permissionsDelegate?.requestPermissions()
         }
     }
