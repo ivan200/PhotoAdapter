@@ -25,10 +25,10 @@ import com.otaliastudios.cameraview.size.AspectRatio
 import com.otaliastudios.cameraview.size.SizeSelector
 import com.otaliastudios.cameraview.size.SizeSelectors
 
-
 //
 // Created by Ivan200 on 15.10.2019.
 //
+@Suppress("unused")
 class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     private val flashView get() = requireView().findViewById<View>(R.id.flashView)
     private val cameraView get() = requireView().findViewById<CameraView>(R.id.cameraView)
@@ -114,7 +114,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         cameraView.facing = if (cameraBuilder.facingBack) Facing.BACK else Facing.FRONT
         switchCamera.showIf { cameraBuilder.changeCameraAllowed && ImageUtils.hasDifferentFacings(requireActivity()) }
         switchCamera.onClick {
-            setFlash(Flash.OFF)
+            currentFlash = Flash.OFF
+            setFlash(currentFlash)
             cameraView.toggleFacing()
         }
 
@@ -194,12 +195,12 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         var index = supportedFlash.indexOf(currentFlash) + 1
         if (index >= supportedFlash.size) index = 0
 
-        setFlash(supportedFlash[index])
+        currentFlash = supportedFlash[index]
+        setFlash(currentFlash)
     }
 
     private fun setFlash(flash: Flash) {
         cameraView.flash = flash
-        this.currentFlash = flash
         torchSwitch.setImageResource(
             when (flash) {
                 Flash.OFF -> R.drawable.ic_photo_flash_off

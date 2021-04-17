@@ -19,6 +19,7 @@ import me.relex.circleindicator.CircleIndicator3
 //
 // Created by Ivan200 on 16.10.2019.
 //
+@Suppress("unused")
 class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsListener {
 
     private val cameraViewModel: CameraViewModel by lazy {
