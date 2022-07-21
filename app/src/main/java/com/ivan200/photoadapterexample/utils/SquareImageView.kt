@@ -1,52 +1,35 @@
-package com.ivan200.photoadapterexample.utils;
+package com.ivan200.photoadapterexample.utils
 
-import android.content.Context;
-import android.util.AttributeSet;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatImageView;
+import android.content.Context
+import android.util.AttributeSet
+import android.view.View.MeasureSpec.EXACTLY
+import android.view.View.MeasureSpec.getMode
+import android.view.View.MeasureSpec.getSize
+import android.view.View.MeasureSpec.makeMeasureSpec
+import androidx.appcompat.widget.AppCompatImageView
+import kotlin.math.min
 
 /**
  * Created by Zakharovi on 09.11.2017.
  */
-
 //Square ImageView, height is calculated from width, or width from height, depends on less size
-public class SquareImageView extends AppCompatImageView {
-    public SquareImageView(Context context) {
-        super(context);
-    }
-
-    public SquareImageView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public SquareImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
-    @Override
-    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-
-        int size;
-
-        if (widthMode == MeasureSpec.EXACTLY
-                && heightMode == MeasureSpec.EXACTLY
-                && widthSize > 0
-                && heightSize > 0) {
-            size = Math.min(widthSize, heightSize);
-        } else if (widthMode == MeasureSpec.EXACTLY && widthSize > 0) {
-            size = widthSize;
-        } else if (heightMode == MeasureSpec.EXACTLY && heightSize > 0) {
-            size = heightSize;
-        } else {
-            size = Math.min(widthSize, heightSize);
+class SquareImageView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : AppCompatImageView(context, attrs, defStyleAttr) {
+    public override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val wExactly = getMode(widthMeasureSpec) == EXACTLY
+        val hExactly = getMode(heightMeasureSpec) == EXACTLY
+        val wSize = getSize(widthMeasureSpec)
+        val hSize = getSize(heightMeasureSpec)
+        val size = when {
+            wExactly && hExactly && wSize > 0 && hSize > 0 -> min(wSize, hSize)
+            wExactly && wSize > 0 -> wSize
+            hExactly && hSize > 0 -> hSize
+            else -> min(wSize, hSize)
         }
-
-        int finalMeasureSpec = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY);
-        super.onMeasure(finalMeasureSpec, finalMeasureSpec);
+        val finalMeasureSpec = makeMeasureSpec(size, EXACTLY)
+        super.onMeasure(finalMeasureSpec, finalMeasureSpec)
     }
 }

@@ -27,6 +27,9 @@ local.properties
 .idea/vcs.xml
 .idea/navEditor.xml
 .idea/assetWizardSettings.xml
+.idea/deploymentTargetDropDown.xml
+.idea/sonarlint
+.idea/shelf/.xml
 *.iml
 
 # OS-specific files
