@@ -4,10 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Parcelable
 import androidx.annotation.AnyRes
+import androidx.annotation.IntRange
 import androidx.core.util.Consumer
 import androidx.fragment.app.Fragment
-import com.ivan200.photoadapter.utils.PhotoChecker
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import java.io.File
 
 /**
@@ -35,7 +35,7 @@ import java.io.File
  */
 @Suppress("unused")
 @Parcelize
-data class CameraBuilder(
+data class CameraBuilder private constructor(
     var facingBack: Boolean = true,
     var changeCameraAllowed: Boolean = true,
     var previewImage: Boolean = true,
@@ -47,33 +47,32 @@ data class CameraBuilder(
     var hasThumbnails: Boolean = false,
     var thumbnailsPath: File? = null,
     var photosPath: File? = null,
-    var maxImageSize: Int? = 1920,
+    var maxImageSize: Int? = null,
     var useSnapshot: Boolean = true,
     var requestCode: Int = 0,
-    var fixJpegBytes: Boolean = false,
-    var photoChecker: PhotoChecker? = null,
-    var dialogTheme: Int = 0
+    var dialogTheme: Int = 0,
+    @IntRange(from = 1, to = 100)
+    var outputJpegQuality: Int? = null,
 ) : Parcelable {
 
     constructor() : this(facingBack = true) //explicit "empty" constructor, as seen by Java.
 
-    fun withCameraFacingBack(facingBack: Boolean) = apply { this.facingBack = facingBack }
-    fun withChangeCameraAllowed(changeCameraAllowed: Boolean) = apply { this.changeCameraAllowed = changeCameraAllowed }
-    fun withAllowMultipleImages(allowMultipleImages: Boolean) = apply { this.allowMultipleImages = allowMultipleImages }
-    fun withLockRotate(lockRotate: Boolean) = apply { this.lockRotate = lockRotate }
-    fun withSavePhotoToGallery(galleryName: String?) = apply { this.galleryName = galleryName }
-    fun withFullScreenMode(fullScreenMode: Boolean) = apply { this.fullScreenMode = fullScreenMode }
-    fun withFitMode(fitMode: Boolean) = apply { this.fitMode = fitMode }
-    fun withPreviewImage(previewImage: Boolean) = apply { this.previewImage = previewImage }
-    fun withThumbnails(hasThumbnails: Boolean) = apply { this.hasThumbnails = hasThumbnails }
-    fun withThumbnailsPath(thumbnailsPath: File) = apply { this.thumbnailsPath = thumbnailsPath }
-    fun withPhotosPath(photosPath: File) = apply { this.photosPath = photosPath }
-    fun withMaxImageSize(maxImageSize: Int) = apply { this.maxImageSize = maxImageSize }
-    fun withUseSnapshot(useSnapshot: Boolean) = apply { this.useSnapshot = useSnapshot }
-    fun withRequestCode(requestCode: Int) = apply { this.requestCode = requestCode }
-    fun withFixJpegBytes(fixJpegBytes: Boolean) = apply { this.fixJpegBytes = fixJpegBytes }
-    fun withDialogTheme(@AnyRes dialogTheme: Int) = apply { this.dialogTheme = dialogTheme }
-    fun withPhotoChecker(photoChecker: PhotoChecker?) = apply { this.photoChecker = photoChecker }
+    fun setCameraFacingBack(facingBack: Boolean) = apply { this.facingBack = facingBack }
+    fun setChangeCameraAllowed(changeCameraAllowed: Boolean) = apply { this.changeCameraAllowed = changeCameraAllowed }
+    fun setAllowMultipleImages(allowMultipleImages: Boolean) = apply { this.allowMultipleImages = allowMultipleImages }
+    fun setLockRotate(lockRotate: Boolean) = apply { this.lockRotate = lockRotate }
+    fun setSavePhotoToGallery(galleryName: String?) = apply { this.galleryName = galleryName }
+    fun setFullScreenMode(fullScreenMode: Boolean) = apply { this.fullScreenMode = fullScreenMode }
+    fun setFitMode(fitMode: Boolean) = apply { this.fitMode = fitMode }
+    fun setPreviewImage(previewImage: Boolean) = apply { this.previewImage = previewImage }
+    fun setThumbnails(hasThumbnails: Boolean) = apply { this.hasThumbnails = hasThumbnails }
+    fun setThumbnailsPath(thumbnailsPath: File) = apply { this.thumbnailsPath = thumbnailsPath }
+    fun setPhotosPath(photosPath: File) = apply { this.photosPath = photosPath }
+    fun setMaxImageSize(maxImageSize: Int) = apply { this.maxImageSize = maxImageSize }
+    fun setUseSnapshot(useSnapshot: Boolean) = apply { this.useSnapshot = useSnapshot }
+    fun setRequestCode(requestCode: Int) = apply { this.requestCode = requestCode }
+    fun setDialogTheme(@AnyRes dialogTheme: Int) = apply { this.dialogTheme = dialogTheme }
+    fun setOutputJpegQuality(@IntRange(from = 1, to = 100) outputJpegQuality: Int) = apply { this.outputJpegQuality = outputJpegQuality }
 
     fun start(activity: Activity) {
         activity.startActivityForResult(CameraActivity.getIntent(activity, this), getCode())

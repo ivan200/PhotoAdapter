@@ -12,7 +12,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.ivan200.photoadapter.utils.*
+import com.ivan200.photoadapter.utils.ApplyInsetsListener
+import com.ivan200.photoadapter.utils.ImageUtils
+import com.ivan200.photoadapter.utils.hideSystemUI
+import com.ivan200.photoadapter.utils.invisible
+import com.ivan200.photoadapter.utils.show
 
 
 @Suppress("MemberVisibilityCanBePrivate")

@@ -14,11 +14,8 @@ import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.RelativeLayout
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import com.ivan200.photoadapter.R
+import java.lang.ref.WeakReference
 
 
 fun <T : View> T.onClick(function: () -> Unit): T {
@@ -140,12 +137,15 @@ internal const val ANIMATION_SLOW_MILLIS = 100L
  * Simulate a button click, including a small delay while it is being pressed to trigger the
  * appropriate animations.
  */
-internal fun ImageButton.simulateClick(delay: Long = ANIMATION_FAST_MILLIS) {
+internal fun ImageButton.simulateClick(delay: Long = ANIMATION_SLOW_MILLIS) {
     performClick()
     isPressed = true
     invalidate()
+    val ref = WeakReference(this)
     postDelayed({
-        invalidate()
-        isPressed = false
+        ref.get()?.apply {
+            isPressed = false
+            invalidate()
+        }
     }, delay)
 }

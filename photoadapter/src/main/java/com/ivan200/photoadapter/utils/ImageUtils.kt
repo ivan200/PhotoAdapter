@@ -3,10 +3,13 @@
 package com.ivan200.photoadapter.utils
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.PointF
 import android.hardware.Camera
+import android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK
+import android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
@@ -15,12 +18,26 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
+import android.util.TypedValue
+import android.view.Display
+import android.view.WindowManager
 import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
-import java.io.*
+import androidx.camera.core.AspectRatio
+import androidx.core.content.ContextCompat
+import com.ivan200.photoadapter.base.FacingDelegate
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 //
 // Created by Ivan200 on 21.10.2019.
@@ -180,7 +197,7 @@ object ImageUtils {
         return false
     }
 
-    fun allowCamera2Support(activity: Activity): Boolean {
+    fun allowCamera2Support(activity: Context): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return false
 
         (activity.getSystemService(Context.CAMERA_SERVICE) as? CameraManager)?.apply {
@@ -201,43 +218,94 @@ object ImageUtils {
         return false
     }
 
-    fun hasDifferentFacingsOldWay(): Boolean {
-        var facing: Int? = null
-        val cameraInfo: Camera.CameraInfo = Camera.CameraInfo()
+    fun getFacingsOldWay(): Set<FacingDelegate> {
+        val facings = mutableSetOf<FacingDelegate>()
+        val cameraInfo = Camera.CameraInfo()
         val numberOfCameras: Int = Camera.getNumberOfCameras()
         for (i in 0 until numberOfCameras) {
             Camera.getCameraInfo(i, cameraInfo)
-            if (facing == null) {
-                facing = cameraInfo.facing
-            } else if (facing != cameraInfo.facing) {
-                return true
-            }
+            if(cameraInfo.facing == CAMERA_FACING_BACK) facings.add(FacingDelegate.BACK)
+            if(cameraInfo.facing == CAMERA_FACING_FRONT) facings.add(FacingDelegate.FRONT)
         }
-        return false
+        return facings
     }
 
 
-    fun hasDifferentFacings(activity: Activity): Boolean {
+    fun getFacings(context: Context): Set<FacingDelegate> {
+        if (!isCameraAvailable(context)) {
+            return emptySet()
+        }
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return hasDifferentFacingsOldWay()
+            return getFacingsOldWay()
         }
-
-        var facing: Int? = null
-        (activity.getSystemService(Context.CAMERA_SERVICE) as? CameraManager)
-            ?.apply {
-                try {
-                    cameraIdList.forEach {
-                        val characteristics = getCameraCharacteristics(it)
-                        if (facing == null) {
-                            facing = characteristics.get(CameraCharacteristics.LENS_FACING)
-                        } else if (facing != characteristics.get(CameraCharacteristics.LENS_FACING)) {
-                            return true
-                        }
+        val facings = mutableSetOf<FacingDelegate>()
+        (context.getSystemService(Context.CAMERA_SERVICE) as? CameraManager)?.apply {
+            try {
+                cameraIdList.forEach {
+                    val characteristics = getCameraCharacteristics(it)
+                    val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
+                    when (facing) {
+                        CameraCharacteristics.LENS_FACING_BACK -> facings.add(FacingDelegate.BACK)
+                        CameraCharacteristics.LENS_FACING_FRONT -> facings.add(FacingDelegate.FRONT)
+                        else -> Unit //Ontario is not support external cameras
                     }
-                } catch (ex: Throwable) {
-                    return hasDifferentFacingsOldWay()
                 }
+            } catch (ex: Throwable) {
+                return getFacingsOldWay()
             }
-        return false
+        }
+        return facings
     }
+
+    fun isCameraAvailable(context: Context): Boolean {
+        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
+                || context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
+                || context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)
+                || context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_EXTERNAL)
+    }
+
+    fun Number.dpToPx(context: Context? = null): Float {
+        val res = context?.resources ?: android.content.res.Resources.getSystem()
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), res.displayMetrics)
+    }
+
+    fun aspectRatio(size: PointF?): Int {
+        if (size == null || size.x <= 0f || size.y <= 0f) {
+            return DEFAULT_ASPECT_RATIO
+        }
+        val previewRatio = max(size.x, size.y).toDouble() / min(size.x, size.y)
+        if (abs(previewRatio - RATIO_4_3_VALUE) <= abs(previewRatio - RATIO_16_9_VALUE)) {
+            return AspectRatio.RATIO_4_3
+        }
+        return AspectRatio.RATIO_16_9
+    }
+
+    private const val RATIO_4_3_VALUE: Double = 4.0 / 3.0
+    private const val RATIO_16_9_VALUE: Double = 16.0 / 9.0
+    private const val DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3
+
+    fun targetSize(cameraRatio: Int, targetSideSize: Int): Size = when (cameraRatio) {
+        AspectRatio.RATIO_16_9 -> Size((targetSideSize / RATIO_16_9_VALUE).toInt(), targetSideSize)
+        else -> Size((targetSideSize / RATIO_4_3_VALUE).toInt(), targetSideSize)
+    }
+
+    fun Size.scaleDown(maxSide: Int): Size {
+        if(width == 0 || height == 0) {
+            return Size(0,0)
+        }
+        if (width <= maxSide && height <= maxSide || maxSide < 0) {
+            return this
+        }
+        val ratio = width.toFloat() / height.toFloat()
+        return when {
+            ratio >= 1 -> Size(maxSide, (maxSide / ratio).toInt())
+            else -> Size((maxSide * ratio).toInt(), maxSide)
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    val Context.displayCompat: Display?
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) display else null
+            ?: ContextCompat.getSystemService(this, WindowManager::class.java)?.defaultDisplay
 }

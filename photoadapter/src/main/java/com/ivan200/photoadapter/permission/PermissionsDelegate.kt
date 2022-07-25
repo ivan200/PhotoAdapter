@@ -2,12 +2,9 @@ package com.ivan200.photoadapter.permission
 
 import android.Manifest
 import android.app.Activity
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.KeyEvent
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -26,6 +23,8 @@ import com.ivan200.photoadapter.utils.applyIf
  * @param savedInstanceState instance state to restore state of this delegate
  *
  * Created by Ivan200 on 25.10.2019.
+ *
+ * TODO переделать на нормальный
  */
 @Suppress("MemberVisibilityCanBePrivate")
 open class PermissionsDelegate(
@@ -203,25 +202,28 @@ open class PermissionsDelegate(
      * @param activity activity of application in which parameters we will go
      */
     open fun openAppSettings(activity: Activity) {
-        Intent()
-            .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            .setData(Uri.fromParts("package", activity.packageName, null))
-            .addCategory(Intent.CATEGORY_DEFAULT)
-            .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-            .apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    putExtra(Intent.EXTRA_PACKAGE_NAME, activity.packageName)
-                }
-                try {
-                    if (fragment != null) {
-                        fragment!!.startActivityForResult(this, codeForRequestPermissions)
-                    } else {
-                        activity.startActivityForResult(this, codeForRequestPermissions)
-                    }
-                } catch (e: Exception) {
-                    onPermissionRejected?.invoke()
-                }
-            }
+        PermissionSettingUtils.gotoPhonePermissionSettings(fragment, activity, codeForRequestPermissions)
+//        Intent()
+//            .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+//            .apply {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+//                    putExtra(Intent.EXTRA_PACKAGE_NAME, activity.packageName)
+//                }
+//            }
+//            .setData(Uri.fromParts("package", activity.packageName, null))
+//            .addCategory(Intent.CATEGORY_DEFAULT)
+//            .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+//            .apply {
+//                try {
+//                    if (fragment != null) {
+//                        fragment!!.startActivityForResult(this, codeForRequestPermissions)
+//                    } else {
+//                        activity.startActivityForResult(this, codeForRequestPermissions)
+//                    }
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                }
+//            }
     }
 
     companion object {

@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp" />
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/cameraFrame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,30 +20,24 @@
         android:layout_below="@id/statusView"
         >
 
-        <com.otaliastudios.cameraview.CameraView
+        <TextView
+            android:id="@+id/initText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center"
+            android:text="Инициализация"
+            />
+
+        <com.ivan200.photoadapter.base.CameraView
             android:id="@+id/cameraView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:keepScreenOn="true"
             android:visibility="visible"
-            app:cameraAudio="off"
-            app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker"
-            app:cameraEngine="camera2"
-            app:cameraFacing="back"
-            app:cameraFlash="off"
-            app:cameraGestureLongTap="none"
-            app:cameraGesturePinch="zoom"
-            app:cameraGestureScrollHorizontal="none"
-            app:cameraGestureScrollVertical="exposureCorrection"
-            app:cameraGestureTap="autoFocus"
-            app:cameraGrid="off"
-            app:cameraMode="picture"
-            app:cameraPictureSizeMaxWidth="1200"
-            app:cameraPlaySounds="false"
-            app:cameraPreview="glSurface"
-            tools:visibility="visible" />
+            />
 
-    </LinearLayout>
+    </FrameLayout>
 
 
     <androidx.appcompat.widget.AppCompatImageButton
@@ -57,7 +51,7 @@
         android:clickable="true"
         android:focusable="true"
         android:scaleType="center"
-        android:visibility="visible"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_photo_flash_off"
         tools:visibility="visible" />
 
@@ -94,12 +88,13 @@
                 android:layout_width="@dimen/size_icon_bounding"
                 android:layout_height="@dimen/size_icon_bounding"
                 android:layout_gravity="center"
-                android:background="?selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_icon_gray"
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="center"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_photo_camera_rear"
+                app:tint="@android:color/white"
                 tools:visibility="visible" />
         </FrameLayout>
 

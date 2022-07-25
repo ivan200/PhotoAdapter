@@ -15,4 +15,13 @@
 
     <string name="photo_fail_message">The photo didn\'t pass verification.\nPlease retake the photo.</string>
 
+
+    <string name="photo_camera_rear_description">Switch to rear camera</string>
+    <string name="photo_camera_front_description">Switch to front camera</string>
+    <string name="photo_camera_external_description">Switch to external camera</string>
+
+    <string name="photo_torch_on_description">Flash on</string>
+    <string name="photo_torch_off_description">Flash off</string>
+    <string name="photo_torch_auto_description">Flash auto</string>
+    <string name="photo_torch_torch_description">Torch on</string>
 </resources>

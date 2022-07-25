@@ -1,38 +1,48 @@
 package com.ivan200.photoadapter.fragments
 
-import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.ivan200.photoadapter.*
+import com.ivan200.photoadapter.CameraActivity
+import com.ivan200.photoadapter.CameraBuilder
+import com.ivan200.photoadapter.CameraViewModel
+import com.ivan200.photoadapter.PictureInfo
 import com.ivan200.photoadapter.R
-import com.ivan200.photoadapter.utils.*
-import com.otaliastudios.cameraview.*
-import com.otaliastudios.cameraview.controls.Engine
-import com.otaliastudios.cameraview.controls.Facing
+import com.ivan200.photoadapter.base.CameraView
+import com.ivan200.photoadapter.base.CameraViewState
+import com.ivan200.photoadapter.utils.ApplyInsetsListener
+import com.ivan200.photoadapter.utils.hide
+import com.ivan200.photoadapter.utils.lockOrientation
+import com.ivan200.photoadapter.utils.onClick
+import com.ivan200.photoadapter.utils.padBottomViewWithInsets
+import com.ivan200.photoadapter.utils.padTopViewWithInsets
+import com.ivan200.photoadapter.utils.rotateItems
+import com.ivan200.photoadapter.utils.show
+import com.ivan200.photoadapter.utils.simulateClick
+import com.ivan200.photoadapter.utils.unlockOrientation
 import com.otaliastudios.cameraview.controls.Flash
-import com.otaliastudios.cameraview.size.AspectRatio
-import com.otaliastudios.cameraview.size.SizeSelector
-import com.otaliastudios.cameraview.size.SizeSelectors
+
 
 //
 // Created by Ivan200 on 15.10.2019.
 //
 @Suppress("unused")
 class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
+
     private val flashView get() = requireView().findViewById<View>(R.id.flashView)
     private val cameraView get() = requireView().findViewById<CameraView>(R.id.cameraView)
-    private val cameraFrame get() = requireView().findViewById<LinearLayout>(R.id.cameraFrame)
+    private val cameraFrame get() = requireView().findViewById<FrameLayout>(R.id.cameraFrame)
+    private val initText get() = requireView().findViewById<TextView>(R.id.initText)
     private val statusView get() = requireView().findViewById<View>(R.id.statusView)
     private val switchCamera get() = requireView().findViewById<ImageButton>(R.id.switch_camera)
     private val capture get() = requireView().findViewById<ImageButton>(R.id.capture)
@@ -54,6 +64,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
 
         cameraViewModel.pictures.observe(requireActivity()) {
@@ -74,50 +85,37 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             }
         }
 
-        val selectors = mutableListOf<SizeSelector>()
+        cameraView.state.observe(viewLifecycleOwner){
+            initText.isVisible = it == CameraViewState.Initializing
+        }
 
-        if (cameraBuilder.fullScreenMode) {
-            //Очищаем значение обозначающее что вью камеры должно быть над панелью кнопок
-            (cameraFrame.layoutParams as? RelativeLayout.LayoutParams)?.apply {
-                arrayOf(RelativeLayout.BELOW, RelativeLayout.ABOVE, RelativeLayout.LEFT_OF, RelativeLayout.RIGHT_OF).forEach {
-                    addRule(it, 0)
+        cameraView.cameraInfo.observe(viewLifecycleOwner) {
+            if(it != null){
+                val list = cameraView.cameraInfoList
+
+                switchCamera.isVisible = list.size > 1
+                switchCamera.setImageResource(it.cameraFacing.iconRes)
+                switchCamera.contentDescription = getString(it.cameraFacing.descriptionRes)
+                switchCamera.setOnClickListener {
+                    cameraView.changeFacing()
                 }
+                torchSwitch.isVisible = it.hasFlashUnit
+            } else {
+                switchCamera.isVisible = false
+                torchSwitch.isVisible = false
             }
-            selectors.add(SizeSelectors.aspectRatio(
-                AspectRatio.of(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels), 0.1f
-            ))
         }
-        if (cameraBuilder.fitMode) {
-            cameraView.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
+
 
         cameraView.setLifecycleOwner(requireActivity())
-        cameraView.addCameraListener(Listener())
+        cameraView.setCameraBuilder(cameraBuilder)
 
-        cameraBuilder.maxImageSize?.let {
-            cameraView.snapshotMaxWidth = it
-            cameraView.snapshotMaxHeight = it
-
-            selectors.add(SizeSelectors.and(SizeSelectors.maxWidth(it), SizeSelectors.maxHeight(it)))
-        }
-
-        if(selectors.isNotEmpty()){
-            cameraView.setPictureSize(SizeSelectors.and(*selectors.toTypedArray()))
-        }
-
-        if (ImageUtils.allowCamera2Support(requireActivity())) {
-            cameraView.engine = Engine.CAMERA2
-        }
-
-        cameraView.facing = if (cameraBuilder.facingBack) Facing.BACK else Facing.FRONT
-        switchCamera.showIf { cameraBuilder.changeCameraAllowed && ImageUtils.hasDifferentFacings(requireActivity()) }
-        switchCamera.onClick {
-            currentFlash = Flash.OFF
-            setFlash(currentFlash)
-            cameraView.toggleFacing()
-        }
+//        switchCamera.showIf { cameraBuilder.changeCameraAllowed && ImageUtils.hasDifferentFacings(requireActivity()) }
+//        switchCamera.onClick {
+//            currentFlash = Flash.OFF
+//            setFlash(currentFlash)
+//            cameraView.toggleFacing()
+//        }
 
         cameraViewModel.showCamera.observe(requireActivity()) {
             setFlash(if (it) currentFlash else Flash.OFF)
@@ -171,19 +169,19 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     }
 
     private fun takePicture() {
-        if (cameraView.isTakingPicture) return
-        toast?.cancel()
-        if (cameraBuilder.useSnapshot) {
-            cameraView.takePictureSnapshot()
-        } else {
-            cameraView.takePicture()
-        }
-        if (!cameraBuilder.previewImage && cameraBuilder.allowMultipleImages) {
-            flashView.postDelayed({
-                flashView.show()
-                flashView.postDelayed({ flashView.hide() }, ANIMATION_FAST_MILLIS)
-            }, ANIMATION_SLOW_MILLIS)
-        }
+//        if (cameraView.isTakingPicture) return
+//        toast?.cancel()
+//        if (cameraBuilder.useSnapshot) {
+//            cameraView.takePictureSnapshot()
+//        } else {
+//            cameraView.takePicture()
+//        }
+//        if (!cameraBuilder.previewImage && cameraBuilder.allowMultipleImages) {
+//            flashView.postDelayed({
+//                flashView.show()
+//                flashView.postDelayed({ flashView.hide() }, ANIMATION_FAST_MILLIS)
+//            }, ANIMATION_SLOW_MILLIS)
+//        }
     }
 
     private fun showGallery() {
@@ -200,15 +198,15 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     }
 
     private fun setFlash(flash: Flash) {
-        cameraView.flash = flash
-        torchSwitch.setImageResource(
-            when (flash) {
-                Flash.OFF -> R.drawable.ic_photo_flash_off
-                Flash.ON -> R.drawable.ic_photo_flash_on
-                Flash.AUTO -> R.drawable.ic_photo_flash_auto
-                Flash.TORCH -> R.drawable.ic_photo_flash_torch
-            }
-        )
+//        cameraView.flash = flash
+//        torchSwitch.setImageResource(
+//            when (flash) {
+//                Flash.OFF -> R.drawable.ic_photo_flash_off
+//                Flash.ON -> R.drawable.ic_photo_flash_on
+//                Flash.AUTO -> R.drawable.ic_photo_flash_auto
+//                Flash.TORCH -> R.drawable.ic_photo_flash_torch
+//            }
+//        )
     }
 
     override fun onStart() {
@@ -221,73 +219,60 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     override fun onStop() {
         super.onStop()
 
-        toast?.cancel()
         if (cameraBuilder.lockRotate) {
             requireActivity().unlockOrientation()
         }
     }
 
-    //вызывается после снятия фотки, при провале проверки картинки
-    //для показа диалога что фото не очень
-    @SuppressLint("InflateParams")
-    fun onVerificationFailed() {
-        toast = Toast.makeText(requireActivity(), "", Toast.LENGTH_SHORT)
-            .apply {
-                val padd = requireActivity().resources.getDimensionPixelOffset(R.dimen.height_toolbar)
-                setGravity(Gravity.TOP, 0, padd)
-                view = layoutInflater.inflate(R.layout.toast_custom, null)
-            }
-        toast?.show()
-    }
 
-    inner class Listener : CameraListener() {
-        override fun onCameraOpened(options: CameraOptions) {
-            super.onCameraOpened(options)
-            supportedFlash = options.supportedFlash.sortedBy { it.ordinal }.toList()
-            torchSwitch.showIf { options.supportedFlash.size > 1 }
-        }
-
-        override fun onPictureTaken(result: PictureResult) {
-            super.onPictureTaken(result)
-            ResultCheckSaver(requireActivity(), result, cameraBuilder, this::onCheckSaved)
-                .checkSave()
-        }
-
-        private fun onCheckSaved(resultCheckSaver: ResultCheckSaver) {
-            if (!resultCheckSaver.checkResult) {
-                onVerificationFailed()
-            } else {
-                cameraViewModel.onFileSaved(resultCheckSaver.photoFile, resultCheckSaver.thumbsFile)
-            }
-        }
-
-        override fun onCameraError(exception: CameraException) {
-            super.onCameraError(exception)
-            AlertDialog.Builder(activity, cameraBuilder.dialogTheme)
-                .setTitle(android.R.string.dialog_alert_title)
-                .setMessage(exception.localizedMessage)
-                .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .create()
-                .show()
-        }
-
-        //Rotate items on screen if orientation locked
-        override fun onOrientationChanged(orientation: Int) {
-            super.onOrientationChanged(orientation)
-            if (!cameraBuilder.lockRotate) return
-
-            val invertAngle = when (orientation) {
-                90 -> 270; 270 -> 90; else -> orientation
-            }
-            var rotAngle = cameraViewModel.rotate.value!!
-            when (invertAngle) {
-                (rotAngle + 90) % 360 -> rotAngle += 90
-                (rotAngle - 90 + 360) % 360 -> rotAngle -= 90
-                else -> rotAngle = invertAngle
-            }
-            cameraViewModel.rotate(rotAngle)
-        }
-    }
+//    inner class Listener : CameraListener() {
+//        override fun onCameraOpened(options: CameraOptions) {
+//            super.onCameraOpened(options)
+//            supportedFlash = options.supportedFlash.sortedBy { it.ordinal }.toList()
+//            torchSwitch.showIf { options.supportedFlash.size > 1 }
+//        }
+//
+//        override fun onPictureTaken(result: PictureResult) {
+//            super.onPictureTaken(result)
+//            ResultCheckSaver(requireActivity(), result, cameraBuilder, this::onCheckSaved)
+//                .checkSave()
+//        }
+//
+//        private fun onCheckSaved(resultCheckSaver: ResultCheckSaver) {
+//            if (!resultCheckSaver.checkResult) {
+//                onVerificationFailed()
+//            } else {
+//                cameraViewModel.onFileSaved(resultCheckSaver.photoFile, resultCheckSaver.thumbsFile)
+//            }
+//        }
+//
+//        override fun onCameraError(exception: CameraException) {
+//            super.onCameraError(exception)
+//            AlertDialog.Builder(activity, cameraBuilder.dialogTheme)
+//                .setTitle(android.R.string.dialog_alert_title)
+//                .setMessage(exception.localizedMessage)
+//                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+//                    dialog.dismiss()
+//                }
+//                .create()
+//                .show()
+//        }
+//
+//        //Rotate items on screen if orientation locked
+//        override fun onOrientationChanged(orientation: Int) {
+//            super.onOrientationChanged(orientation)
+//            if (!cameraBuilder.lockRotate) return
+//
+//            val invertAngle = when (orientation) {
+//                90 -> 270; 270 -> 90; else -> orientation
+//            }
+//            var rotAngle = cameraViewModel.rotate.value!!
+//            when (invertAngle) {
+//                (rotAngle + 90) % 360 -> rotAngle += 90
+//                (rotAngle - 90 + 360) % 360 -> rotAngle -= 90
+//                else -> rotAngle = invertAngle
+//            }
+//            cameraViewModel.rotate(rotAngle)
+//        }
+//    }
 }

@@ -13,4 +13,7 @@
     <color name="icFocused">#DDFFFFFF</color>
     <color name="icPressed">#AAFFFFFF</color>
 
+    <color name="colorCircleIconNormal">#212121</color>
+    <color name="colorCircleIconPressed">#777777</color>
+
 </resources>
