@@ -56,7 +56,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             .setPreviewImage(prefs.previewImage)
             .setFullScreenMode(prefs.fullScreenMode)
             .setFitMode(prefs.fitMode)
-            .setThumbnails(prefs.hasThumbnails)
+//            .setThumbnails(prefs.hasThumbnails)
             .setMaxImageSize(prefs.maxImageSize)
             .setUseSnapshot(prefs.useSnapshot)
             .setDialogTheme(R.style.AppThemeDialog)
@@ -96,6 +96,6 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
         Prefs(requireContext()).images = mutableSetOf()
         ImageUtils.getPhotosDir(requireActivity()).listFiles()?.forEach { it.delete() }
-        ImageUtils.getThumbsDir(requireActivity()).listFiles()?.forEach { it.delete() }
+//        ImageUtils.getThumbsDir(requireActivity()).listFiles()?.forEach { it.delete() }
     }
 }

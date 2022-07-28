@@ -7,6 +7,7 @@ import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -20,6 +21,9 @@ import com.ivan200.photoadapter.PictureInfo
 import com.ivan200.photoadapter.R
 import com.ivan200.photoadapter.base.CameraView
 import com.ivan200.photoadapter.base.CameraViewState
+import com.ivan200.photoadapter.base.TakePictureResult
+import com.ivan200.photoadapter.utils.ANIMATION_FAST_MILLIS
+import com.ivan200.photoadapter.utils.ANIMATION_SLOW_MILLIS
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
 import com.ivan200.photoadapter.utils.hide
 import com.ivan200.photoadapter.utils.lockOrientation
@@ -49,8 +53,6 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     private val torchSwitch get() = requireView().findViewById<ImageButton>(R.id.torch_switch)
     private val actionLayout get() = requireView().findViewById<RelativeLayout>(R.id.action_layout)
     private val resultImage get() = requireView().findViewById<ImageButton>(R.id.result)
-
-    private var toast: Toast? = null
 
     private val cameraViewModel: CameraViewModel by lazy {
         ViewModelProvider(activity as CameraActivity).get(CameraViewModel::class.java)
@@ -109,6 +111,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
         cameraView.setLifecycleOwner(requireActivity())
         cameraView.setCameraBuilder(cameraBuilder)
+
+        cameraView.takePictureResult.observe(requireActivity(), this::onImageSaved)
 
 //        switchCamera.showIf { cameraBuilder.changeCameraAllowed && ImageUtils.hasDifferentFacings(requireActivity()) }
 //        switchCamera.onClick {
@@ -169,23 +173,16 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     }
 
     private fun takePicture() {
-//        if (cameraView.isTakingPicture) return
-//        toast?.cancel()
-//        if (cameraBuilder.useSnapshot) {
-//            cameraView.takePictureSnapshot()
-//        } else {
-//            cameraView.takePicture()
-//        }
-//        if (!cameraBuilder.previewImage && cameraBuilder.allowMultipleImages) {
-//            flashView.postDelayed({
-//                flashView.show()
-//                flashView.postDelayed({ flashView.hide() }, ANIMATION_FAST_MILLIS)
-//            }, ANIMATION_SLOW_MILLIS)
-//        }
+        cameraView.takePicture()
+        if (!cameraBuilder.previewImage && cameraBuilder.allowMultipleImages) {
+            flashView.postDelayed({
+                flashView.show()
+                flashView.postDelayed({ flashView.hide() }, ANIMATION_FAST_MILLIS)
+            }, ANIMATION_SLOW_MILLIS)
+        }
     }
 
     private fun showGallery() {
-        toast?.cancel()
         cameraViewModel.changeFragment(false)
     }
 
@@ -224,6 +221,24 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
     }
 
+    fun onImageSaved(result: TakePictureResult){
+        when(result) {
+            is TakePictureResult.ImageTakeException -> {
+                AlertDialog.Builder(requireActivity(), cameraBuilder.dialogTheme)
+                    .setTitle(android.R.string.dialog_alert_title)
+                    .setMessage(result.ex?.localizedMessage)        //TODO добавить тексты
+                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .create()
+                    .show()
+            }
+            is TakePictureResult.ImageTaken -> {
+                cameraViewModel.onFileSaved(result.file, null)
+            }
+        }
+
+    }
 
 //    inner class Listener : CameraListener() {
 //        override fun onCameraOpened(options: CameraOptions) {

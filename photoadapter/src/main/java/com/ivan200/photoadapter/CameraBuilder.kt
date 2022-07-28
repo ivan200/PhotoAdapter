@@ -44,8 +44,6 @@ data class CameraBuilder private constructor(
     var galleryName: String? = null,
     var fullScreenMode: Boolean = false,
     var fitMode: Boolean = false,
-    var hasThumbnails: Boolean = false,
-    var thumbnailsPath: File? = null,
     var photosPath: File? = null,
     var maxImageSize: Int? = null,
     var useSnapshot: Boolean = true,
@@ -65,8 +63,6 @@ data class CameraBuilder private constructor(
     fun setFullScreenMode(fullScreenMode: Boolean) = apply { this.fullScreenMode = fullScreenMode }
     fun setFitMode(fitMode: Boolean) = apply { this.fitMode = fitMode }
     fun setPreviewImage(previewImage: Boolean) = apply { this.previewImage = previewImage }
-    fun setThumbnails(hasThumbnails: Boolean) = apply { this.hasThumbnails = hasThumbnails }
-    fun setThumbnailsPath(thumbnailsPath: File) = apply { this.thumbnailsPath = thumbnailsPath }
     fun setPhotosPath(photosPath: File) = apply { this.photosPath = photosPath }
     fun setMaxImageSize(maxImageSize: Int) = apply { this.maxImageSize = maxImageSize }
     fun setUseSnapshot(useSnapshot: Boolean) = apply { this.useSnapshot = useSnapshot }

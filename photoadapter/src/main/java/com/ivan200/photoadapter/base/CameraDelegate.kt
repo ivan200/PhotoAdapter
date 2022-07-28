@@ -3,6 +3,7 @@ package com.ivan200.photoadapter.base
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import com.ivan200.photoadapter.CameraBuilder
+import java.io.File
 
 /**
  * @author ivan200
@@ -27,4 +28,7 @@ interface CameraDelegate {
     fun changeFacing()
     fun changeSameFacingCamera()
     fun selectSameFacingCameraByIndex(index: Int)
+
+    fun takePicture()
+    val takePictureResult: LiveData<TakePictureResult>
 }

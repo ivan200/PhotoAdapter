@@ -104,7 +104,7 @@ class CameraViewModel : ViewModel() {
         }
     }
 
-    fun onFileSaved(fileToSave: File, thumbToSave: File?) {
+    fun onFileSaved(fileToSave: File, thumbToSave: File?) {     //TODO убрать thumbs
         _pictures.value!!.add(imageNumber, PictureInfo(fileToSave, thumbToSave))
         _pictures.value = _pictures.value   //this need to call liveData update
     }

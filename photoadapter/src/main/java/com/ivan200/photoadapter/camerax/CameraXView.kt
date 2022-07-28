@@ -17,6 +17,8 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraUnavailableException
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.Metadata
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.InitializationException
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
@@ -24,6 +26,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.core.net.toFile
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -37,10 +40,12 @@ import com.ivan200.photoadapter.base.CameraViewState
 import com.ivan200.photoadapter.base.CaptureError
 import com.ivan200.photoadapter.base.FacingDelegate
 import com.ivan200.photoadapter.base.SimpleCameraInfo
+import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.base.TorchDelegate
 import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.utils.ImageUtils.dpToPx
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
 
 /**
  * @author ivan200
@@ -76,6 +81,11 @@ class CameraXView @JvmOverloads constructor(
 
     private val _torchState = MutableLiveData<TorchDelegate>(TorchDelegate.NoTorch)
     val torchState: LiveData<TorchDelegate> = _torchState
+
+    private val _takePictureResult = MutableLiveData<TakePictureResult>()
+    override val takePictureResult: LiveData<TakePictureResult> = _takePictureResult
+
+    val takePictureExecutor = Executors.newSingleThreadExecutor()
 
     init {
         this.background = ColorDrawable(Color.BLACK)
@@ -119,7 +129,6 @@ class CameraXView @JvmOverloads constructor(
             changeCameraProvider.cameraInfo.observe(it) { info: SimpleCameraInfo? ->
                 if (info != null) {
                     try {
-                        cameraProvider?.unbindAll()
                         bindCameraUseCases(info)
                     } catch (e: Exception) {
                         processCameraException(e)
@@ -169,7 +178,7 @@ class CameraXView @JvmOverloads constructor(
                 if (!changeCameraProvider.hasAnyCamera()) {
                     _state.postValue(CameraViewState.Error(CameraError.NO_CAMERA))
                 }
-                //bindCameraUseCases() will called at updating changeCameraProvider.cameraInfo
+                // bindCameraUseCases() will called at updating changeCameraProvider.cameraInfo
             } catch (e: Exception) {
                 processCameraException(e)
             }
@@ -225,9 +234,9 @@ class CameraXView @JvmOverloads constructor(
                 builder.outputJpegQuality?.let {
                     setJpegQuality(it)
                 }
-                val ms = builder.maxImageSize
-                if (ms != null && ms > 0) {
-                    setTargetResolution(ImageUtils.targetSize(cameraRatio, ms))
+                val maxSize = builder.maxImageSize
+                if (maxSize != null && maxSize > 0) {
+                    setTargetResolution(ImageUtils.targetSize(cameraRatio, maxSize))
                 } else {
                     setTargetAspectRatio(cameraRatio)
                 }
@@ -276,7 +285,34 @@ class CameraXView @JvmOverloads constructor(
         return if (size.x > 0 && size.y > 0) size else null
     }
 
+    override fun takePicture() {
+//        stopPreview()
 
+        // Setup image capture metadata
+        val metadata = Metadata().apply {
+            // Mirror image when using the front camera
+            isReversedHorizontal = changeCameraProvider.cameraInfo.value?.cameraFacing == FacingDelegate.FRONT
+        }
+
+        val photoDir = ImageUtils.getPhotosDir(context, builder.photosPath)
+        val photoFile = ImageUtils.createImageFile(context, photoDir)
+
+        // Create output options object which contains file + metadata
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
+            .setMetadata(metadata)
+            .build()
+
+        imageCapture?.takePicture(outputOptions, takePictureExecutor, object : ImageCapture.OnImageSavedCallback {
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                _takePictureResult.postValue(TakePictureResult.ImageTaken(outputFileResults.savedUri!!.toFile()))
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                val reason = takePictureErrorMap[exception.imageCaptureError] ?: CaptureError.ERROR_UNKNOWN
+                _takePictureResult.postValue(TakePictureResult.ImageTakeException(reason, exception))
+            }
+        })
+    }
 
     override val cameraInfo: LiveData<SimpleCameraInfo?> get() = changeCameraProvider.cameraInfo
     override val cameraInfoList: Map<FacingDelegate, List<SimpleCameraInfo>> get() = changeCameraProvider.cameraInfoList
@@ -292,7 +328,7 @@ class CameraXView @JvmOverloads constructor(
             CameraUnavailableException.CAMERA_ERROR to CameraError.CAMERA_ERROR,
             CameraUnavailableException.CAMERA_IN_USE to CameraError.CAMERA_IN_USE,
             CameraUnavailableException.CAMERA_MAX_IN_USE to CameraError.CAMERA_MAX_IN_USE,
-            CameraUnavailableException.CAMERA_UNAVAILABLE_DO_NOT_DISTURB to CameraError.CAMERA_UNAVAILABLE_DO_NOT_DISTURB,
+            CameraUnavailableException.CAMERA_UNAVAILABLE_DO_NOT_DISTURB to CameraError.CAMERA_UNAVAILABLE_DO_NOT_DISTURB
         )
         private val takePictureErrorMap = hashMapOf<Int, CaptureError>(
             ImageCapture.ERROR_UNKNOWN to CaptureError.ERROR_UNKNOWN,

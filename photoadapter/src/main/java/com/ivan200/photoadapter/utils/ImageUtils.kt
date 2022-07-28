@@ -75,15 +75,6 @@ object ImageUtils {
         return dirToMake
     }
 
-    fun getThumbsDir(context: Context, thumbsDir: File? = null): File {
-        val dirToMake = thumbsDir ?: File(context.filesDir, THUMBNAILS)
-        if (!dirToMake.exists()) {
-            dirToMake.mkdirs()
-        }
-        return dirToMake
-    }
-
-
     @Throws(IOException::class)
     fun copyImagesToGallery(context: Context, images: Array<File>, ALBUM: String?) {
         if (ALBUM == null) return

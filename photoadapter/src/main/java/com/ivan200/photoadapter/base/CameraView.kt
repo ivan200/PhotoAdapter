@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.camerax.CameraXView
 import com.ivan200.photoadapter.ontario.CameraImplOntario
+import com.ivan200.photoadapter.utils.ImageUtils
 
 /**
  * @author ivan200
@@ -23,10 +24,10 @@ class CameraView @JvmOverloads constructor(
     @StyleRes defStyleRes: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), CameraDelegate {
 
-    val impl: CameraDelegate = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-        CameraImplOntario(context, attrs)
+    val impl: CameraDelegate = if (ImageUtils.allowCamera2Support(context)) {
+        CameraXView(context, attrs, defStyleAttr)
     } else {
-        CameraXView(context, attrs)
+        CameraImplOntario(context, attrs)
     }.also {
         addView(it)
     }
@@ -40,4 +41,6 @@ class CameraView @JvmOverloads constructor(
     override fun changeFacing() = impl.changeFacing()
     override fun changeSameFacingCamera() = impl.changeSameFacingCamera()
     override fun selectSameFacingCameraByIndex(index: Int) = impl.selectSameFacingCameraByIndex(index)
+    override fun takePicture() = impl.takePicture()
+    override val takePictureResult: LiveData<TakePictureResult> get() = impl.takePictureResult
 }

@@ -71,9 +71,9 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
 
         override fun onBindViewHolder(holder: GalleryViewHolder, position: Int) {
             val imageFile = File(images[position])
-            val thumbFile = File(ImageUtils.getThumbsDir(holder.itemView.context), imageFile.name)
-            val loadFile = if (thumbFile.exists()) thumbFile else imageFile
-            (holder.itemView as ImageView).setImageURI(Uri.fromFile(loadFile))
+//            val thumbFile = File(ImageUtils.getThumbsDir(holder.itemView.context), imageFile.name)
+//            val loadFile = if (thumbFile.exists()) thumbFile else imageFile
+            (holder.itemView as ImageView).setImageURI(Uri.fromFile(imageFile))
             holder.itemView.setOnClickListener {
                 Prefs(it.context).imagePreviewNumber = position
                 navigatePreview.onClick(it)
