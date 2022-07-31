@@ -43,4 +43,5 @@ class CameraView @JvmOverloads constructor(
     override fun selectSameFacingCameraByIndex(index: Int) = impl.selectSameFacingCameraByIndex(index)
     override fun takePicture() = impl.takePicture()
     override val takePictureResult: LiveData<TakePictureResult> get() = impl.takePictureResult
+    override val isFit: Boolean get() = impl.isFit
 }

@@ -73,6 +73,9 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
             val imageFile = File(images[position])
 //            val thumbFile = File(ImageUtils.getThumbsDir(holder.itemView.context), imageFile.name)
 //            val loadFile = if (thumbFile.exists()) thumbFile else imageFile
+
+            //TODO Пофиксить OutOfMemoryError или через glide, или через галерею, или как нибудь
+
             (holder.itemView as ImageView).setImageURI(Uri.fromFile(imageFile))
             holder.itemView.setOnClickListener {
                 Prefs(it.context).imagePreviewNumber = position

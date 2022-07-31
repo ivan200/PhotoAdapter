@@ -53,6 +53,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     private val torchSwitch get() = requireView().findViewById<ImageButton>(R.id.torch_switch)
     private val actionLayout get() = requireView().findViewById<RelativeLayout>(R.id.action_layout)
     private val resultImage get() = requireView().findViewById<ImageButton>(R.id.result)
+    private val buttonFit get() = requireView().findViewById<ImageButton>(R.id.btn_fit)
 
     private val cameraViewModel: CameraViewModel by lazy {
         ViewModelProvider(activity as CameraActivity).get(CameraViewModel::class.java)
@@ -120,6 +121,10 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 //            setFlash(currentFlash)
 //            cameraView.toggleFacing()
 //        }
+
+        buttonFit.setOnClickListener {
+            cameraView.setFitMode(!cameraView.isFit)
+        }
 
         cameraViewModel.showCamera.observe(requireActivity()) {
             setFlash(if (it) currentFlash else Flash.OFF)

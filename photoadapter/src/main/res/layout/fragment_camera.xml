@@ -55,6 +55,18 @@
         app:srcCompat="@drawable/ic_photo_flash_off"
         tools:visibility="visible" />
 
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btn_fit"
+        android:layout_width="@dimen/size_icon_bounding"
+        android:layout_height="@dimen/size_icon_bounding"
+        android:layout_below="@id/statusView"
+        android:background="?selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:scaleType="center"
+        app:srcCompat="@drawable/ic_photo_fill"
+        tools:visibility="visible" />
+
     <View
         android:id="@+id/flashView"
         android:layout_width="match_parent"

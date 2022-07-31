@@ -10,16 +10,13 @@ import java.io.File
  * @since 24.02.2022
  */
 interface CameraDelegate {
-
-//    val changeCameraProvider: ChangeCameraProvider
-
     val state: LiveData<CameraViewState>
 
     /**
      * fit camera into view (false = fill) fill by default
      */
     fun setFitMode(fit: Boolean)
-
+    val isFit: Boolean
 
     fun setLifecycleOwner(owner: LifecycleOwner?)
     fun setCameraBuilder(cameraBuilder: CameraBuilder)

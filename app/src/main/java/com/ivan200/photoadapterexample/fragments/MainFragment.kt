@@ -57,7 +57,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             .setFullScreenMode(prefs.fullScreenMode)
             .setFitMode(prefs.fitMode)
 //            .setThumbnails(prefs.hasThumbnails)
-            .setMaxImageSize(prefs.maxImageSize)
+//            .setMaxImageSize(prefs.maxImageSize)
             .setUseSnapshot(prefs.useSnapshot)
             .setDialogTheme(R.style.AppThemeDialog)
     }

@@ -115,6 +115,9 @@ class CameraXView @JvmOverloads constructor(
         }
     }
 
+    override val isFit: Boolean
+        get() = viewFinder.scaleType == PreviewView.ScaleType.FIT_CENTER
+
     override fun setLifecycleOwner(owner: LifecycleOwner?) {
         if (!ImageUtils.isCameraAvailable(context)) {
             _state.postValue(CameraViewState.Error(CameraError.NO_CAMERA))

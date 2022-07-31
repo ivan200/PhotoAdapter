@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.PointF
 import android.util.AttributeSet
-import android.view.ViewGroup
+import android.view.Gravity.CENTER
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
@@ -80,7 +80,9 @@ class CameraImplOntario @JvmOverloads constructor(
         mapGesture(Gesture.TAP, GestureAction.AUTO_FOCUS)
         grid = Grid.OFF
         mode = Mode.PICTURE
-        layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+            gravity = CENTER
+        }
         playSounds = false
         preview = Preview.GL_SURFACE
         setRequestPermissions(false)
@@ -105,25 +107,30 @@ class CameraImplOntario @JvmOverloads constructor(
                 )
             )
         }
-        cameraBuilder.maxImageSize?.let {
-            snapshotMaxWidth = it
-            snapshotMaxHeight = it
 
-            selectors.add(SizeSelectors.and(SizeSelectors.maxWidth(it), SizeSelectors.maxHeight(it)))
+        val maxS = cameraBuilder.maxImageSize
+        if (maxS != null) {
+            snapshotMaxWidth = maxS
+            snapshotMaxHeight = maxS
+
+            selectors.add(SizeSelectors.and(SizeSelectors.maxWidth(maxS), SizeSelectors.maxHeight(maxS)))
         }
-        if (selectors.isNotEmpty()) {
-            setPictureSize(SizeSelectors.and(*selectors.toTypedArray()))
-        }
+        selectors.add(SizeSelectors.biggest())
+
+        setPictureSize(SizeSelectors.and(*selectors.toTypedArray()))
         facing = if (cameraBuilder.facingBack) Facing.BACK else Facing.FRONT
     }
 
     override fun setFitMode(fit: Boolean) {
-        layoutParams = if (fit) {
-            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-        } else {
-            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        layoutParams.apply {
+            width = if (fit) WRAP_CONTENT else MATCH_PARENT
+            height = if (fit) WRAP_CONTENT else MATCH_PARENT
         }
+        requestLayout()
     }
+
+    override val isFit: Boolean
+        get() = layoutParams.width == WRAP_CONTENT
 
     override fun setLifecycleOwner(owner: LifecycleOwner?) {
         if (!ImageUtils.isCameraAvailable(context) || facings.isEmpty()) {

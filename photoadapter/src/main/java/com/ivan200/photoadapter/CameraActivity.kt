@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -17,7 +18,6 @@ import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.utils.hideSystemUI
 import com.ivan200.photoadapter.utils.invisible
 import com.ivan200.photoadapter.utils.show
-
 
 @Suppress("MemberVisibilityCanBePrivate")
 class CameraActivity : AppCompatActivity() {
@@ -81,7 +81,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        //super.onBackPressed()
+        // super.onBackPressed()
         if (!cameraViewModel.showCamera.value!!) {
             cameraViewModel.backPressed()
         } else {
@@ -94,7 +94,14 @@ class CameraActivity : AppCompatActivity() {
     }
 
     fun showConfirmSaveDialog(onYes: () -> Unit, onNo: () -> Unit) {
-        AlertDialog.Builder(this, cameraBuilder.dialogTheme)
+        val alert = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            AlertDialog.Builder(this, cameraBuilder.dialogTheme)
+        } else {
+            //android 4 with appcompat theme does not support transparency in dialogs 8/. it looks weird
+            //so show native dialog without theme
+            AlertDialog.Builder(this)
+        }
+        alert
             .setTitle(R.string.title_confirm)
             .setMessage(R.string.save_photos_dialog)
             .setPositiveButton(R.string.button_yes) { dialog, id ->
@@ -124,6 +131,7 @@ class CameraActivity : AppCompatActivity() {
             intent.putExtra(thumbsExtraName, resultThumbs)
 
             try {
+                //TODO прикрутить нормальное сохранение в галерею и замену урлов
                 ImageUtils.copyImagesToGallery(this, pics.map { it.file }.toTypedArray(), cameraBuilder.galleryName)
             } catch (ex: Throwable) {
                 ex.printStackTrace()
@@ -145,7 +153,6 @@ class CameraActivity : AppCompatActivity() {
         }
         return super.onKeyDown(keyCode, event)
     }
-
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
