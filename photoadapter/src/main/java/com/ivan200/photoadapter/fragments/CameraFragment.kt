@@ -1,12 +1,12 @@
 package com.ivan200.photoadapter.fragments
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -35,7 +35,6 @@ import com.ivan200.photoadapter.utils.show
 import com.ivan200.photoadapter.utils.simulateClick
 import com.ivan200.photoadapter.utils.unlockOrientation
 import com.otaliastudios.cameraview.controls.Flash
-
 
 //
 // Created by Ivan200 on 15.10.2019.
@@ -88,12 +87,12 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             }
         }
 
-        cameraView.state.observe(viewLifecycleOwner){
+        cameraView.state.observe(viewLifecycleOwner) {
             initText.isVisible = it == CameraViewState.Initializing
         }
 
         cameraView.cameraInfo.observe(viewLifecycleOwner) {
-            if(it != null){
+            if (it != null) {
                 val list = cameraView.cameraInfoList
 
                 switchCamera.isVisible = list.size > 1
@@ -108,7 +107,6 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                 torchSwitch.isVisible = false
             }
         }
-
 
         cameraView.setLifecycleOwner(requireActivity())
         cameraView.setCameraBuilder(cameraBuilder)
@@ -226,23 +224,25 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
     }
 
-    fun onImageSaved(result: TakePictureResult){
-        when(result) {
+    fun onImageSaved(result: TakePictureResult) {
+        when (result) {
             is TakePictureResult.ImageTakeException -> {
-                AlertDialog.Builder(requireActivity(), cameraBuilder.dialogTheme)
+                val dialog = AlertDialog.Builder(requireActivity(), cameraBuilder.dialogTheme)
                     .setTitle(android.R.string.dialog_alert_title)
-                    .setMessage(result.ex?.localizedMessage)        //TODO добавить тексты
+                    .setMessage(result.ex?.localizedMessage) // TODO добавить тексты
                     .setPositiveButton(android.R.string.ok) { dialog, _ ->
                         dialog.dismiss()
                     }
                     .create()
-                    .show()
+                dialog.show()
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    dialog.getWindow()?.setBackgroundDrawableResource(android.R.color.transparent)
+                }
             }
             is TakePictureResult.ImageTaken -> {
                 cameraViewModel.onFileSaved(result.file, null)
             }
         }
-
     }
 
 //    inner class Listener : CameraListener() {

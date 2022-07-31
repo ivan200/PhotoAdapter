@@ -1,6 +1,7 @@
 package com.ivan200.photoadapter.fragments
 
 import android.app.AlertDialog
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
@@ -13,7 +14,12 @@ import com.ivan200.photoadapter.CameraActivity
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.CameraViewModel
 import com.ivan200.photoadapter.R
-import com.ivan200.photoadapter.utils.*
+import com.ivan200.photoadapter.utils.ApplyInsetsListener
+import com.ivan200.photoadapter.utils.onClick
+import com.ivan200.photoadapter.utils.padBottomViewWithInsets
+import com.ivan200.photoadapter.utils.padTopViewWithInsets
+import com.ivan200.photoadapter.utils.rotateItems
+import com.ivan200.photoadapter.utils.showIf
 import me.relex.circleindicator.CircleIndicator3
 
 //
@@ -53,7 +59,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
         })
 
         if (cameraBuilder.fullScreenMode) {
-            //Очищаем значение обозначающее что вью галереи должно быть над панелью кнопок
+            // Очищаем значение обозначающее что вью галереи должно быть над панелью кнопок
             (pagerImages.layoutParams as? RelativeLayout.LayoutParams)?.apply {
                 arrayOf(RelativeLayout.BELOW, RelativeLayout.ABOVE, RelativeLayout.LEFT_OF, RelativeLayout.RIGHT_OF).forEach {
                     addRule(it, 0)
@@ -125,7 +131,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
     }
 
     fun showDialogDeletePage(onOk: () -> Unit) {
-        AlertDialog.Builder(activity, cameraBuilder.dialogTheme)
+        val dialog = AlertDialog.Builder(activity, cameraBuilder.dialogTheme)
             .setTitle(R.string.title_confirm)
             .setMessage(R.string.delete_dialog)
             .setPositiveButton(R.string.button_yes) { dialog, id ->
@@ -134,8 +140,9 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
             }
             .setNegativeButton(android.R.string.cancel) { dialog, id -> dialog.dismiss() }
             .create()
-            .show()
+        dialog.show()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            dialog.getWindow()?.setBackgroundDrawableResource(android.R.color.transparent)
+        }
     }
-
 }
-

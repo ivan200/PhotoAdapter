@@ -94,14 +94,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     fun showConfirmSaveDialog(onYes: () -> Unit, onNo: () -> Unit) {
-        val alert = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            AlertDialog.Builder(this, cameraBuilder.dialogTheme)
-        } else {
-            //android 4 with appcompat theme does not support transparency in dialogs 8/. it looks weird
-            //so show native dialog without theme
-            AlertDialog.Builder(this)
-        }
-        alert
+        val dialog = AlertDialog.Builder(this, cameraBuilder.dialogTheme)
             .setTitle(R.string.title_confirm)
             .setMessage(R.string.save_photos_dialog)
             .setPositiveButton(R.string.button_yes) { dialog, id ->
@@ -113,7 +106,11 @@ class CameraActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
             .create()
-            .show()
+
+        dialog.show()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            dialog.getWindow()?.setBackgroundDrawableResource(android.R.color.transparent)
+        }
     }
 
     fun cancelActivity() {
@@ -131,7 +128,7 @@ class CameraActivity : AppCompatActivity() {
             intent.putExtra(thumbsExtraName, resultThumbs)
 
             try {
-                //TODO прикрутить нормальное сохранение в галерею и замену урлов
+                // TODO прикрутить нормальное сохранение в галерею и замену урлов
                 ImageUtils.copyImagesToGallery(this, pics.map { it.file }.toTypedArray(), cameraBuilder.galleryName)
             } catch (ex: Throwable) {
                 ex.printStackTrace()

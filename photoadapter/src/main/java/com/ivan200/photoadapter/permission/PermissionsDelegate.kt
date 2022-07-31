@@ -67,7 +67,6 @@ open class PermissionsDelegate(
         dialogTheme = cameraBuilder?.dialogTheme ?: 0
     }
 
-
     /**
      * Saving the state in the bundle of the current activity
      * since after going to the application settings and changing the permissions, the activity may die,
@@ -104,7 +103,7 @@ open class PermissionsDelegate(
                 ActivityCompat.requestPermissions(mActivity, deniedPermissionsArray, codeForRequestPermissions)
             }
         } else {
-            //Если все пермишены разрешены, то ничего не делаем
+            // Если все пермишены разрешены, то ничего не делаем
             onPermissionGranted?.invoke()
         }
     }
@@ -138,7 +137,6 @@ open class PermissionsDelegate(
         }
     }
 
-
     /**
      * Show dialog on permission rejected
      *
@@ -157,7 +155,7 @@ open class PermissionsDelegate(
             }
         }
 
-        AlertDialog.Builder(mActivity, dialogTheme)
+        val dialog = AlertDialog.Builder(mActivity, dialogTheme)
             .setTitle(android.R.string.dialog_alert_title)
             .setIconAttribute(android.R.attr.alertDialogIcon)
             .setMessage(messageId)
@@ -193,7 +191,10 @@ open class PermissionsDelegate(
                     true
                 }
             }
-            .show()
+        dialog.show()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            dialog.getWindow()?.setBackgroundDrawableResource(android.R.color.transparent)
+        }
     }
 
     /**
