@@ -7,6 +7,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Point
 import android.graphics.PointF
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK
@@ -18,6 +19,7 @@ import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
 import android.util.TypedValue
@@ -48,6 +50,7 @@ import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+
 
 //
 // Created by Ivan200 on 21.10.2019.
@@ -319,17 +322,12 @@ object ImageUtils {
         return defaultLandscapeAndIsInLandscape || defaultLandscapeAndIsInPortrait
     }
 
-    fun getExifByRotation(imageSize: Size, rotation: Int, defaultLandscape: Boolean): Int {
-        val portraitNormal = imageSize.width <= imageSize.height && !defaultLandscape
-        val landscapeNormal = imageSize.width >= imageSize.height && defaultLandscape
-        val normal = portraitNormal || landscapeNormal
-
-        return when (rotation) {
-            ROTATION_0 -> if (normal) ORIENTATION_NORMAL else ORIENTATION_ROTATE_270
-            ROTATION_90 -> if (normal) ORIENTATION_ROTATE_90 else ORIENTATION_NORMAL
-            ROTATION_180 -> if (normal) ORIENTATION_ROTATE_180 else ORIENTATION_ROTATE_90
-            ROTATION_270 -> if (normal) ORIENTATION_ROTATE_270 else ORIENTATION_ROTATE_180
-            else -> ORIENTATION_UNDEFINED
-        }
+    fun getExifByRotation(rotation: Int): Int = when (rotation) {
+        ROTATION_0 ->   ORIENTATION_NORMAL
+        ROTATION_90 ->  ORIENTATION_ROTATE_90
+        ROTATION_180 -> ORIENTATION_ROTATE_180
+        ROTATION_270 -> ORIENTATION_ROTATE_270
+        else -> ORIENTATION_UNDEFINED
     }
+
 }

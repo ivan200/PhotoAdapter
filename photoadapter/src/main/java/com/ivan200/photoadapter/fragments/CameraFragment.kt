@@ -88,7 +88,14 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
 
         cameraView.state.observe(viewLifecycleOwner) {
-            initText.isVisible = it == CameraViewState.Initializing
+            when(it){
+                is CameraViewState.Error -> initText.isVisible = false
+                CameraViewState.Initializing -> initText.isVisible = true
+                CameraViewState.NoPermissions -> initText.isVisible = false
+                CameraViewState.NotInitialized -> initText.isVisible = false
+                CameraViewState.Paused -> initText.isVisible = false
+                CameraViewState.Streaming -> initText.isVisible = false
+            }
         }
 
         cameraView.cameraInfo.observe(viewLifecycleOwner) {
@@ -111,7 +118,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         cameraView.setLifecycleOwner(requireActivity())
         cameraView.setCameraBuilder(cameraBuilder)
 
-        cameraView.takePictureResult.observe(requireActivity(), this::onImageSaved)
+        cameraView.takePictureResult.observe(requireActivity(), this::onPictureTaken)
 
 //        switchCamera.showIf { cameraBuilder.changeCameraAllowed && ImageUtils.hasDifferentFacings(requireActivity()) }
 //        switchCamera.onClick {
@@ -224,7 +231,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
     }
 
-    fun onImageSaved(result: TakePictureResult) {
+    fun onPictureTaken(result: TakePictureResult) {
         when (result) {
             is TakePictureResult.ImageTakeException -> {
                 val dialog = AlertDialog.Builder(requireActivity(), cameraBuilder.dialogTheme)

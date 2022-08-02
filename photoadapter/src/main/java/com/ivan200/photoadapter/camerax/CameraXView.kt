@@ -328,11 +328,11 @@ class CameraXView @JvmOverloads constructor(
         )
     }
 
-    private fun onPhotoSaved(photoFile: File) {
+    private fun onSnapshotSaved(photoFile: File) {
         _takePictureResult.postValue(TakePictureResult.ImageTaken(photoFile))
     }
 
-    private fun onPhotoSaveError(ex: Throwable) {
+    private fun onSnapshotSaveError(ex: Throwable) {
         _takePictureResult.postValue(
             TakePictureResult.ImageTakeException(
                 CaptureError.ERROR_FILE_IO,
@@ -343,16 +343,10 @@ class CameraXView @JvmOverloads constructor(
 
     fun takeSnapshot() {
         viewFinder.bitmap?.let {
-            val exif = ImageUtils.getExifByRotation(
-                Size(it.width, it.height),
-                rotationDetector.sensorOrientation,
-                isDefaultOrientationLandscape(context)
-            )
-
+            val exif = ImageUtils.getExifByRotation(rotationDetector.sumOrientation)
             val photoDir = ImageUtils.getPhotosDir(context, builder.photosPath)
             val photoFile = ImageUtils.createImageFile(context, photoDir)
-
-            BitmapSaver(photoFile,it,exif, builder.maxImageSize, this::onPhotoSaved,this::onPhotoSaveError).save()
+            BitmapSaver(photoFile,it,exif, builder.maxImageSize, this::onSnapshotSaved,this::onSnapshotSaveError).save()
         }
     }
 

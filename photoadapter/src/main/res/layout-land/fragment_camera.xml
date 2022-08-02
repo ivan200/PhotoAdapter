@@ -17,10 +17,11 @@
         android:layout_height="match_parent"
         android:layout_below="@id/statusView"
         android:layout_toLeftOf="@id/action_layout"
-        android:gravity="center">
+        android:gravity="center"
+        android:layout_toStartOf="@id/action_layout">
 
         <TextView
-            android:id="@+id/init_text"
+            android:id="@+id/initText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
@@ -33,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:keepScreenOn="true"
-            android:visibility="gone"
+            android:visibility="visible"
             tools:visibility="visible"
             />
     </FrameLayout>
@@ -133,12 +134,13 @@
                 android:layout_width="@dimen/size_icon_bounding"
                 android:layout_height="@dimen/size_icon_bounding"
                 android:layout_gravity="center"
-                android:background="?selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_icon_gray"
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="center"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_photo_camera_rear"
+                app:tint="@android:color/white"
                 tools:visibility="visible" />
         </FrameLayout>
     </RelativeLayout>
