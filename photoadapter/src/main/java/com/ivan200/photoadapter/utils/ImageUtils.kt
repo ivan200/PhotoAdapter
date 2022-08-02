@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.PointF
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK
@@ -21,11 +22,20 @@ import android.util.Log
 import android.util.Size
 import android.util.TypedValue
 import android.view.Display
+import android.view.Surface.ROTATION_0
+import android.view.Surface.ROTATION_180
+import android.view.Surface.ROTATION_270
+import android.view.Surface.ROTATION_90
 import android.view.WindowManager
 import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
 import androidx.core.content.ContextCompat
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_UNDEFINED
 import com.ivan200.photoadapter.base.FacingDelegate
 import java.io.File
 import java.io.FileInputStream
@@ -49,7 +59,6 @@ object ImageUtils {
     const val THUMBNAILS = "thumbnails"
     const val JPEG_FILE_PREFIX = "IMG_"
     const val JPEG_FILE_SUFFIX = ".jpg"
-
 
     fun getFileName(): String {
         val timeStamp = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss.SSS", Locale.US).format(Date())
@@ -88,7 +97,7 @@ object ImageUtils {
 
     @Suppress("DEPRECATION")
     fun copyImagesToGalleryBelowQ(context: Context, images: Array<File>, ALBUM: String) {
-        //Checks if external storage is available for read and write
+        // Checks if external storage is available for read and write
         if (Environment.MEDIA_MOUNTED != Environment.getExternalStorageState()) return
 
         val externalStoragePublicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
@@ -134,7 +143,6 @@ object ImageUtils {
         }
     }
 
-
     @Throws(IOException::class)
     fun copyFile(sourceFile: File, destFile: File) {
         val source = FileInputStream(sourceFile).channel
@@ -147,12 +155,11 @@ object ImageUtils {
         source.close()
     }
 
-    //Add the image and image album into gallery
+    // Add the image and image album into gallery
     @SuppressLint("InlinedApi")
     private fun updateGallery(context: Context, albumName: String, files: Array<File>) {
-
         for (file in files) {
-            //metadata of new image
+            // metadata of new image
             val values = ContentValues().apply {
                 put(MediaStore.Images.Media.TITLE, file.name)
                 put(MediaStore.Images.Media.DESCRIPTION, albumName)
@@ -168,7 +175,9 @@ object ImageUtils {
         // Tell the media scanner about the new file so that it is
         // immediately available to the user.
         MediaScannerConnection.scanFile(
-            context, files.map { it.toString() }.toTypedArray(), null
+            context,
+            files.map { it.toString() }.toTypedArray(),
+            null
         ) { path, uri ->
             Log.i("ExternalStorage", "Scanned $path:")
             Log.i("ExternalStorage", "-> uri=$uri")
@@ -215,12 +224,11 @@ object ImageUtils {
         val numberOfCameras: Int = Camera.getNumberOfCameras()
         for (i in 0 until numberOfCameras) {
             Camera.getCameraInfo(i, cameraInfo)
-            if(cameraInfo.facing == CAMERA_FACING_BACK) facings.add(FacingDelegate.BACK)
-            if(cameraInfo.facing == CAMERA_FACING_FRONT) facings.add(FacingDelegate.FRONT)
+            if (cameraInfo.facing == CAMERA_FACING_BACK) facings.add(FacingDelegate.BACK)
+            if (cameraInfo.facing == CAMERA_FACING_FRONT) facings.add(FacingDelegate.FRONT)
         }
         return facings
     }
-
 
     fun getFacings(context: Context): Set<FacingDelegate> {
         if (!isCameraAvailable(context)) {
@@ -239,7 +247,7 @@ object ImageUtils {
                     when (facing) {
                         CameraCharacteristics.LENS_FACING_BACK -> facings.add(FacingDelegate.BACK)
                         CameraCharacteristics.LENS_FACING_FRONT -> facings.add(FacingDelegate.FRONT)
-                        else -> Unit //Ontario is not support external cameras
+                        else -> Unit // Ontario is not support external cameras
                     }
                 }
             } catch (ex: Throwable) {
@@ -250,10 +258,10 @@ object ImageUtils {
     }
 
     fun isCameraAvailable(context: Context): Boolean {
-        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
-                || context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
-                || context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)
-                || context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_EXTERNAL)
+        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY) ||
+            context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA) ||
+            context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT) ||
+            context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_EXTERNAL)
     }
 
     fun Number.dpToPx(context: Context? = null): Float {
@@ -281,12 +289,12 @@ object ImageUtils {
         else -> Size((targetSideSize / RATIO_4_3_VALUE).toInt(), targetSideSize)
     }
 
-    fun Size.scaleDown(maxSide: Int): Size {
-        if(width == 0 || height == 0) {
-            return Size(0,0)
-        }
-        if (width <= maxSide && height <= maxSide || maxSide < 0) {
+    fun Size.scaleDown(maxSide: Int?): Size {
+        if(maxSide == null || maxSide < 0 || (width <= maxSide && height <= maxSide)){
             return this
+        }
+        if (width == 0 || height == 0) {
+            return Size(0, 0)
         }
         val ratio = width.toFloat() / height.toFloat()
         return when {
@@ -299,4 +307,29 @@ object ImageUtils {
     val Context.displayCompat: Display?
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) display else null
             ?: ContextCompat.getSystemService(this, WindowManager::class.java)?.defaultDisplay
+
+    /** Checking whether the system orientation of the device is landscape */
+    fun isDefaultOrientationLandscape(context: Context): Boolean {
+        val config = context.resources.configuration
+        val rotation = context.displayCompat?.rotation
+        val defaultLandscapeAndIsInLandscape = (rotation == ROTATION_0 || rotation == ROTATION_180) &&
+            config.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val defaultLandscapeAndIsInPortrait = (rotation == ROTATION_90 || rotation == ROTATION_270) &&
+            config.orientation == Configuration.ORIENTATION_PORTRAIT
+        return defaultLandscapeAndIsInLandscape || defaultLandscapeAndIsInPortrait
+    }
+
+    fun getExifByRotation(imageSize: Size, rotation: Int, defaultLandscape: Boolean): Int {
+        val portraitNormal = imageSize.width <= imageSize.height && !defaultLandscape
+        val landscapeNormal = imageSize.width >= imageSize.height && defaultLandscape
+        val normal = portraitNormal || landscapeNormal
+
+        return when (rotation) {
+            ROTATION_0 -> if (normal) ORIENTATION_NORMAL else ORIENTATION_ROTATE_270
+            ROTATION_90 -> if (normal) ORIENTATION_ROTATE_90 else ORIENTATION_NORMAL
+            ROTATION_180 -> if (normal) ORIENTATION_ROTATE_180 else ORIENTATION_ROTATE_90
+            ROTATION_270 -> if (normal) ORIENTATION_ROTATE_270 else ORIENTATION_ROTATE_180
+            else -> ORIENTATION_UNDEFINED
+        }
+    }
 }

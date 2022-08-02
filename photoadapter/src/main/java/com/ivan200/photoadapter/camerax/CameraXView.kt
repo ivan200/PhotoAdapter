@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
+import android.util.Size
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
@@ -42,8 +43,11 @@ import com.ivan200.photoadapter.base.FacingDelegate
 import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.base.TorchDelegate
+import com.ivan200.photoadapter.utils.BitmapSaver
 import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.utils.ImageUtils.dpToPx
+import com.ivan200.photoadapter.utils.ImageUtils.isDefaultOrientationLandscape
+import java.io.File
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 
@@ -289,7 +293,10 @@ class CameraXView @JvmOverloads constructor(
     }
 
     override fun takePicture() {
-//        stopPreview()
+        if(builder.useSnapshot){
+            takeSnapshot()
+            return
+        }
 
         // Setup image capture metadata
         val metadata = Metadata().apply {
@@ -305,16 +312,48 @@ class CameraXView @JvmOverloads constructor(
             .setMetadata(metadata)
             .build()
 
-        imageCapture?.takePicture(outputOptions, takePictureExecutor, object : ImageCapture.OnImageSavedCallback {
-            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                _takePictureResult.postValue(TakePictureResult.ImageTaken(outputFileResults.savedUri!!.toFile()))
-            }
+        imageCapture?.takePicture(
+            outputOptions,
+            takePictureExecutor,
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    _takePictureResult.postValue(TakePictureResult.ImageTaken(outputFileResults.savedUri!!.toFile()))
+                }
 
-            override fun onError(exception: ImageCaptureException) {
-                val reason = takePictureErrorMap[exception.imageCaptureError] ?: CaptureError.ERROR_UNKNOWN
-                _takePictureResult.postValue(TakePictureResult.ImageTakeException(reason, exception))
+                override fun onError(exception: ImageCaptureException) {
+                    val reason = takePictureErrorMap[exception.imageCaptureError] ?: CaptureError.ERROR_UNKNOWN
+                    _takePictureResult.postValue(TakePictureResult.ImageTakeException(reason, exception))
+                }
             }
-        })
+        )
+    }
+
+    private fun onPhotoSaved(photoFile: File) {
+        _takePictureResult.postValue(TakePictureResult.ImageTaken(photoFile))
+    }
+
+    private fun onPhotoSaveError(ex: Throwable) {
+        _takePictureResult.postValue(
+            TakePictureResult.ImageTakeException(
+                CaptureError.ERROR_FILE_IO,
+                ex
+            )
+        )
+    }
+
+    fun takeSnapshot() {
+        viewFinder.bitmap?.let {
+            val exif = ImageUtils.getExifByRotation(
+                Size(it.width, it.height),
+                rotationDetector.sensorOrientation,
+                isDefaultOrientationLandscape(context)
+            )
+
+            val photoDir = ImageUtils.getPhotosDir(context, builder.photosPath)
+            val photoFile = ImageUtils.createImageFile(context, photoDir)
+
+            BitmapSaver(photoFile,it,exif, builder.maxImageSize, this::onPhotoSaved,this::onPhotoSaveError).save()
+        }
     }
 
     override val cameraInfo: LiveData<SimpleCameraInfo?> get() = changeCameraProvider.cameraInfo
