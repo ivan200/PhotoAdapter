@@ -10,6 +10,7 @@ data class SimpleCameraInfo(
     val cameraId: String,
     val cameraFacing: FacingDelegate,
     val hasFlashUnit: Boolean,
+    val supportedFlash: List<FlashDelegate.HasFlash>,
     val physicalSize: PointF,
     val fov: Float,
     val focal: Float,

@@ -60,6 +60,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 //            .setMaxImageSize(prefs.maxImageSize)
             .setUseSnapshot(prefs.useSnapshot)
             .setDialogTheme(R.style.AppThemeDialog)
+            .setForceUseCamera1Impl(prefs.forceCamera1)
     }
 
     private fun takePicture() {

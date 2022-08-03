@@ -8,7 +8,6 @@ import android.graphics.Color
 import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
-import android.util.Size
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
@@ -40,13 +39,12 @@ import com.ivan200.photoadapter.base.CameraError
 import com.ivan200.photoadapter.base.CameraViewState
 import com.ivan200.photoadapter.base.CaptureError
 import com.ivan200.photoadapter.base.FacingDelegate
+import com.ivan200.photoadapter.base.FlashDelegate
 import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
-import com.ivan200.photoadapter.base.TorchDelegate
-import com.ivan200.photoadapter.utils.BitmapSaver
 import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.utils.ImageUtils.dpToPx
-import com.ivan200.photoadapter.utils.ImageUtils.isDefaultOrientationLandscape
+import com.otaliastudios.cameraview.controls.Flash
 import java.io.File
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
@@ -83,8 +81,8 @@ class CameraXView @JvmOverloads constructor(
     private val cameraProviderFutureListener = CameraProviderFutureListener()
     private var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>? = null
 
-    private val _torchState = MutableLiveData<TorchDelegate>(TorchDelegate.NoTorch)
-    val torchState: LiveData<TorchDelegate> = _torchState
+    private val _torchState = MutableLiveData<Boolean>(false)
+    val torchState: LiveData<Boolean> = _torchState
 
     private val _takePictureResult = MutableLiveData<TakePictureResult>()
     override val takePictureResult: LiveData<TakePictureResult> = _takePictureResult
@@ -93,6 +91,7 @@ class CameraXView @JvmOverloads constructor(
 
     init {
         this.background = ColorDrawable(Color.BLACK)
+        layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
     }
 
     val viewFinder = PreviewView(context, attrs, defStyleAttr, defStyleRes).also {
@@ -107,8 +106,20 @@ class CameraXView @JvmOverloads constructor(
         this.addView(it)
     }
 
-    fun toggleTorch() {
-        camera?.cameraControl?.enableTorch(torchState.value != TorchDelegate.Torch)
+    override fun setFlash(flash: FlashDelegate.HasFlash) {
+        if(_torchState.value == true && flash != FlashDelegate.HasFlash.Torch) {
+            camera?.cameraControl?.enableTorch(false)
+        }
+
+        when(flash) {
+            FlashDelegate.HasFlash.Auto -> imageCapture?.flashMode = ImageCapture.FLASH_MODE_AUTO
+            FlashDelegate.HasFlash.Off -> imageCapture?.flashMode = ImageCapture.FLASH_MODE_OFF
+            FlashDelegate.HasFlash.On -> imageCapture?.flashMode = ImageCapture.FLASH_MODE_ON
+            FlashDelegate.HasFlash.Torch -> {
+                imageCapture?.flashMode = ImageCapture.FLASH_MODE_OFF
+                camera?.cameraControl?.enableTorch(true)
+            }
+        }
     }
 
     override fun setFitMode(fit: Boolean) {
@@ -271,8 +282,8 @@ class CameraXView @JvmOverloads constructor(
         }
         camera?.cameraInfo?.torchState?.observe(lifecycleOwner!!) {
             when (it) {
-                TorchState.ON -> _torchState.postValue(TorchDelegate.Torch)
-                TorchState.OFF -> _torchState.postValue(TorchDelegate.Off)
+                TorchState.ON -> _torchState.postValue(true)
+                TorchState.OFF -> _torchState.postValue(false)
             }
         }
         viewFinder.setOnTouchListener(TouchHandler(camera, viewFinder, focusView))
@@ -346,7 +357,8 @@ class CameraXView @JvmOverloads constructor(
             val exif = ImageUtils.getExifByRotation(rotationDetector.sumOrientation)
             val photoDir = ImageUtils.getPhotosDir(context, builder.photosPath)
             val photoFile = ImageUtils.createImageFile(context, photoDir)
-            BitmapSaver(photoFile,it,exif, builder.maxImageSize, this::onSnapshotSaved,this::onSnapshotSaveError).save()
+            val jpegQuality = builder.outputJpegQuality ?: DEFAULT_JPEG_QUALITY
+            BitmapSaver(photoFile,it,exif, builder.maxImageSize, jpegQuality, this::onSnapshotSaved,this::onSnapshotSaveError).save()
         }
     }
 
@@ -373,5 +385,7 @@ class CameraXView @JvmOverloads constructor(
             ImageCapture.ERROR_CAMERA_CLOSED to CaptureError.ERROR_CAMERA_CLOSED,
             ImageCapture.ERROR_INVALID_CAMERA to CaptureError.ERROR_INVALID_CAMERA
         )
+
+        private const val DEFAULT_JPEG_QUALITY = 95
     }
 }

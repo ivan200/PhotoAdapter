@@ -2,7 +2,9 @@ package com.ivan200.photoadapter.fragments
 
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.RelativeLayout
@@ -21,6 +23,7 @@ import com.ivan200.photoadapter.PictureInfo
 import com.ivan200.photoadapter.R
 import com.ivan200.photoadapter.base.CameraView
 import com.ivan200.photoadapter.base.CameraViewState
+import com.ivan200.photoadapter.base.FlashDelegate
 import com.ivan200.photoadapter.base.FragmentChangeState
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.utils.ANIMATION_FAST_MILLIS
@@ -35,7 +38,6 @@ import com.ivan200.photoadapter.utils.rotateItems
 import com.ivan200.photoadapter.utils.show
 import com.ivan200.photoadapter.utils.simulateClick
 import com.ivan200.photoadapter.utils.unlockOrientation
-import com.otaliastudios.cameraview.controls.Flash
 
 //
 // Created by Ivan200 on 15.10.2019.
@@ -59,16 +61,20 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         ViewModelProvider(activity as CameraActivity).get(CameraViewModel::class.java)
     }
 
-    private var supportedFlash: List<Flash> = listOf(Flash.OFF)
-    private var currentFlash = Flash.OFF
+    private var currentFlash: FlashDelegate = FlashDelegate.NoFlash
     private lateinit var cameraBuilder: CameraBuilder
 
     private var insets: WindowInsetsCompat? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
+
+        CameraView.forceUseCamera1Impl = cameraBuilder.forceUseCamera1Impl
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
 
         cameraViewModel.pictures.observe(requireActivity()) {
             if (!cameraBuilder.previewImage) {
@@ -89,7 +95,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
 
         cameraView.state.observe(viewLifecycleOwner) {
-            when(it){
+            when (it) {
                 is CameraViewState.Error -> initText.isVisible = false
                 CameraViewState.Initializing -> initText.isVisible = true
                 CameraViewState.NoPermissions -> initText.isVisible = false
@@ -110,6 +116,11 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                     cameraView.changeFacing()
                 }
                 torchSwitch.isVisible = it.hasFlashUnit
+                if(it.supportedFlash.size > 0) {
+                    currentFlash = it.supportedFlash.first()
+                } else{
+                    currentFlash = FlashDelegate.NoFlash
+                }
             } else {
                 switchCamera.isVisible = false
                 torchSwitch.isVisible = false
@@ -133,7 +144,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
 
         cameraViewModel.fragmentState.observe(requireActivity()) {
-            setFlash(if (it != FragmentChangeState.GALLERY) currentFlash else Flash.OFF)
+            setFlash(if (it != FragmentChangeState.GALLERY) currentFlash else FlashDelegate.NoFlash)
         }
 
         cameraViewModel.rotate.observe(requireActivity()) {
@@ -199,23 +210,28 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     }
 
     private fun nextFlash() {
-        var index = supportedFlash.indexOf(currentFlash) + 1
-        if (index >= supportedFlash.size) index = 0
-
-        currentFlash = supportedFlash[index]
-        setFlash(currentFlash)
+        val flashes = cameraView.cameraInfo.value?.supportedFlash ?: emptyList()
+        if (flashes.size > 0) {
+            var index = when (val flash = currentFlash) {
+                FlashDelegate.NoFlash -> 0
+                is FlashDelegate.HasFlash -> flashes.indexOf(flash) + 1
+            }
+            if (index >= flashes.size) index = 0
+            currentFlash = flashes[index]
+            setFlash(currentFlash)
+        }
     }
 
-    private fun setFlash(flash: Flash) {
-//        cameraView.flash = flash
-//        torchSwitch.setImageResource(
-//            when (flash) {
-//                Flash.OFF -> R.drawable.ic_photo_flash_off
-//                Flash.ON -> R.drawable.ic_photo_flash_on
-//                Flash.AUTO -> R.drawable.ic_photo_flash_auto
-//                Flash.TORCH -> R.drawable.ic_photo_flash_torch
-//            }
-//        )
+    private fun setFlash(flash: FlashDelegate) {
+        when (flash) {
+            FlashDelegate.NoFlash -> torchSwitch.isVisible = false
+            is FlashDelegate.HasFlash -> {
+                cameraView.setFlash(flash)
+                torchSwitch.isVisible = true
+                torchSwitch.setImageResource(flash.iconRes)
+                torchSwitch.contentDescription = getString(flash.descriptionRes)
+            }
+        }
     }
 
     override fun onStart() {

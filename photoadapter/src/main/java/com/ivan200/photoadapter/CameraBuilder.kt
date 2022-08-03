@@ -51,6 +51,7 @@ data class CameraBuilder private constructor(
     var dialogTheme: Int = 0,
     @IntRange(from = 1, to = 100)
     var outputJpegQuality: Int? = null,
+    var forceUseCamera1Impl: Boolean = false,
 ) : Parcelable {
 
     constructor() : this(facingBack = true) //explicit "empty" constructor, as seen by Java.
@@ -66,6 +67,7 @@ data class CameraBuilder private constructor(
     fun setPhotosPath(photosPath: File) = apply { this.photosPath = photosPath }
     fun setMaxImageSize(maxImageSize: Int) = apply { this.maxImageSize = maxImageSize }
     fun setUseSnapshot(useSnapshot: Boolean) = apply { this.useSnapshot = useSnapshot }
+    fun setForceUseCamera1Impl(forceUseCamera1Impl: Boolean) = apply { this.forceUseCamera1Impl = forceUseCamera1Impl }
     fun setRequestCode(requestCode: Int) = apply { this.requestCode = requestCode }
     fun setDialogTheme(@AnyRes dialogTheme: Int) = apply { this.dialogTheme = dialogTheme }
     fun setOutputJpegQuality(@IntRange(from = 1, to = 100) outputJpegQuality: Int) = apply { this.outputJpegQuality = outputJpegQuality }

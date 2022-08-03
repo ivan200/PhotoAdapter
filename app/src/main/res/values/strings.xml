@@ -20,13 +20,16 @@
     <string name="allowMultipleImages_description">Allow you to take several photos per session, with the return of an array of images.</string>
 
     <string name="useSnapshot">Use snapshot</string>
-    <string name="useSnapshot_description">Instead of actually taking photos and waiting for the camera to return the image, a snapshot of the area that displays the image is used.\nMuch faster than a real photo, does not give the sound of taking a photo, but slightly less quality.</string>
+    <string name="useSnapshot_description">Instead of actually taking photos and waiting for the camera to return the image, a snapshot of the area that displays the image is used.\nMuch faster than a real photo, does not give the sound of taking a photo, but the size of the photo is limited by the size of the screen. Also, you cannot turn on the auto flash, only torch mode allowed.</string>
 
     <string name="saveToGallery">Save to phone gallery also</string>
     <string name="saveToGallery_description">Allows you to save photos, in addition to the app\'s memory, also to the phone\'s gallery for the user.</string>
 
     <string name="lockRotate">Lock rotate screen</string>
     <string name="lockRotate_description">Blocks rotation of the camera activity and redrawing of the view when the phone is rotated.</string>
+
+    <string name="forceCamera1">Force Camera1 implementation</string>
+    <string name="forceCamera1_description">The old camera implementation for Android 4 devices. Does not support multiple cameras on the same phone facing, may not support optical stabilization and other improvements. If turned off, Google\'s CameraX implementation will be used if possible on current device</string>
 
     <string name="gallery">Gallery</string>
     <string name="preview">Preview</string>

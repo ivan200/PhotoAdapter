@@ -14,6 +14,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.base.FacingDelegate
+import com.ivan200.photoadapter.base.FlashDelegate
 import com.ivan200.photoadapter.base.SimpleCameraInfo
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -125,12 +126,30 @@ class ChangeCameraProvider {
         provider?.availableCameraInfos?.forEach {
             val cameraInfo = it as? CameraInfoInternal
             val characteristics = (it as? Camera2CameraInfoImpl)?.cameraCharacteristicsCompat
+
+            val supportedFlash: List<FlashDelegate.HasFlash> = if (it.hasFlashUnit()) {
+                if (cameraParams?.useSnapshot == true) {
+                    listOf(
+                        FlashDelegate.HasFlash.Off,
+                        FlashDelegate.HasFlash.Torch
+                    )
+                } else {
+                    listOf(
+                        FlashDelegate.HasFlash.Off,
+                        FlashDelegate.HasFlash.On,
+                        FlashDelegate.HasFlash.Auto,
+                        FlashDelegate.HasFlash.Torch
+                    )
+                }
+            } else emptyList()
+
             cameras.add(
                 SimpleCameraInfo(
                     cameraId = cameraInfo?.cameraId.orEmpty(),
                     cameraFacing = getFacing(cameraInfo),
                     hasFlashUnit = it.hasFlashUnit(),
                     physicalSize = getPhysicalSize(characteristics),
+                    supportedFlash = supportedFlash.sortedBy { it.orderValue },
                     fov = getCameraFov(characteristics),
                     focal = getFocalLength(characteristics),
                     name = cameraInfo?.cameraId.orEmpty()
@@ -157,6 +176,7 @@ class ChangeCameraProvider {
                 simpleCameraInfo.cameraId,
                 simpleCameraInfo.cameraFacing,
                 simpleCameraInfo.hasFlashUnit,
+                simpleCameraInfo.supportedFlash,
                 simpleCameraInfo.physicalSize,
                 simpleCameraInfo.fov,
                 simpleCameraInfo.focal,
@@ -165,8 +185,8 @@ class ChangeCameraProvider {
         }
     }
 
-    //Get the intended camera name by knowing the camera parameters
-    //so name will be: "1","2","3" or ".5",".8" or "1.5","2.2"
+    // Get the intended camera name by knowing the camera parameters
+    // so name will be: "1","2","3" or ".5",".8" or "1.5","2.2"
     private fun getCameraName(camera: SimpleCameraInfo, mainZoomValue: Float): String {
         val result = camera.zoomValue() / mainZoomValue
         val bd1 = BigDecimal(result.toDouble()).setScale(1, RoundingMode.HALF_UP)

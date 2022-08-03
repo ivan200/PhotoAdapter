@@ -1,12 +1,9 @@
-package com.ivan200.photoadapter.utils
+package com.ivan200.photoadapter.ontario
 
 import android.os.Handler
-import androidx.fragment.app.FragmentActivity
-import com.ivan200.photoadapter.CameraBuilder
 import com.otaliastudios.cameraview.PictureResult
 import java.io.File
 import java.io.FileOutputStream
-import kotlin.math.max
 
 //
 // Created by Ivan200 on 08.11.2019.

@@ -1,17 +1,13 @@
-package com.ivan200.photoadapter.utils
+package com.ivan200.photoadapter.camerax
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Handler
 import android.util.Size
 import androidx.exifinterface.media.ExifInterface
-import androidx.fragment.app.FragmentActivity
-import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.utils.ImageUtils.scaleDown
-import com.otaliastudios.cameraview.PictureResult
 import java.io.File
 import java.io.FileOutputStream
-import kotlin.math.max
 
 //
 // Created by Ivan200 on 08.11.2019.
@@ -22,6 +18,7 @@ class BitmapSaver(
     private var result: Bitmap,
     private var exif: Int,
     private var maxSide: Int?,
+    private var jpegQuality: Int,
     private var onSaved: (File) -> Unit,
     private var onSavedError: (Throwable) -> Unit
 ) {
@@ -32,7 +29,7 @@ class BitmapSaver(
             runCatching {
                 val bitmap = transformBitmap(exif, maxSide, result)
                 FileOutputStream(photoFile).buffered().use {
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 95, it)
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, jpegQuality, it)
                 }
                 bitmap.recycle()
             }.onSuccess {

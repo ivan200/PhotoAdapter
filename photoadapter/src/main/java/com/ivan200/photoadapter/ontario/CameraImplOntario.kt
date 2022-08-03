@@ -19,10 +19,10 @@ import com.ivan200.photoadapter.base.CameraError
 import com.ivan200.photoadapter.base.CameraViewState
 import com.ivan200.photoadapter.base.CaptureError
 import com.ivan200.photoadapter.base.FacingDelegate
+import com.ivan200.photoadapter.base.FlashDelegate
 import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.utils.ImageUtils
-import com.ivan200.photoadapter.utils.ResultSaver
 import com.otaliastudios.cameraview.CameraException
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraOptions
@@ -70,7 +70,8 @@ class CameraImplOntario @JvmOverloads constructor(
     init {
         audio = Audio.OFF
         setAutoFocusMarker(DefaultAutoFocusMarker())
-        engine = if (ImageUtils.allowCamera2Support(context)) Engine.CAMERA2 else Engine.CAMERA1
+        engine = // if (ImageUtils.allowCamera2Support(context)) Engine.CAMERA2 else
+            Engine.CAMERA1
         facing = Facing.BACK
         flash = Flash.OFF
         mapGesture(Gesture.LONG_TAP, GestureAction.NONE)
@@ -170,6 +171,16 @@ class CameraImplOntario @JvmOverloads constructor(
 
     override fun selectSameFacingCameraByIndex(index: Int) {}
 
+    override fun setFlash(flash: FlashDelegate.HasFlash) {
+        val newFlash = when (flash) {
+            FlashDelegate.HasFlash.Auto -> Flash.AUTO
+            FlashDelegate.HasFlash.Off -> Flash.OFF
+            FlashDelegate.HasFlash.On -> Flash.ON
+            FlashDelegate.HasFlash.Torch -> Flash.TORCH
+        }
+        this.flash = newFlash
+    }
+
     inner class Listener : CameraListener() {
         override fun onCameraOpened(options: CameraOptions) {
             _state.postValue(CameraViewState.Streaming)
@@ -184,10 +195,28 @@ class CameraImplOntario @JvmOverloads constructor(
                 options.supportedFlash.contains(Flash.AUTO) ||
                 options.supportedFlash.contains(Flash.TORCH)
 
+            val supportedFlash: List<FlashDelegate.HasFlash> = if (hasFlash) {
+                if (builder.useSnapshot) {
+                    listOf(FlashDelegate.HasFlash.Off, FlashDelegate.HasFlash.Torch)
+                } else {
+                    options.supportedFlash.map {
+                        when (it!!) {
+                            Flash.OFF -> FlashDelegate.HasFlash.Off
+                            Flash.ON -> FlashDelegate.HasFlash.On
+                            Flash.AUTO -> FlashDelegate.HasFlash.Auto
+                            Flash.TORCH -> FlashDelegate.HasFlash.Torch
+                        }
+                    }
+                }
+            } else {
+                emptyList()
+            }
+
             val cameraInfo = SimpleCameraInfo(
                 cameraIdMap.get(facing)!!,
                 facing,
                 hasFlash,
+                supportedFlash.sortedBy { it.orderValue },
                 PointF(0f, 0f),
                 0f,
                 0f,
@@ -235,6 +264,7 @@ class CameraImplOntario @JvmOverloads constructor(
     private fun onPhotoSaved(photoFile: File) {
         _takePictureResult.postValue(TakePictureResult.ImageTaken(photoFile))
     }
+
     private fun onPhotoSaveError(ex: Throwable) {
         _takePictureResult.postValue(TakePictureResult.ImageTakeException(CaptureError.ERROR_FILE_IO, ex))
     }

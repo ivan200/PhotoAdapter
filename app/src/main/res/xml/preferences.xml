@@ -66,4 +66,11 @@
         android:defaultValue="true"
         app:iconSpaceReserved="false">
     </CheckBoxPreference>
+    <CheckBoxPreference
+        android:key="forceCamera1"
+        android:title="@string/forceCamera1"
+        android:summary="@string/forceCamera1_description"
+        android:defaultValue="false"
+        app:iconSpaceReserved="false">
+    </CheckBoxPreference>
 </PreferenceScreen>

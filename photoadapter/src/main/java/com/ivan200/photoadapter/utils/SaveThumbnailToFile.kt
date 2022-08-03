@@ -17,6 +17,9 @@ class SaveThumbnailToFile(
     override fun invoke(origFile: File?): File? {
         if (origFile == null || thumbnailFile == null) return null
 
+        //TODO подумать насчёт сохранения миниатюр сразу в EXIF оригинального файла
+        //https://github.com/sephiroth74/Android-Exif-Extended
+
         val bitmapOptions = BitmapFactory.Options()
         bitmapOptions.inJustDecodeBounds = true // obtain the size of the image, without loading it in memory
         BitmapFactory.decodeFile(origFile.absolutePath, bitmapOptions)
