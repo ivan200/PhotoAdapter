@@ -13,11 +13,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.ivan200.photoadapter.base.FragmentChangeState
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
 import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.utils.hideSystemUI
 import com.ivan200.photoadapter.utils.invisible
 import com.ivan200.photoadapter.utils.show
+import kotlin.Result.Companion.success
 
 @Suppress("MemberVisibilityCanBePrivate")
 class CameraActivity : AppCompatActivity() {
@@ -45,19 +47,23 @@ class CameraActivity : AppCompatActivity() {
             return@setOnApplyWindowInsetsListener insets.consumeSystemWindowInsets()
         }
 
-        cameraViewModel.showCamera.observe(this, changeFragmentsObserver)
+        cameraViewModel.fragmentState.observe(this, changeFragmentsObserver)
         cameraViewModel.curPageLoaded.observe(this, pageLoadedObserver)
         cameraViewModel.success.observe(this, successCalledObserver)
     }
 
     var pageLoadedObserver = Observer<PictureInfo> {
-        if (cameraBuilder.previewImage) {
-            cameraViewModel.changeFragment(showCamera = false)
+        if (cameraBuilder.previewImage && cameraViewModel.fragmentState.value == FragmentChangeState.WAITING_FOR_IMAGE) {
+            cameraViewModel.changeState(FragmentChangeState.GALLERY)
         }
     }
 
-    var changeFragmentsObserver = Observer<Boolean> { showCamera ->
-        if (showCamera) showCamera() else showGallery()
+    var changeFragmentsObserver = Observer<FragmentChangeState> {
+        when(it!!){
+            FragmentChangeState.CAMERA -> showCamera()
+            FragmentChangeState.WAITING_FOR_IMAGE -> Unit
+            FragmentChangeState.GALLERY -> showGallery()
+        }
     }
 
     fun showCamera() {
@@ -82,7 +88,7 @@ class CameraActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         // super.onBackPressed()
-        if (!cameraViewModel.showCamera.value!!) {
+        if (cameraViewModel.fragmentState.value!! == FragmentChangeState.GALLERY) {
             cameraViewModel.backPressed()
         } else {
             if (cameraViewModel.pictures.value!!.isNotEmpty()) {

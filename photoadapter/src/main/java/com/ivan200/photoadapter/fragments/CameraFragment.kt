@@ -21,6 +21,7 @@ import com.ivan200.photoadapter.PictureInfo
 import com.ivan200.photoadapter.R
 import com.ivan200.photoadapter.base.CameraView
 import com.ivan200.photoadapter.base.CameraViewState
+import com.ivan200.photoadapter.base.FragmentChangeState
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.utils.ANIMATION_FAST_MILLIS
 import com.ivan200.photoadapter.utils.ANIMATION_SLOW_MILLIS
@@ -131,8 +132,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             cameraView.setFitMode(!cameraView.isFit)
         }
 
-        cameraViewModel.showCamera.observe(requireActivity()) {
-            setFlash(if (it) currentFlash else Flash.OFF)
+        cameraViewModel.fragmentState.observe(requireActivity()) {
+            setFlash(if (it != FragmentChangeState.GALLERY) currentFlash else Flash.OFF)
         }
 
         cameraViewModel.rotate.observe(requireActivity()) {
@@ -140,7 +141,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
 
         cameraViewModel.volumeKeyPressed.observe(requireActivity()) {
-            if (cameraViewModel.showCamera.value!!) {
+            if (cameraViewModel.fragmentState.value == FragmentChangeState.CAMERA) {
                 capture.simulateClick()
             }
         }
@@ -184,6 +185,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
     private fun takePicture() {
         cameraView.takePicture()
+        cameraViewModel.changeState(FragmentChangeState.WAITING_FOR_IMAGE)
         if (!cameraBuilder.previewImage && cameraBuilder.allowMultipleImages) {
             flashView.postDelayed({
                 flashView.show()
@@ -193,7 +195,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     }
 
     private fun showGallery() {
-        cameraViewModel.changeFragment(false)
+        cameraViewModel.changeState(FragmentChangeState.GALLERY)
     }
 
     private fun nextFlash() {

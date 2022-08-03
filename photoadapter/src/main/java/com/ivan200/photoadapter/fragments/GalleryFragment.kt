@@ -14,6 +14,7 @@ import com.ivan200.photoadapter.CameraActivity
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.CameraViewModel
 import com.ivan200.photoadapter.R
+import com.ivan200.photoadapter.base.FragmentChangeState
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
 import com.ivan200.photoadapter.utils.onClick
 import com.ivan200.photoadapter.utils.padBottomViewWithInsets
@@ -71,7 +72,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
 
         cameraViewModel.pictures.observe(requireActivity()) {
             if (it.size == 0) {
-                cameraViewModel.changeFragment(true)
+                cameraViewModel.changeState(FragmentChangeState.CAMERA)
             }
             indicator.showIf { it.size > 1 }
             pagerAdapter.update(it, cameraViewModel.imageNumber)
@@ -106,7 +107,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
     fun onMorePhotosPressed() {
         if (cameraBuilder.allowMultipleImages) {
             cameraViewModel.needScrollToPage(0)
-            cameraViewModel.changeFragment(true)
+            cameraViewModel.changeState(FragmentChangeState.CAMERA)
         } else {
             showDialogDeletePage {
                 cameraViewModel.deleteCurrentPage()

@@ -4,13 +4,13 @@ import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.ivan200.photoadapter.base.FragmentChangeState
 import java.io.File
 
 //
 // Created by Ivan200 on 18.10.2019.
 //
 class CameraViewModel : ViewModel() {
-
     private val _pictures = MutableLiveData<MutableList<PictureInfo>>(arrayListOf())
     val pictures: LiveData<MutableList<PictureInfo>> = _pictures
 
@@ -23,10 +23,10 @@ class CameraViewModel : ViewModel() {
         }
 
     //вызывается галереей или камерой чтоб поменять текущий фрагмент
-    private val _showCamera = MutableLiveData(defaultShowCamera)
-    val showCamera: LiveData<Boolean> = _showCamera
-    fun changeFragment(showCamera: Boolean) {
-        _showCamera.value = showCamera
+    private val _fragmentState = MutableLiveData(defaultFragmentState)
+    val fragmentState: LiveData<FragmentChangeState> = _fragmentState
+    fun changeState(fragmentState: FragmentChangeState) {
+        _fragmentState.value = fragmentState
     }
 
     //вызывается адаптером галереи, когда картинка в галерее загружена из файла и отрисована на экране,
@@ -112,7 +112,7 @@ class CameraViewModel : ViewModel() {
 
     fun onSaveInstanceState(outState: Bundle) {
         outState.putParcelableArray(KEY_Pictures, pictures.value?.toTypedArray() ?: emptyArray())
-        outState.putBoolean(KEY_ShowCamera, showCamera.value ?: defaultShowCamera)
+        outState.putSerializable(KEY_FragmentState, this.fragmentState.value ?: defaultFragmentState)
     }
 
     fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -120,12 +120,12 @@ class CameraViewModel : ViewModel() {
             ?.filterIsInstance(PictureInfo::class.java)
             ?.toMutableList()
         _pictures.value = savedPictureList ?: arrayListOf()
-        _showCamera.value = savedInstanceState.getBoolean(KEY_ShowCamera, defaultShowCamera)
+        _fragmentState.value = savedInstanceState.getSerializable(KEY_FragmentState) as? FragmentChangeState ?: defaultFragmentState
     }
 
     companion object {
-        private const val defaultShowCamera = true
+        private val defaultFragmentState = FragmentChangeState.CAMERA
         private const val KEY_Pictures = "KEY_Pictures"
-        private const val KEY_ShowCamera = "KEY_ShowCamera"
+        private const val KEY_FragmentState = "KEY_FragmentState"
     }
 }
