@@ -11,7 +11,6 @@ sealed class CameraViewState {
     object NoPermissions : CameraViewState()
     object Initializing : CameraViewState()
     object Streaming : CameraViewState()
-    object Paused : CameraViewState()
     class Error(val error: CameraError, val ex: Exception? = null) : CameraViewState()
 }
 

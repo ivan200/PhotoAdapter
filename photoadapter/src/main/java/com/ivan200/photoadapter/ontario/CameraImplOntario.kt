@@ -228,7 +228,7 @@ class CameraImplOntario @JvmOverloads constructor(
         }
 
         override fun onCameraClosed() {
-            _state.postValue(CameraViewState.Paused)
+            _state.postValue(CameraViewState.Initializing)
             _cameraInfo.postValue(null)
         }
 

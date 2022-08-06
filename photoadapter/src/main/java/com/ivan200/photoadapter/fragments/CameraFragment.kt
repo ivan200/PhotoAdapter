@@ -96,11 +96,13 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
         cameraView.state.observe(viewLifecycleOwner) {
             when (it) {
-                is CameraViewState.Error -> initText.isVisible = false
+                is CameraViewState.Error -> {
+                    //TODO Обработать соостояния ошибок
+                    initText.isVisible = false
+                }
                 CameraViewState.Initializing -> initText.isVisible = true
                 CameraViewState.NoPermissions -> initText.isVisible = false
                 CameraViewState.NotInitialized -> initText.isVisible = false
-                CameraViewState.Paused -> initText.isVisible = false
                 CameraViewState.Streaming -> initText.isVisible = false
             }
         }

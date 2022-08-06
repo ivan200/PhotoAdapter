@@ -42,9 +42,9 @@ import com.ivan200.photoadapter.base.FacingDelegate
 import com.ivan200.photoadapter.base.FlashDelegate
 import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
+import com.ivan200.photoadapter.camerax.touch.TouchHandler
 import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.utils.ImageUtils.dpToPx
-import com.otaliastudios.cameraview.controls.Flash
 import java.io.File
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
@@ -287,15 +287,6 @@ class CameraXView @JvmOverloads constructor(
             }
         }
         viewFinder.setOnTouchListener(TouchHandler(camera, viewFinder, focusView))
-    }
-
-    fun stopPreview() {
-        if (state.value == CameraViewState.Streaming) {
-            preview?.let {
-                _state.postValue(CameraViewState.Paused)
-                it.setSurfaceProvider(null)
-            }
-        }
     }
 
     private fun getPreviewSize(): PointF? {
