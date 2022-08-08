@@ -10,9 +10,11 @@ import androidx.navigation.Navigation
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.permission.PermissionsDelegate
+import com.ivan200.photoadapter.permission.ResultType
 import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapterexample.Prefs
 import com.ivan200.photoadapterexample.R
+import kotlinx.coroutines.NonCancellable.cancel
 
 class MainFragment : Fragment(R.layout.fragment_main) {
     private val navigateGallery = Navigation.createNavigateOnClickListener(R.id.action_mainFragment_to_galleryFragment)
@@ -23,7 +25,16 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     private val fabGallery get() = requireView().findViewById<FloatingActionButton>(R.id.fabGallery)
 
     private var cameraBuilder = CameraBuilder()
-    private var permissionsDelegate: PermissionsDelegate? = null
+    private lateinit var permissionsDelegate: PermissionsDelegate
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        permissionsDelegate = PermissionsDelegate(
+            requireActivity(),
+            savedInstanceState,
+            this::onPermissionResult,
+        )
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,17 +42,10 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         mActivity.title = getString(R.string.app_name)
         fabGallery.setOnClickListener(navigateGallery::onClick)
 
-        permissionsDelegate = PermissionsDelegate(
-            requireActivity(),
-            this,
-            savedInstanceState,
-            this::takePicture,
-            this::onPermissionsRejected
-        )
         fabPhoto.setOnClickListener {
             updateCameraBuilder()
-            permissionsDelegate?.initWithBuilder(cameraBuilder)
-            permissionsDelegate?.requestPermissions()
+            permissionsDelegate.initWithBuilder(cameraBuilder)
+            permissionsDelegate.queryPermissionsOnStart()
         }
     }
 
@@ -63,27 +67,19 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             .setForceUseCamera1Impl(prefs.forceCamera1)
     }
 
-    private fun takePicture() {
-        cameraBuilder.start(this)
-    }
-
-    private fun onPermissionsRejected() {
-        Toast.makeText(requireContext(), getString(R.string.toast_permission_rejected), Toast.LENGTH_SHORT).show()
+    private fun onPermissionResult(resultType: ResultType) = when (resultType) {
+        is ResultType.Allow -> cameraBuilder.start(this)
+        is ResultType.Denied -> Toast
+            .makeText(requireContext(), getString(R.string.toast_permission_rejected), Toast.LENGTH_SHORT).show()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        permissionsDelegate?.saveInstanceState(outState)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionsDelegate?.onRequestPermissionsResult(requestCode)
+        permissionsDelegate.saveInstanceState(outState)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        permissionsDelegate?.onActivityResult(requestCode)
         cameraBuilder.onActivityResult(requestCode, resultCode, data, this::onImagesTaken)
     }
 

@@ -167,6 +167,10 @@ class CameraImplOntario @JvmOverloads constructor(
         }
     }
 
+    override fun restart() {
+        this.open()
+    }
+
     override fun changeSameFacingCamera() {}
 
     override fun selectSameFacingCameraByIndex(index: Int) {}

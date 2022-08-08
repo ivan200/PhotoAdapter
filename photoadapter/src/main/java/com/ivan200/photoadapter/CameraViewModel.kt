@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.ivan200.photoadapter.base.FragmentChangeState
+import com.ivan200.photoadapter.utils.Event
 import java.io.File
 
 //
@@ -56,10 +57,10 @@ class CameraViewModel : ViewModel() {
 
     //вызывается в активити при нажатии кнопки назад,
     //чтобы если открыт фрагмент галереи показать возможный диалог удаления фотки
-    private val _backPressed = MutableLiveData<Unit?>()
-    val backPressed: LiveData<Unit?> = _backPressed
+    private val _backPressed = MutableLiveData<Event<Boolean>>()
+    val backPressed: LiveData<Event<Boolean>> = _backPressed
     fun backPressed() {
-        _backPressed.value = _backPressed.value
+        _backPressed.value = Event(true)
     }
 
     //при повороте
@@ -76,6 +77,13 @@ class CameraViewModel : ViewModel() {
     val volumeKeyPressed: LiveData<Unit?> = _volumeKeyPressed
     fun volumeKeyPressed() {
         _volumeKeyPressed.value = _volumeKeyPressed.value
+    }
+
+    //При нажатии кнопок громкости
+    private val _restartCamera = MutableLiveData<Event<Boolean>>()
+    val restartCamera: LiveData<Event<Boolean>> = _restartCamera
+    fun restartCamera() {
+        _restartCamera.value = Event(true)
     }
 
     fun deleteCurrentPage() {

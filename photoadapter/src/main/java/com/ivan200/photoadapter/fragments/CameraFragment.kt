@@ -2,9 +2,7 @@ package com.ivan200.photoadapter.fragments
 
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.RelativeLayout
@@ -97,7 +95,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         cameraView.state.observe(viewLifecycleOwner) {
             when (it) {
                 is CameraViewState.Error -> {
-                    //TODO Обработать соостояния ошибок
+                    // TODO Обработать соостояния ошибок
                     initText.isVisible = false
                 }
                 CameraViewState.Initializing -> initText.isVisible = true
@@ -118,9 +116,9 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                     cameraView.changeFacing()
                 }
                 torchSwitch.isVisible = it.hasFlashUnit
-                if(it.supportedFlash.size > 0) {
+                if (it.supportedFlash.size > 0) {
                     currentFlash = it.supportedFlash.first()
-                } else{
+                } else {
                     currentFlash = FlashDelegate.NoFlash
                 }
             } else {
@@ -156,6 +154,12 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         cameraViewModel.volumeKeyPressed.observe(requireActivity()) {
             if (cameraViewModel.fragmentState.value == FragmentChangeState.CAMERA) {
                 capture.simulateClick()
+            }
+        }
+
+        cameraViewModel.restartCamera.observe(requireActivity()) {
+            it.get()?.apply {
+                cameraView.restart()
             }
         }
 

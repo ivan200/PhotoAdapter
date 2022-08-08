@@ -6,98 +6,88 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import androidx.fragment.app.Fragment
+import androidx.activity.result.ActivityResultLauncher
 import java.util.*
-
 
 object PermissionSettingUtils {
 
-    fun gotoPhonePermissionSettings(fragment: Fragment? = null, activity: Activity, requestCode: Int) {
-        var brand: String? = null
-        try {
-            brand = Build.BRAND
-            brand = brand.toLowerCase(Locale.US)
+    fun gotoPhonePermissionSettings(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
+        var brand = try {
+            Build.BRAND.lowercase(Locale.US)
         } catch (e: Exception) {
-            e.printStackTrace()
-            goToDefaultSettings(fragment, activity, requestCode)
+            null
         }
         when (brand) {
-            "redmi", "xiaomi" -> gotoMiuiPermission(fragment, activity, requestCode)
-            "honor", "huawei" -> gotoHuaweiPermission(fragment, activity, requestCode)
-            "meizu" -> gotoMeizuPermission(fragment, activity, requestCode)
-            else -> goToDefaultSettings(fragment, activity, requestCode)
+            "redmi", "xiaomi" -> gotoMiuiPermission(launcher, activity, onFail)
+            "honor", "huawei" -> gotoHuaweiPermission(launcher, activity, onFail)
+            "meizu" -> gotoMeizuPermission(launcher, activity, onFail)
+            else -> goToDefaultSettings(launcher, activity, onFail)
         }
     }
-
-    private fun start(intent: Intent, fragment: Fragment? = null, activity: Activity, requestCode: Int) {
-        if (fragment != null) {
-            fragment.startActivityForResult(intent, requestCode)
-        } else {
-            activity.startActivityForResult(intent, requestCode)
-        }
-    }
-
 
     /**
      * Jump to miui's permission management page
      */
-    fun gotoMiuiPermission(fragment: Fragment? = null, activity: Activity, requestCode: Int) {
+    fun gotoMiuiPermission(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
         val intent = Intent("miui.intent.action.APP_PERM_EDITOR")
         var componentName: ComponentName
         componentName =
-            ComponentName("com.miui.securitycenter", "com.miui.permcenter.permissions.PermissionsEditorActivity") //Permission settings
+            ComponentName("com.miui.securitycenter", "com.miui.permcenter.permissions.PermissionsEditorActivity") // Permission settings
         intent.component = componentName
         if (intent.resolveActivity(activity.packageManager) == null) {
             componentName = ComponentName(
                 "com.miui.securitycenter",
                 "com.miui.permcenter.permissions.AppPermissionsEditorActivity"
-            ) //Permission management
+            ) // Permission management
             intent.component = componentName
         }
         intent.putExtra("extra_pkgname", activity.packageName)
         try {
-            start(intent, fragment, activity, requestCode)
+            launcher.launch(intent)
         } catch (e: Exception) {
             e.printStackTrace()
-            gotoMeizuPermission(fragment, activity, requestCode)
+            gotoMeizuPermission(launcher, activity, onFail)
         }
     }
 
     /**
      * Jump to Meizu's permission management page
      */
-    fun gotoMeizuPermission(fragment: Fragment? = null, activity: Activity, requestCode: Int) {
+    fun gotoMeizuPermission(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
         val intent = Intent("com.meizu.safe.newpermission.ui.AppPermissionsActivity")
         intent.action = "com.meizu.safe.security.SHOW_APPSEC"
         intent.addCategory(Intent.CATEGORY_DEFAULT)
         intent.putExtra("packageName", activity.packageName)
         try {
-            start(intent, fragment, activity, requestCode)
+            launcher.launch(intent)
         } catch (e: Exception) {
             e.printStackTrace()
-            gotoHuaweiPermission(fragment, activity, requestCode)
+            gotoHuaweiPermission(launcher, activity, onFail)
         }
     }
 
     /**
      * Huawei's permission management page
      */
-    fun gotoHuaweiPermission(fragment: Fragment? = null, activity: Activity, requestCode: Int) {
+    fun gotoHuaweiPermission(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
         try {
             val intent = Intent()
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             intent.component = ComponentName(
                 "com.android.packageinstaller",
                 "com.android.packageinstaller.permission.ui.ManagePermissionsActivity"
-            ) //Huawei permission settings
+            ) // Huawei permission settings
             if (intent.resolveActivity(activity.packageManager) == null) {
                 intent.component =
-                    ComponentName("com.huawei.systemmanager", "com.huawei.permissionmanager.ui.MainActivity") //Huawei permission Management
+                    ComponentName(
+                        "com.huawei.systemmanager",
+                        "com.huawei.permissionmanager.ui.MainActivity"
+                    ) // Huawei permission Management
             }
-            start(intent, fragment, activity, requestCode)
+            launcher.launch(intent)
         } catch (e: Exception) {
             e.printStackTrace()
-            goToDefaultSettings(fragment, activity, requestCode)
+            goToDefaultSettings(launcher, activity, onFail)
         }
     }
 
@@ -106,7 +96,7 @@ object PermissionSettingUtils {
      *
      * @return
      */
-    fun goToDefaultSettings(fragment: Fragment? = null, activity: Activity, requestCode: Int) {
+    fun goToDefaultSettings(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
         val intent = Intent()
             .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             .apply {
@@ -118,7 +108,11 @@ object PermissionSettingUtils {
             .addCategory(Intent.CATEGORY_DEFAULT)
             .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
 
-        start(intent, fragment, activity, requestCode)
+        try {
+            launcher.launch(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            onFail.invoke()
+        }
     }
-
 }

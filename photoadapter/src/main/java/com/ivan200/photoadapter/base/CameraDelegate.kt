@@ -25,9 +25,8 @@ interface CameraDelegate {
     fun changeFacing()
     fun changeSameFacingCamera()
     fun selectSameFacingCameraByIndex(index: Int)
-
+    fun restart()
     fun takePicture()
     val takePictureResult: LiveData<TakePictureResult>
-
     fun setFlash(flash: FlashDelegate.HasFlash)
 }

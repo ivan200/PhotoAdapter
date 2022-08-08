@@ -1,191 +1,176 @@
 package com.ivan200.photoadapter.permission
 
 import android.Manifest
-import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
+import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.Fragment
+import androidx.core.content.ContextCompat.checkSelfPermission
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.R
-import com.ivan200.photoadapter.utils.applyIf
 
 /**
- * Delegate for processing permissions
+ * Delegate class for checking and requesting permissions
  *
- * @property mActivity activity for checking permissions
- * @property fragment for requesting permissions
- * @property onPermissionGranted function what called after permissions granted
- * @property onPermissionRejected function what called after permissions rejected
- * @param savedInstanceState instance state to restore state of this delegate
+ * @param activity             activity for checking permissions
+ * @param savedInstanceState   instance state to restore state of this delegate
+ * @param onPermissionResult   function what called after permissions granted
+ * @param onPermissionRejected function what called after permissions rejected
  *
- * Created by Ivan200 on 25.10.2019.
- *
- * TODO переделать на нормальный
+ * @author ivan200
+ * @since 06.08.2022
  */
-@Suppress("MemberVisibilityCanBePrivate")
 open class PermissionsDelegate(
-    var mActivity: Activity,
-    var fragment: Fragment? = null,
+    val activity: ComponentActivity,
     savedInstanceState: Bundle?,
-    var onPermissionGranted: (() -> Unit)? = null,
-    var onPermissionRejected: (() -> Unit)? = null,
-    val codeForRequestPermissions: Int = 3254
+    var onPermissionResult: (ResultType) -> Unit
 ) {
 
-    private var allPermissions: Array<String> = arrayListOf(Manifest.permission.CAMERA).toTypedArray()
-    private var allPermissionStates = ArrayList(allPermissions.map { PermissionState(it) })
-    private var dialogTheme: Int = 0
-    private var deniedPermissionsArray: Array<String> = emptyArray()
-    private var deniedPermissionsStates = ArrayList<PermissionState>()
+    private var permissions: Array<String> = emptyArray()
+    private var dialogTheme = 0
+    private var needToShowDialog = true
+    private var permissionResults: List<Pair<String, Boolean>> = emptyList()
+    private val missingPermissions: Array<String> get() = permissionResults.filter { it.second == false }.map { it.first }.toTypedArray()
+    private val hasAllPermissions get() = permissionResults.isEmpty() || permissionResults.all { it.second == true }
+
+    private var resultLauncher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        updatePermissionResults()
+        if (hasAllPermissions) {
+            onPermissionResult.invoke(ResultType.Allow.AfterSettings)
+        } else {
+            needToShowDialog = false
+            requestPermissionLauncher.launch(missingPermissions)
+        }
+    }
+
+    private var requestPermissionLauncher = activity.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        updatePermissionResults()
+        if (hasAllPermissions) {
+            onPermissionResult.invoke(if (needToShowDialog) ResultType.Allow.SystemRequest else ResultType.Allow.SystemRequest2)
+        } else {
+            if (needToShowDialog) {
+                val missedPermission = permissionResults.first { it.second == false }.first
+                showDialogOnPermissionRejected(missedPermission)
+            } else {
+                onPermissionResult.invoke(ResultType.Denied.DeniedAfterSettings)
+            }
+        }
+    }
 
     init {
         @Suppress("UNCHECKED_CAST")
         savedInstanceState?.apply {
-            (getSerializable(KEY_PERMISSION_STATES) as? ArrayList<PermissionState>)?.let { deniedPermissionsStates = it }
-            (getSerializable(KEY_ALL_PERMISSION_STATES) as? ArrayList<PermissionState>)?.let { allPermissionStates = it }
+            getBoolean(KEY_NEED_TO_SHOW_DIALOG, true).let { needToShowDialog = it }
+            getStringArray(KEY_PERMISSIONS).let { permissions = it ?: emptyArray() }
+        }
+        updatePermissionResults()
+    }
+
+    private fun updatePermissionResults() {
+        permissionResults = permissions.map {
+            it to (checkSelfPermission(activity, it) == PackageManager.PERMISSION_GRANTED)
+        }
+    }
+
+    private fun getRationale(): Boolean = missingPermissions.let {
+        it.isNotEmpty() && it.any { ActivityCompat.shouldShowRequestPermissionRationale(activity, it) }
+    }
+
+    /**
+     *
+     */
+    fun queryPermissionsOnStart() {
+        updatePermissionResults()
+        if (hasAllPermissions) {
+            onPermissionResult.invoke(ResultType.Allow.AlreadyHas)
+        } else {
+            needToShowDialog = true
+            requestPermissionLauncher.launch(missingPermissions)
         }
     }
 
     /**
      * Initializing the permissions list depending on the Builder parameters
+     *
+     * @param cameraBuilder
      */
-    open fun initWithBuilder(cameraBuilder: CameraBuilder? = null) {
-        allPermissions = arrayListOf(Manifest.permission.CAMERA)
+    open fun initWithBuilder(cameraBuilder: CameraBuilder) {
+        permissions = arrayListOf(Manifest.permission.CAMERA)
             .apply {
-                if (cameraBuilder?.galleryName != null && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                if (cameraBuilder.galleryName != null && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                     add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                         add(Manifest.permission.READ_EXTERNAL_STORAGE)
                     }
                 }
             }.toTypedArray()
-        allPermissionStates = ArrayList(allPermissions.map { PermissionState(it) })
-        dialogTheme = cameraBuilder?.dialogTheme ?: 0
+        dialogTheme = cameraBuilder.dialogTheme
     }
 
     /**
-     * Saving the state in the bundle of the current activity
-     * since after going to the application settings and changing the permissions, the activity may die,
-     * you need to save and restore the data of the permissions in order to process them correctly
-     */
-    fun saveInstanceState(outState: Bundle) {
-        outState.putSerializable(KEY_PERMISSION_STATES, deniedPermissionsStates)
-        outState.putSerializable(KEY_ALL_PERMISSION_STATES, allPermissionStates)
-    }
-
-    open fun isCameraAvailable(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            mActivity.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
-        } else {
-            mActivity.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
-        }
-    }
-
-    /**
-     * Main method for requesting permissions
-     */
-    open fun requestPermissions() {
-        if (!isCameraAvailable()) {
-            return
-        }
-        allPermissionStates = ArrayList(allPermissions.map { PermissionState(it) })
-        deniedPermissionsStates = ArrayList(allPermissionStates.filter { !it.hasPermission(mActivity) })
-        deniedPermissionsArray = deniedPermissionsStates.map { it.permission }.toTypedArray()
-        if (deniedPermissionsStates.isNotEmpty()) {
-            deniedPermissionsStates.forEach { it.setBefore(mActivity) }
-            if (fragment != null) {
-                fragment!!.requestPermissions(deniedPermissionsArray, codeForRequestPermissions)
-            } else {
-                ActivityCompat.requestPermissions(mActivity, deniedPermissionsArray, codeForRequestPermissions)
-            }
-        } else {
-            // Если все пермишены разрешены, то ничего не делаем
-            onPermissionGranted?.invoke()
-        }
-    }
-
-    /**
-     * Method to return the result of a permission request
      *
-     * @param requestCode code for request permissions
+     *
+     * @param context
      */
-    open fun onRequestPermissionsResult(requestCode: Int) {
-        if (requestCode == codeForRequestPermissions) {
-            deniedPermissionsStates.forEach { it.setAfter(mActivity) }
-            val permissionsMap = deniedPermissionsStates.map { Pair(it, it.getState(mActivity)) }
-            val deniedPermission = permissionsMap.firstOrNull { it.second.isDenied() }
-            if (deniedPermission != null) {
-                showDialogOnPermissionRejected(deniedPermission.first.permission, deniedPermission.second.canReAsk())
-            } else {
-                onPermissionGranted?.invoke()
-            }
-        }
+    open fun openAppSettings(context: Context) {
+        PermissionSettingUtils.gotoPhonePermissionSettings(resultLauncher, activity, this::CanNotGoToSettings)
     }
 
-    /**
-     * Receive the result from a previous call to startActivityForResult(Intent, int)
-     *
-     * @param requestCode code for request permissions
-     */
-    open fun onActivityResult(requestCode: Int) {
-        if (requestCode == codeForRequestPermissions) {
-            requestPermissions()
-        }
+    fun CanNotGoToSettings() {
+        onPermissionResult.invoke(ResultType.Denied.CanNotGoToSettings)
     }
 
     /**
      * Show dialog on permission rejected
      *
-     * @param blockedPermission String of permission which was rejected
-     * @param canReAsk if you can call system dialog for request permission once again
+     * @param blockedPermission string of permission which was rejected
+     * @param canReAsk          if you can call system dialog for request permission once again
      */
-    open fun showDialogOnPermissionRejected(blockedPermission: String, canReAsk: Boolean = false) {
-        val messageId = when (blockedPermission) {
-            Manifest.permission.CAMERA -> {
-                if (canReAsk) R.string.permission_camera_rationale
-                else R.string.permission_camera_rationale_goto_settings
-            }
-            else -> {
-                if (canReAsk) R.string.permission_sdcard_rationale
-                else R.string.permission_sdcard_rationale_goto_settings
-            }
+    open fun showDialogOnPermissionRejected(blockedPermission: String) {
+        val titleId = when (blockedPermission) {
+            Manifest.permission.CAMERA -> R.string.permission_camera_goto_settings_title
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE -> R.string.permission_camera_goto_settings_title
+            else -> 0
         }
 
-        val dialog = AlertDialog.Builder(mActivity, dialogTheme)
-            .setTitle(android.R.string.dialog_alert_title)
+        val messageId = when (blockedPermission) {
+            Manifest.permission.CAMERA -> R.string.permission_camera_rationale_goto_settings
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE -> R.string.permission_camera_rationale_goto_settings
+            else -> 0
+        }
+
+        val dialog = AlertDialog.Builder(activity, dialogTheme)
+            .setTitle(titleId)
             .setIconAttribute(android.R.attr.alertDialogIcon)
             .setMessage(messageId)
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 dialog.dismiss()
-                if (canReAsk) {
-                    requestPermissions()
-                } else {
-                    openAppSettings(mActivity)
-                }
+                openAppSettings(activity)
             }
             .setNegativeButton(android.R.string.cancel) { dialog, _ ->
-                onPermissionRejected?.invoke()
+                onPermissionResult.invoke(ResultType.Denied.CustomDialogNo)
                 dialog.dismiss()
             }
-            .applyIf(onPermissionRejected != null) {
-                setOnCancelListener { dialog ->
-                    onPermissionRejected?.invoke()
-                    dialog.dismiss()
-                }
+            .setOnCancelListener { dialog ->
+                onPermissionResult.invoke(ResultType.Denied.CustomDialogCancelled)
+                dialog.dismiss()
             }
             .create()
-            .applyIf(onPermissionRejected != null) {
+            .apply {
                 setOnCancelListener { d ->
-                    onPermissionRejected?.invoke()
+                    onPermissionResult.invoke(ResultType.Denied.CustomDialogCancelled)
                     d.dismiss()
                 }
                 setOnKeyListener { arg0, keyCode, _ ->
                     if (keyCode == KeyEvent.KEYCODE_BACK) {
-                        onPermissionRejected?.invoke()
+                        onPermissionResult.invoke(ResultType.Denied.CustomDialogCancelled)
                         arg0.dismiss()
                     }
                     true
@@ -198,37 +183,18 @@ open class PermissionsDelegate(
     }
 
     /**
-     * Open application settings
-     *
-     * @param activity activity of application in which parameters we will go
+     * Saving the state in the bundle of the current activity
+     * since after going to the application settings and changing the permissions, the activity may die,
+     * you need to save data in [outState] and restore it in order to process them correctly
      */
-    open fun openAppSettings(activity: Activity) {
-        PermissionSettingUtils.gotoPhonePermissionSettings(fragment, activity, codeForRequestPermissions)
-//        Intent()
-//            .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-//            .apply {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-//                    putExtra(Intent.EXTRA_PACKAGE_NAME, activity.packageName)
-//                }
-//            }
-//            .setData(Uri.fromParts("package", activity.packageName, null))
-//            .addCategory(Intent.CATEGORY_DEFAULT)
-//            .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-//            .apply {
-//                try {
-//                    if (fragment != null) {
-//                        fragment!!.startActivityForResult(this, codeForRequestPermissions)
-//                    } else {
-//                        activity.startActivityForResult(this, codeForRequestPermissions)
-//                    }
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                }
-//            }
+    fun saveInstanceState(outState: Bundle) {
+        outState.putBoolean(KEY_NEED_TO_SHOW_DIALOG, needToShowDialog)
+        outState.putStringArray(KEY_PERMISSIONS, permissions)
     }
 
-    companion object {
-        private const val KEY_PERMISSION_STATES = "KEY_PERMISSION_STATES"
-        private const val KEY_ALL_PERMISSION_STATES = "KEY_ALL_PERMISSION_STATES"
+    private companion object {
+        const val TAG = "PermissionsDelegate"
+        const val KEY_NEED_TO_SHOW_DIALOG = "KEY_NEED_TO_SHOW_DIALOG"
+        const val KEY_PERMISSIONS = "KEY_PERMISSIONS"
     }
 }

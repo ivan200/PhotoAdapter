@@ -21,16 +21,13 @@ import java.io.File
  * @property galleryName           allow to save images to phone gallery with specified name
  * @property fullScreenMode        full screen (16/9) or normal (4/3) mode
  * @property fitMode               fit camera surfaceView into screen
- * @property hasThumbnails         allow to save thumbnails along with photos
- * @property thumbnailsPath        specify thumbnails path, if need
  * @property photosPath            specify photos path, if need
  * @property maxImageSize          preferred result image size
  * @property useSnapshot           take picture from snapshot (faster, no sound)
  * @property requestCode           specify code for starting activity
- * @property fixJpegBytes          extra fix first and last 2 bytes of saved jpeg images
- * @property photoChecker          check photo if it must be approved (by tensorflow or other)
  * @property dialogTheme           customize alert dialog theme
- *
+ * @property outputJpegQuality     quality for saving jpeg image
+ * @property forceUseCamera1Impl   force Camera1 implementation
  * Created by Ivan200 on 11.10.2019.
  */
 @Suppress("unused")
@@ -76,12 +73,12 @@ data class CameraBuilder private constructor(
         activity.startActivityForResult(CameraActivity.getIntent(activity, this), getCode())
     }
 
+    //TODO Добавить нормальный старт активити
     fun start(fragment: Fragment) {
         fragment.startActivityForResult(CameraActivity.getIntent(fragment.requireContext(), this), getCode())
     }
 
     private fun getCode() = if (requestCode == 0) REQUEST_IMAGE_CAPTURE else requestCode
-
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, onSuccess: Consumer<List<String>>, onCancel: Runnable? = null) {
         if (requestCode == getCode()) {

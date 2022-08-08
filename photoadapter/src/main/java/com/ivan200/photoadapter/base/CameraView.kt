@@ -44,7 +44,7 @@ class CameraView @JvmOverloads constructor(
     override val takePictureResult: LiveData<TakePictureResult> get() = impl.takePictureResult
     override val isFit: Boolean get() = impl.isFit
     override fun setFlash(flash: FlashDelegate.HasFlash) = impl.setFlash(flash)
-
+    override fun restart() = impl.restart()
     companion object {
         /** this is workaround to chose implementation before it is created */
         var forceUseCamera1Impl = false

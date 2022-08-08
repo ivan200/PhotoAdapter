@@ -107,11 +107,11 @@ class CameraXView @JvmOverloads constructor(
     }
 
     override fun setFlash(flash: FlashDelegate.HasFlash) {
-        if(_torchState.value == true && flash != FlashDelegate.HasFlash.Torch) {
+        if (_torchState.value == true && flash != FlashDelegate.HasFlash.Torch) {
             camera?.cameraControl?.enableTorch(false)
         }
 
-        when(flash) {
+        when (flash) {
             FlashDelegate.HasFlash.Auto -> imageCapture?.flashMode = ImageCapture.FLASH_MODE_AUTO
             FlashDelegate.HasFlash.Off -> imageCapture?.flashMode = ImageCapture.FLASH_MODE_OFF
             FlashDelegate.HasFlash.On -> imageCapture?.flashMode = ImageCapture.FLASH_MODE_ON
@@ -164,7 +164,7 @@ class CameraXView @JvmOverloads constructor(
         imageCapture?.targetRotation = rotationDetector.deviceOrientation
     }
 
-    private fun setUiOnPermission() {
+    fun setUiOnPermission() {
         if (lifecycleOwner == null) return
 
         val hasCameraPermission = ContextCompat
@@ -214,6 +214,10 @@ class CameraXView @JvmOverloads constructor(
                 else -> Unit
             }
         }
+    }
+
+    override fun restart() {
+        setUiOnPermission()
     }
 
     private fun processCameraException(ex: Exception) {
@@ -295,7 +299,7 @@ class CameraXView @JvmOverloads constructor(
     }
 
     override fun takePicture() {
-        if(builder.useSnapshot){
+        if (builder.useSnapshot) {
             takeSnapshot()
             return
         }
@@ -349,7 +353,7 @@ class CameraXView @JvmOverloads constructor(
             val photoDir = ImageUtils.getPhotosDir(context, builder.photosPath)
             val photoFile = ImageUtils.createImageFile(context, photoDir)
             val jpegQuality = builder.outputJpegQuality ?: DEFAULT_JPEG_QUALITY
-            BitmapSaver(photoFile,it,exif, builder.maxImageSize, jpegQuality, this::onSnapshotSaved,this::onSnapshotSaveError).save()
+            BitmapSaver(photoFile, it, exif, builder.maxImageSize, jpegQuality, this::onSnapshotSaved, this::onSnapshotSaveError).save()
         }
     }
 

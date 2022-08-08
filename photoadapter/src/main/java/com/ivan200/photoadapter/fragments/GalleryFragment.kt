@@ -21,6 +21,7 @@ import com.ivan200.photoadapter.utils.padBottomViewWithInsets
 import com.ivan200.photoadapter.utils.padTopViewWithInsets
 import com.ivan200.photoadapter.utils.rotateItems
 import com.ivan200.photoadapter.utils.showIf
+import com.ivan200.photoadapter.utils.simulateClick
 import me.relex.circleindicator.CircleIndicator3
 
 //
@@ -92,7 +93,13 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
         btnAccept.onClick(cameraViewModel::success)
 
         cameraViewModel.backPressed.observe(requireActivity()) {
-            onMorePhotosPressed()
+            it.get()?.apply { onMorePhotosPressed() }
+        }
+
+        cameraViewModel.volumeKeyPressed.observe(requireActivity()) {
+            if (cameraViewModel.fragmentState.value == FragmentChangeState.GALLERY) {
+                btnAccept.simulateClick()
+            }
         }
 
         cameraViewModel.rotate.observe(requireActivity()) {

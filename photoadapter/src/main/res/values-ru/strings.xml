@@ -8,13 +8,12 @@
     <string name="button_no">Нет</string>
     <string name="button_delete">Удалить</string>
 
-    <string name="permission_camera_rationale">Чтобы сделать фото, приложению требуется разрешение на доступ к камере. Пожалуйста, предоставьте доступ.</string>
-    <string name="permission_camera_rationale_goto_settings">Чтобы сделать фото, приложению требуется разрешение на доступ к камере. Пожалуйста, перейдите в настройки и разрешите доступ к камере.</string>
-    <string name="permission_sdcard_rationale">Для сохранения изображений в галерею, требуется доступ к SD карте. Пожалуйста, предоставьте доступ.</string>
-    <string name="permission_sdcard_rationale_goto_settings">Для сохранения изображений в галерею, требуется доступ к SD карте. Пожалуйста, перейдите в настройки и разрешите доступ к файлам.</string>
 
-    <string name="photo_fail_message">Фото не прошло проверку.\nПожалуйста, повторите фото.</string>
+    <string name="permission_camera_goto_settings_title">Разрешите доступ к камере.</string>
+    <string name="permission_camera_rationale_goto_settings">Чтобы сделать фото, приложению требуется разрешение на доступ к камере. Пожалуйста, перейдите в настройки и измените настройки доступа.</string>
 
+    <string name="permission_sdcard_goto_settings_title">Разрешите доступ к файлам.</string>
+    <string name="permission_sdcard_rationale_goto_settings">Для сохранения изображений в галерею, требуется доступ к SD карте. Пожалуйста, перейдите в настройки и измените настройки доступа.</string>
 
     <string name="photo_camera_rear_description">Переключиться на заднюю камеру</string>
     <string name="photo_camera_front_description">Переключиться на переднюю камеру</string>

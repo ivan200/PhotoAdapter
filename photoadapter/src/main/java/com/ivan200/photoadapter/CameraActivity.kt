@@ -14,12 +14,13 @@ import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.ivan200.photoadapter.base.FragmentChangeState
+import com.ivan200.photoadapter.permission.PermissionsDelegate
+import com.ivan200.photoadapter.permission.ResultType
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
 import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.utils.hideSystemUI
 import com.ivan200.photoadapter.utils.invisible
 import com.ivan200.photoadapter.utils.show
-import kotlin.Result.Companion.success
 
 @Suppress("MemberVisibilityCanBePrivate")
 class CameraActivity : AppCompatActivity() {
@@ -33,6 +34,8 @@ class CameraActivity : AppCompatActivity() {
     val frameGallery: FrameLayout get() = findViewById(R.id.frame_gallery)
 
     val cameraBuilder: CameraBuilder by lazy { intent.getParcelableExtra(KEY_CAMERA_BUILDER)!! }
+
+    lateinit var permissionsDelegate: PermissionsDelegate
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(if (cameraBuilder.fullScreenMode) R.style.AppThemePhoto_FullScreen else R.style.AppThemePhoto)
@@ -50,6 +53,18 @@ class CameraActivity : AppCompatActivity() {
         cameraViewModel.fragmentState.observe(this, changeFragmentsObserver)
         cameraViewModel.curPageLoaded.observe(this, pageLoadedObserver)
         cameraViewModel.success.observe(this, successCalledObserver)
+
+        permissionsDelegate = PermissionsDelegate(
+            this,
+            savedInstanceState,
+            {
+                when (it) {
+                    is ResultType.Denied -> cancel(false)
+                    ResultType.Allow.AlreadyHas -> Unit
+                    is ResultType.Allow -> cameraViewModel.restartCamera()
+                }
+            }
+        )
     }
 
     var pageLoadedObserver = Observer<PictureInfo> {
@@ -59,7 +74,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     var changeFragmentsObserver = Observer<FragmentChangeState> {
-        when(it!!){
+        when (it!!) {
             FragmentChangeState.CAMERA -> showCamera()
             FragmentChangeState.WAITING_FOR_IMAGE -> Unit
             FragmentChangeState.GALLERY -> showGallery()
@@ -78,6 +93,7 @@ class CameraActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        permissionsDelegate.queryPermissionsOnStart()
 
         if (cameraBuilder.fullScreenMode) {
             container.postDelayed({
@@ -91,15 +107,19 @@ class CameraActivity : AppCompatActivity() {
         if (cameraViewModel.fragmentState.value!! == FragmentChangeState.GALLERY) {
             cameraViewModel.backPressed()
         } else {
-            if (cameraViewModel.pictures.value!!.isNotEmpty()) {
-                showConfirmSaveDialog(cameraViewModel::success, this::cancelActivity)
-            } else {
-                cancelActivity()
-            }
+            cancel(true)
         }
     }
 
-    fun showConfirmSaveDialog(onYes: () -> Unit, onNo: () -> Unit) {
+    fun cancel(allowDismissDialog: Boolean) {
+        if (cameraViewModel.pictures.value!!.isNotEmpty()) {
+            showConfirmSaveDialog(cameraViewModel::success, this::cancelActivity, allowDismissDialog)
+        } else {
+            cancelActivity()
+        }
+    }
+
+    fun showConfirmSaveDialog(onYes: () -> Unit, onNo: () -> Unit, allowDismiss: Boolean) {
         val dialog = AlertDialog.Builder(this, cameraBuilder.dialogTheme)
             .setTitle(R.string.title_confirm)
             .setMessage(R.string.save_photos_dialog)
@@ -111,8 +131,11 @@ class CameraActivity : AppCompatActivity() {
                 onNo.invoke()
                 dialog.dismiss()
             }
+            .setCancelable(allowDismiss)
             .create()
-
+            .apply {
+                setCancelable(allowDismiss)
+            }
         dialog.show()
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             dialog.getWindow()?.setBackgroundDrawableResource(android.R.color.transparent)
@@ -165,6 +188,7 @@ class CameraActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         cameraViewModel.onSaveInstanceState(outState)
+        permissionsDelegate.saveInstanceState(outState)
     }
 
     companion object {
