@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.github.chrisbanes.photoview.PhotoView
 import com.ivan200.photoadapterexample.Prefs
 import com.ivan200.photoadapterexample.R
@@ -60,7 +61,9 @@ class PreviewFragment : Fragment(R.layout.fragment_preview) {
         override fun getItemCount(): Int = images.size
 
         override fun onBindViewHolder(holder: PreviewViewHolder, position: Int) {
-            (holder.itemView as PhotoView).setImageURI(Uri.fromFile(File(images[position])))
+            Glide.with(holder.itemView.context)
+                .load(Uri.parse(images[position]))
+                .into((holder.itemView as ImageView))
         }
 
         class PreviewViewHolder(view: View) : RecyclerView.ViewHolder(view)

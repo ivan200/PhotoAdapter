@@ -13,6 +13,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.R
+import com.ivan200.photoadapter.utils.SaveTo
 
 /**
  * Delegate class for checking and requesting permissions
@@ -102,7 +103,7 @@ open class PermissionsDelegate(
     open fun initWithBuilder(cameraBuilder: CameraBuilder) {
         permissions = arrayListOf(Manifest.permission.CAMERA)
             .apply {
-                if (cameraBuilder.galleryName != null && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                if (cameraBuilder.saveTo is SaveTo.ToGalleryWithAlbum && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                     add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                         add(Manifest.permission.READ_EXTERNAL_STORAGE)

@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapterexample.Prefs
 import com.ivan200.photoadapterexample.R
@@ -70,13 +72,10 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         }
 
         override fun onBindViewHolder(holder: GalleryViewHolder, position: Int) {
-            val imageFile = File(images[position])
-//            val thumbFile = File(ImageUtils.getThumbsDir(holder.itemView.context), imageFile.name)
-//            val loadFile = if (thumbFile.exists()) thumbFile else imageFile
+            Glide.with(holder.itemView.context)
+                .load(Uri.parse(images[position]))
+                .into((holder.itemView as ImageView))
 
-            //TODO Пофиксить OutOfMemoryError или через glide, или через галерею, или как нибудь
-
-            (holder.itemView as ImageView).setImageURI(Uri.fromFile(imageFile))
             holder.itemView.setOnClickListener {
                 Prefs(it.context).imagePreviewNumber = position
                 navigatePreview.onClick(it)

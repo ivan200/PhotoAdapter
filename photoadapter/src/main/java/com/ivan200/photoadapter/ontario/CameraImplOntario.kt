@@ -23,6 +23,7 @@ import com.ivan200.photoadapter.base.FlashDelegate
 import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.utils.ImageUtils
+import com.ivan200.photoadapter.utils.SaveUtils
 import com.otaliastudios.cameraview.CameraException
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraOptions
@@ -258,8 +259,7 @@ class CameraImplOntario @JvmOverloads constructor(
         }
 
         override fun onPictureTaken(result: PictureResult) {
-            val photoDir = ImageUtils.getPhotosDir(context, builder.photosPath)
-            val photoFile = ImageUtils.createImageFile(context, photoDir)
+            val photoFile = SaveUtils.createImageFile(context, builder.saveTo)
 
             ResultSaver(photoFile, result, this@CameraImplOntario::onPhotoSaved, this@CameraImplOntario::onPhotoSaveError).save()
         }

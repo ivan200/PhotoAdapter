@@ -17,7 +17,7 @@ import com.ivan200.photoadapter.base.FragmentChangeState
 import com.ivan200.photoadapter.permission.PermissionsDelegate
 import com.ivan200.photoadapter.permission.ResultType
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
-import com.ivan200.photoadapter.utils.ImageUtils
+import com.ivan200.photoadapter.utils.SaveUtils
 import com.ivan200.photoadapter.utils.hideSystemUI
 import com.ivan200.photoadapter.utils.invisible
 import com.ivan200.photoadapter.utils.show
@@ -151,17 +151,8 @@ class CameraActivity : AppCompatActivity() {
 
     var successCalledObserver = Observer<Unit?> {
         cameraViewModel.pictures.value!!.let { pics ->
-            val resultPhotos = pics.map { it.file.absolutePath }.toTypedArray()
-            val resultThumbs = pics.map { it.thumbFile?.absolutePath }.toTypedArray()
-            intent.putExtra(photosExtraName, resultPhotos)
-            intent.putExtra(thumbsExtraName, resultThumbs)
-
-            try {
-                // TODO прикрутить нормальное сохранение в галерею и замену урлов
-                ImageUtils.copyImagesToGallery(this, pics.map { it.file }.toTypedArray(), cameraBuilder.galleryName)
-            } catch (ex: Throwable) {
-                ex.printStackTrace()
-            }
+            val uris = SaveUtils.moveImagesToGallery(this, pics.map { it.file }, cameraBuilder.saveTo)
+            intent.putExtra(photosExtraName, uris.toTypedArray())
         }
 
         setResult(Activity.RESULT_OK, intent)
@@ -199,7 +190,6 @@ class CameraActivity : AppCompatActivity() {
                 .putExtra(KEY_CAMERA_BUILDER, builder)
 
         const val photosExtraName = "photos"
-        const val thumbsExtraName = "thumbs"
         private const val IMMERSIVE_FLAG_TIMEOUT = 500L
     }
 }

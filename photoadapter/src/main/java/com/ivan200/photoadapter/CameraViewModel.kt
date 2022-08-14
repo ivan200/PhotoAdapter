@@ -106,14 +106,11 @@ class CameraViewModel : ViewModel() {
             if (file.exists()) {
                 file.delete()
             }
-            if (thumbFile?.exists() == true) {
-                thumbFile.delete()
-            }
         }
     }
 
-    fun onFileSaved(fileToSave: File, thumbToSave: File?) {     //TODO убрать thumbs
-        _pictures.value!!.add(imageNumber, PictureInfo(fileToSave, thumbToSave))
+    fun onFileSaved(fileToSave: File) {
+        _pictures.value!!.add(imageNumber, PictureInfo(fileToSave))
         _pictures.value = _pictures.value   //this need to call liveData update
     }
 

@@ -2,11 +2,13 @@ package com.ivan200.photoadapter
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Parcelable
 import androidx.annotation.AnyRes
 import androidx.annotation.IntRange
 import androidx.core.util.Consumer
 import androidx.fragment.app.Fragment
+import com.ivan200.photoadapter.utils.SaveTo
 import kotlinx.parcelize.Parcelize
 import java.io.File
 
@@ -38,10 +40,9 @@ data class CameraBuilder private constructor(
     var previewImage: Boolean = true,
     var allowMultipleImages: Boolean = true,
     var lockRotate: Boolean = true,
-    var galleryName: String? = null,
     var fullScreenMode: Boolean = false,
     var fitMode: Boolean = false,
-    var photosPath: File? = null,
+    var saveTo: SaveTo = SaveTo.OnlyInternal,
     var maxImageSize: Int? = null,
     var useSnapshot: Boolean = true,
     var requestCode: Int = 0,
@@ -57,17 +58,16 @@ data class CameraBuilder private constructor(
     fun setChangeCameraAllowed(changeCameraAllowed: Boolean) = apply { this.changeCameraAllowed = changeCameraAllowed }
     fun setAllowMultipleImages(allowMultipleImages: Boolean) = apply { this.allowMultipleImages = allowMultipleImages }
     fun setLockRotate(lockRotate: Boolean) = apply { this.lockRotate = lockRotate }
-    fun setSavePhotoToGallery(galleryName: String?) = apply { this.galleryName = galleryName }
     fun setFullScreenMode(fullScreenMode: Boolean) = apply { this.fullScreenMode = fullScreenMode }
     fun setFitMode(fitMode: Boolean) = apply { this.fitMode = fitMode }
     fun setPreviewImage(previewImage: Boolean) = apply { this.previewImage = previewImage }
-    fun setPhotosPath(photosPath: File) = apply { this.photosPath = photosPath }
     fun setMaxImageSize(maxImageSize: Int) = apply { this.maxImageSize = maxImageSize }
     fun setUseSnapshot(useSnapshot: Boolean) = apply { this.useSnapshot = useSnapshot }
     fun setForceUseCamera1Impl(forceUseCamera1Impl: Boolean) = apply { this.forceUseCamera1Impl = forceUseCamera1Impl }
     fun setRequestCode(requestCode: Int) = apply { this.requestCode = requestCode }
     fun setDialogTheme(@AnyRes dialogTheme: Int) = apply { this.dialogTheme = dialogTheme }
     fun setOutputJpegQuality(@IntRange(from = 1, to = 100) outputJpegQuality: Int) = apply { this.outputJpegQuality = outputJpegQuality }
+    fun setSaveTo(saveTo: SaveTo) = apply { this.saveTo = saveTo }
 
     fun start(activity: Activity) {
         activity.startActivityForResult(CameraActivity.getIntent(activity, this), getCode())
@@ -80,7 +80,7 @@ data class CameraBuilder private constructor(
 
     private fun getCode() = if (requestCode == 0) REQUEST_IMAGE_CAPTURE else requestCode
 
-    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, onSuccess: Consumer<List<String>>, onCancel: Runnable? = null) {
+    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, onSuccess: Consumer<List<Uri>>, onCancel: Runnable? = null) {
         if (requestCode == getCode()) {
             Companion.onActivityResult(resultCode, data, onSuccess, onCancel)
         }
@@ -89,12 +89,15 @@ data class CameraBuilder private constructor(
     companion object {
         private const val REQUEST_IMAGE_CAPTURE = 7411   //random number
 
-        fun onActivityResult(resultCode: Int, data: Intent?, onSuccess: Consumer<List<String>>, onCancel: Runnable? = null) {
+        @Suppress("UNCHECKED_CAST")
+        fun onActivityResult(resultCode: Int, data: Intent?, onSuccess: Consumer<List<Uri>>, onCancel: Runnable? = null) {
             when (resultCode) {
                 Activity.RESULT_CANCELED -> onCancel?.run()
                 Activity.RESULT_OK -> {
-                    val stringArrayExtra = data?.getStringArrayExtra(CameraActivity.photosExtraName)
-                    onSuccess.accept(stringArrayExtra?.toList() ?: arrayListOf())
+                    val uris = data?.extras?.get(CameraActivity.photosExtraName)?.let {
+                        (it as Array<*>).toList().filterIsInstance<Uri>()
+                    }
+                    onSuccess.accept(uris)
                 }
             }
         }

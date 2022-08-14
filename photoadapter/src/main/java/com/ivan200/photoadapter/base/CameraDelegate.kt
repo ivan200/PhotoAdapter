@@ -24,7 +24,7 @@ interface CameraDelegate {
     val cameraInfoList: Map<FacingDelegate, List<SimpleCameraInfo>>
     fun changeFacing()
     fun changeSameFacingCamera()
-    fun selectSameFacingCameraByIndex(index: Int)
+    fun selectSameFacingCameraByIndex(index: Int)   //TODO Прикрутить переключение камер одной стороны
     fun restart()
     fun takePicture()
     val takePictureResult: LiveData<TakePictureResult>

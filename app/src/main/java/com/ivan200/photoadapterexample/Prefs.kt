@@ -1,6 +1,7 @@
 package com.ivan200.photoadapterexample
 
 import android.content.Context
+import android.net.Uri
 import com.ivan200.photoadapterexample.utils.AnyPref
 import java.io.File
 
@@ -13,7 +14,6 @@ class Prefs(context: Context) {
     var saveToGallery by AnyPref(context, false)
     var galleryName by AnyPref(context, context.getString(R.string.app_name))
     var fullScreenMode by AnyPref(context, true)
-    var hasThumbnails by AnyPref(context, true)
     var maxImageSize by AnyPref(context, 1200)
     var useSnapshot by AnyPref(context, true)
     var fitMode by AnyPref(context, true)
@@ -22,5 +22,5 @@ class Prefs(context: Context) {
     var images by AnyPref(context, mutableSetOf<String>())
     var imagePreviewNumber by AnyPref(context, 0)
 
-    val sortedImages get() = images.sortedByDescending { File(it).lastModified() }
+    val sortedImages get() = images.sortedDescending()
 }

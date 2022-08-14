@@ -1,6 +1,7 @@
 package com.ivan200.photoadapterexample.fragments
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -12,6 +13,8 @@ import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.permission.PermissionsDelegate
 import com.ivan200.photoadapter.permission.ResultType
 import com.ivan200.photoadapter.utils.ImageUtils
+import com.ivan200.photoadapter.utils.SaveTo
+import com.ivan200.photoadapter.utils.SaveUtils
 import com.ivan200.photoadapterexample.Prefs
 import com.ivan200.photoadapterexample.R
 import kotlinx.coroutines.NonCancellable.cancel
@@ -56,11 +59,10 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             .setChangeCameraAllowed(prefs.changeCameraAllowed)
             .setAllowMultipleImages(prefs.allowMultipleImages)
             .setLockRotate(prefs.lockRotate)
-            .setSavePhotoToGallery(if (prefs.saveToGallery) prefs.galleryName else null)
+            .setSaveTo(if (prefs.saveToGallery) SaveTo.ToGalleryWithAlbum(prefs.galleryName) else SaveTo.OnlyInternal)
             .setPreviewImage(prefs.previewImage)
             .setFullScreenMode(prefs.fullScreenMode)
             .setFitMode(prefs.fitMode)
-//            .setThumbnails(prefs.hasThumbnails)
 //            .setMaxImageSize(prefs.maxImageSize)
             .setUseSnapshot(prefs.useSnapshot)
             .setDialogTheme(R.style.AppThemeDialog)
@@ -83,8 +85,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         cameraBuilder.onActivityResult(requestCode, resultCode, data, this::onImagesTaken)
     }
 
-    private fun onImagesTaken(images: List<String>) {
-        Prefs(requireContext()).images = Prefs(requireContext()).images.apply { addAll(images) }
+    private fun onImagesTaken(images: List<Uri>) {
+        Prefs(requireContext()).images = Prefs(requireContext()).images.apply { addAll(images.map { it.toString() }) }
         navigateGallery.onClick(fabGallery)
     }
 
@@ -92,7 +94,6 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         super.onDestroy()
 
         Prefs(requireContext()).images = mutableSetOf()
-        ImageUtils.getPhotosDir(requireActivity()).listFiles()?.forEach { it.delete() }
-//        ImageUtils.getThumbsDir(requireActivity()).listFiles()?.forEach { it.delete() }
+        SaveUtils.getSavePhotosDir(requireContext(), cameraBuilder.saveTo).listFiles()?.forEach { it.delete() }
     }
 }

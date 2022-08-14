@@ -176,7 +176,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         if (cameraBuilder.allowMultipleImages && pictureInfo != null) {
             resultImage.show()
             Glide.with(requireActivity())
-                .load(pictureInfo.thumbFile ?: pictureInfo.file)
+                .load(pictureInfo.file)
                 .apply(RequestOptions.circleCropTransform())
                 .into(resultImage)
         } else {
@@ -271,7 +271,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                 }
             }
             is TakePictureResult.ImageTaken -> {
-                cameraViewModel.onFileSaved(result.file, null)
+                cameraViewModel.onFileSaved(result.file)
             }
         }
     }
@@ -310,7 +310,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 //        }
 //
 //        //Rotate items on screen if orientation locked
-//        override fun onOrientationChanged(orientation: Int) {
+//        override fun onOrientationChanged(orientation: Int) { TODO Обработать поворот экрана
 //            super.onOrientationChanged(orientation)
 //            if (!cameraBuilder.lockRotate) return
 //

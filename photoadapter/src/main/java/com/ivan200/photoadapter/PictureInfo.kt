@@ -8,5 +8,5 @@ import java.io.File
 // Created by Ivan200 on 21.10.2019.
 //
 @Parcelize
-data class PictureInfo(val file: File, val thumbFile: File?) : Parcelable
+data class PictureInfo(val file: File) : Parcelable
 

@@ -45,6 +45,7 @@ import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.camerax.touch.TouchHandler
 import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.utils.ImageUtils.dpToPx
+import com.ivan200.photoadapter.utils.SaveUtils
 import java.io.File
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
@@ -310,8 +311,7 @@ class CameraXView @JvmOverloads constructor(
             isReversedHorizontal = changeCameraProvider.cameraInfo.value?.cameraFacing == FacingDelegate.FRONT
         }
 
-        val photoDir = ImageUtils.getPhotosDir(context, builder.photosPath)
-        val photoFile = ImageUtils.createImageFile(context, photoDir)
+        val photoFile = SaveUtils.createImageFile(context, builder.saveTo)
 
         // Create output options object which contains file + metadata
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
@@ -350,8 +350,7 @@ class CameraXView @JvmOverloads constructor(
     fun takeSnapshot() {
         viewFinder.bitmap?.let {
             val exif = ImageUtils.getExifByRotation(rotationDetector.sumOrientation)
-            val photoDir = ImageUtils.getPhotosDir(context, builder.photosPath)
-            val photoFile = ImageUtils.createImageFile(context, photoDir)
+            val photoFile = SaveUtils.createImageFile(context, builder.saveTo)
             val jpegQuality = builder.outputJpegQuality ?: DEFAULT_JPEG_QUALITY
             BitmapSaver(photoFile, it, exif, builder.maxImageSize, jpegQuality, this::onSnapshotSaved, this::onSnapshotSaveError).save()
         }
