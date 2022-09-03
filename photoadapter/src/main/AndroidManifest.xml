@@ -1,25 +1,37 @@
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ivan200.photoadapter"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
-    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-sdk tools:overrideLibrary="com.otaliastudios.cameraview"/>
+    <uses-sdk tools:overrideLibrary="com.otaliastudios.cameraview" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:xlargeScreens="true" />
 
     <application
+        android:supportsRtl="true"
         android:allowBackup="true"
-        android:supportsRtl="true">
+        tools:ignore="RtlEnabled">
         <activity
             android:theme="@style/AppThemePhoto"
             android:name="com.ivan200.photoadapter.CameraActivity"
-            android:label="Photo" >
-        </activity>
+            android:exported="false"
+            android:label="Photo"></activity>
     </application>
 </manifest>
 

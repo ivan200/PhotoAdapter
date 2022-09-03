@@ -10,7 +10,6 @@ import androidx.core.util.Consumer
 import androidx.fragment.app.Fragment
 import com.ivan200.photoadapter.utils.SaveTo
 import kotlinx.parcelize.Parcelize
-import java.io.File
 
 /**
  * Camera builder
@@ -50,9 +49,10 @@ data class CameraBuilder private constructor(
     @IntRange(from = 1, to = 100)
     var outputJpegQuality: Int? = null,
     var forceUseCamera1Impl: Boolean = false,
+    var flipFrontResult: Boolean = false
 ) : Parcelable {
 
-    constructor() : this(facingBack = true) //explicit "empty" constructor, as seen by Java.
+    constructor() : this(facingBack = true) // explicit "empty" constructor, as seen by Java.
 
     fun setCameraFacingBack(facingBack: Boolean) = apply { this.facingBack = facingBack }
     fun setChangeCameraAllowed(changeCameraAllowed: Boolean) = apply { this.changeCameraAllowed = changeCameraAllowed }
@@ -67,13 +67,14 @@ data class CameraBuilder private constructor(
     fun setRequestCode(requestCode: Int) = apply { this.requestCode = requestCode }
     fun setDialogTheme(@AnyRes dialogTheme: Int) = apply { this.dialogTheme = dialogTheme }
     fun setOutputJpegQuality(@IntRange(from = 1, to = 100) outputJpegQuality: Int) = apply { this.outputJpegQuality = outputJpegQuality }
+    fun setFlipFrontResult(flipFrontalPicture: Boolean) = apply { this.flipFrontResult = flipFrontalPicture }
     fun setSaveTo(saveTo: SaveTo) = apply { this.saveTo = saveTo }
 
     fun start(activity: Activity) {
         activity.startActivityForResult(CameraActivity.getIntent(activity, this), getCode())
     }
 
-    //TODO Добавить нормальный старт активити
+    // TODO Добавить нормальный старт активити
     fun start(fragment: Fragment) {
         fragment.startActivityForResult(CameraActivity.getIntent(fragment.requireContext(), this), getCode())
     }
@@ -87,7 +88,7 @@ data class CameraBuilder private constructor(
     }
 
     companion object {
-        private const val REQUEST_IMAGE_CAPTURE = 7411   //random number
+        private const val REQUEST_IMAGE_CAPTURE = 7411 // random number
 
         @Suppress("UNCHECKED_CAST")
         fun onActivityResult(resultCode: Int, data: Intent?, onSuccess: Consumer<List<Uri>>, onCancel: Runnable? = null) {

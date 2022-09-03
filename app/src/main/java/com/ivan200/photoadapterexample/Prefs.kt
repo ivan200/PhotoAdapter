@@ -1,9 +1,7 @@
 package com.ivan200.photoadapterexample
 
 import android.content.Context
-import android.net.Uri
 import com.ivan200.photoadapterexample.utils.AnyPref
-import java.io.File
 
 class Prefs(context: Context) {
     var facingBack by AnyPref(context, true)
@@ -17,6 +15,7 @@ class Prefs(context: Context) {
     var maxImageSize by AnyPref(context, 1200)
     var useSnapshot by AnyPref(context, true)
     var fitMode by AnyPref(context, true)
+    var flipFrontal by AnyPref(context, false)
     var forceCamera1 by AnyPref(context, false)
 
     var images by AnyPref(context, mutableSetOf<String>())

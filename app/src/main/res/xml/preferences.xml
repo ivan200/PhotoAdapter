@@ -1,76 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <CheckBoxPreference
+        android:defaultValue="false"
         android:key="fullScreenMode"
         android:summary="@string/fullScreenMode_description"
         android:title="@string/fullScreenMode"
-        android:defaultValue="false"
-        app:iconSpaceReserved="false">
-    </CheckBoxPreference>
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
     <CheckBoxPreference
+        android:defaultValue="false"
         android:key="fitMode"
-        android:title="@string/fitMode"
         android:summary="@string/fitMode_description"
-        android:defaultValue="false"
-        app:iconSpaceReserved="false">
-    </CheckBoxPreference>
+        android:title="@string/fitMode"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
     <CheckBoxPreference
+        android:defaultValue="true"
         android:key="previewImage"
-        android:title="@string/previewImage"
         android:summary="@string/previewImage_description"
-        android:defaultValue="true"
-        app:iconSpaceReserved="false">
-    </CheckBoxPreference>
+        android:title="@string/previewImage"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
     <CheckBoxPreference
+        android:defaultValue="true"
         android:key="facingBack"
-        android:title="@string/facingBack"
         android:summary="@string/facingBack_description"
-        android:defaultValue="true"
-        app:iconSpaceReserved="false">
-    </CheckBoxPreference>
+        android:title="@string/facingBack"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
     <CheckBoxPreference
+        android:defaultValue="true"
         android:key="changeCameraAllowed"
-        android:title="@string/changeCameraAllowed"
         android:summary="@string/changeCameraAllowed_description"
-        android:defaultValue="true"
-        app:iconSpaceReserved="false">
-    </CheckBoxPreference>
+        android:title="@string/changeCameraAllowed"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
     <CheckBoxPreference
+        android:defaultValue="true"
         android:key="allowMultipleImages"
-        android:title="@string/allowMultipleImages"
         android:summary="@string/allowMultipleImages_description"
-        android:defaultValue="true"
-        app:iconSpaceReserved="false">
-    </CheckBoxPreference>
+        android:title="@string/allowMultipleImages"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
     <CheckBoxPreference
+        android:defaultValue="true"
         android:key="useSnapshot"
-        android:title="@string/useSnapshot"
         android:summary="@string/useSnapshot_description"
-        android:defaultValue="true"
-        app:iconSpaceReserved="false">
-    </CheckBoxPreference>
+        android:title="@string/useSnapshot"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
     <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="flipFrontal"
+        android:summary="@string/flipFrontal_description"
+        android:title="@string/flipFrontal"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
+    <CheckBoxPreference
+        android:defaultValue="false"
         android:key="saveToGallery"
-        android:title="@string/saveToGallery"
         android:summary="@string/saveToGallery_description"
-        android:defaultValue="false"
-        app:iconSpaceReserved="false">
-    </CheckBoxPreference>
+        android:title="@string/saveToGallery"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
     <CheckBoxPreference
-        android:key="lockRotate"
-        android:title="@string/lockRotate"
-        android:summary="@string/lockRotate_description"
         android:defaultValue="true"
-        app:iconSpaceReserved="false">
-    </CheckBoxPreference>
+        android:key="lockRotate"
+        android:summary="@string/lockRotate_description"
+        android:title="@string/lockRotate"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
     <CheckBoxPreference
-        android:key="forceCamera1"
-        android:title="@string/forceCamera1"
-        android:summary="@string/forceCamera1_description"
         android:defaultValue="false"
-        app:iconSpaceReserved="false">
-    </CheckBoxPreference>
+        android:key="forceCamera1"
+        android:summary="@string/forceCamera1_description"
+        android:title="@string/forceCamera1"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
 </PreferenceScreen>

@@ -307,8 +307,13 @@ class CameraXView @JvmOverloads constructor(
 
         // Setup image capture metadata
         val metadata = Metadata().apply {
-            // Mirror image when using the front camera
-            isReversedHorizontal = changeCameraProvider.cameraInfo.value?.cameraFacing == FacingDelegate.FRONT
+            isReversedHorizontal = when {
+                // by default we always flip front, but if requested flipping, we dont flip it (inverse logic)
+                builder.flipFrontResult -> false
+                // Mirror image when using the front camera
+                changeCameraProvider.cameraInfo.value?.cameraFacing == FacingDelegate.FRONT -> true
+                else -> false
+            }
         }
 
         val photoFile = SaveUtils.createImageFile(context, builder.saveTo)

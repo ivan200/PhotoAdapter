@@ -64,6 +64,7 @@ class CameraImplOntario @JvmOverloads constructor(
     private var lifecycleOwner: LifecycleOwner? = null
 
     private val listener = Listener()
+    private var isPictureSaving = false
 
     private val _takePictureResult = MutableLiveData<TakePictureResult>()
     override val takePictureResult: LiveData<TakePictureResult> = _takePictureResult
@@ -108,6 +109,11 @@ class CameraImplOntario @JvmOverloads constructor(
                     0.1f
                 )
             )
+        } else {
+            val aspect = resources.displayMetrics.let {
+                if (it.widthPixels < it.heightPixels) AspectRatio.of(3, 4) else AspectRatio.of(4, 3)
+            }
+            selectors.add(SizeSelectors.aspectRatio(aspect, 0.1f))
         }
 
         val maxS = cameraBuilder.maxImageSize
@@ -154,7 +160,7 @@ class CameraImplOntario @JvmOverloads constructor(
     }
 
     override fun takePicture() {
-        if (isTakingPicture) return
+        if (isTakingPicture || isPictureSaving) return
         if (builder.useSnapshot) {
             takePictureSnapshot()
         } else {
@@ -172,9 +178,13 @@ class CameraImplOntario @JvmOverloads constructor(
         this.open()
     }
 
-    override fun changeSameFacingCamera() {}
+    override fun changeSameFacingCamera() {
+        // ontario does not support multiple same facing cameras
+    }
 
-    override fun selectSameFacingCameraByIndex(index: Int) {}
+    override fun selectSameFacingCameraByIndex(index: Int) {
+        // ontario does not support multiple same facing cameras
+    }
 
     override fun setFlash(flash: FlashDelegate.HasFlash) {
         val newFlash = when (flash) {
@@ -218,14 +228,14 @@ class CameraImplOntario @JvmOverloads constructor(
             }
 
             val cameraInfo = SimpleCameraInfo(
-                cameraIdMap.get(facing)!!,
-                facing,
-                hasFlash,
-                supportedFlash.sortedBy { it.orderValue },
-                PointF(0f, 0f),
-                0f,
-                0f,
-                cameraIdMap.get(facing)!!
+                cameraId = cameraIdMap.get(facing)!!,
+                cameraFacing = facing,
+                hasFlashUnit = hasFlash,
+                supportedFlash = supportedFlash.sortedBy { it.orderValue },
+                physicalSize = PointF(0f, 0f),
+                fov = 0f,
+                focal = 0f,
+                name = cameraIdMap.get(facing)!!
             )
 
             _cameraInfoList[facing] = listOf(cameraInfo)
@@ -260,16 +270,24 @@ class CameraImplOntario @JvmOverloads constructor(
 
         override fun onPictureTaken(result: PictureResult) {
             val photoFile = SaveUtils.createImageFile(context, builder.saveTo)
-
-            ResultSaver(photoFile, result, this@CameraImplOntario::onPhotoSaved, this@CameraImplOntario::onPhotoSaveError).save()
+            isPictureSaving = true
+            ResultSaver(
+                photoFile = photoFile,
+                flipFrontRequested = builder.flipFrontResult,
+                result = result,
+                onSaved = this@CameraImplOntario::onPhotoSaved,
+                onSavedError = this@CameraImplOntario::onPhotoSaveError
+            ).save()
         }
     }
 
     private fun onPhotoSaved(photoFile: File) {
+        isPictureSaving = false
         _takePictureResult.postValue(TakePictureResult.ImageTaken(photoFile))
     }
 
     private fun onPhotoSaveError(ex: Throwable) {
+        isPictureSaving = false
         _takePictureResult.postValue(TakePictureResult.ImageTakeException(CaptureError.ERROR_FILE_IO, ex))
     }
 
@@ -278,8 +296,8 @@ class CameraImplOntario @JvmOverloads constructor(
         // since camera options in ontario does not contain camera id on an open map, i prefer to set a virtual id
         @Suppress("DEPRECATION")
         private val cameraIdMap = hashMapOf<FacingDelegate, String>(
-            FacingDelegate.BACK to android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK.toString(),
-            FacingDelegate.FRONT to android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT.toString()
+            FacingDelegate.BACK to android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK.toString(), // Noncompliant
+            FacingDelegate.FRONT to android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT.toString() // Noncompliant
         )
     }
 }

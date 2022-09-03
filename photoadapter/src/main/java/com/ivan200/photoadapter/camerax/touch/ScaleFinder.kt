@@ -15,6 +15,9 @@ class ScaleFinder(context: Context, onScaleListener: OnScaleListener) {
     private val gestureListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             onScaleListener.onScale(detector.scaleFactor)
+
+            // TODO Попробовать прикрутить переключение по скейлу на более широкоугольную камеру
+
             notify = true
             return true
         }

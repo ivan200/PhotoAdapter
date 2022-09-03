@@ -1,6 +1,7 @@
 package com.ivan200.photoadapterexample.fragments
 
 import android.content.res.Configuration
+import android.content.res.Configuration.ORIENTATION_UNDEFINED
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -14,13 +15,9 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapterexample.Prefs
 import com.ivan200.photoadapterexample.R
 import com.ivan200.photoadapterexample.utils.SquareImageView
-import java.io.File
-
 
 //
 // Created by Ivan200 on 14.11.2019.
@@ -28,6 +25,8 @@ import java.io.File
 class GalleryFragment : Fragment(R.layout.fragment_gallery) {
     private val recyclerView get() = requireView().findViewById<RecyclerView>(R.id.gallery_recycle)
     private val mActivity get() = activity as AppCompatActivity
+
+    var orientation = ORIENTATION_UNDEFINED
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -38,7 +37,21 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = GalleryAdapter(Prefs(requireContext()).sortedImages)
 
-        val span = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 5 else 3
+        orientation = resources.configuration.orientation
+        setRecycler()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        if (orientation != newConfig.orientation) {
+            orientation = newConfig.orientation
+            setRecycler()
+        }
+    }
+
+    fun setRecycler() {
+        val span = if (orientation == Configuration.ORIENTATION_LANDSCAPE) 5 else 3
         recyclerView.layoutManager = GridLayoutManager(mActivity, span)
     }
 
@@ -64,7 +77,8 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                         cropToPadding = true
                     }
-                })
+                }
+            )
         }
 
         override fun getItemCount(): Int {

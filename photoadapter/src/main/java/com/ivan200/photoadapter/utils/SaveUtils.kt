@@ -37,8 +37,8 @@ object SaveUtils {
 
     @Throws(IOException::class)
     fun createImageFile(context: Context, saveTo: SaveTo): File {
-        val dirToMake = getSavePhotosDir(context, saveTo)
-        val image = File(dirToMake, getFileName())
+        val savePhotosDir = getSavePhotosDir(context, saveTo)
+        val image = File(savePhotosDir, getFileName())
         image.createNewFile()
         return image
     }
@@ -79,26 +79,21 @@ object SaveUtils {
         images: List<File>,
         saveTo: SaveTo.ToGalleryWithAlbum
     ): List<Uri>? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            copyFilesToMediastoreByUri(context, images, saveTo.album)
-        } else {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             val saveDir = getSaveDir(saveTo.album)
             if (saveDir != null) {
                 val galleryFiles = runCatching { copyFilesToOtherDir(images, saveDir) }.getOrNull()
                 if (galleryFiles != null) {
                     val newUris = updateGallery(context, saveTo.album, galleryFiles)
-                    if (newUris.any { it == null }) {
+                    return if (newUris.any { it == null }) {
                         galleryFiles.map { Uri.fromFile(it) }
                     } else {
                         newUris.filterNotNull()
                     }
-                } else {
-                    copyFilesToMediastoreByUri(context, images, saveTo.album)
                 }
-            } else {
-                copyFilesToMediastoreByUri(context, images, saveTo.album)
             }
         }
+        return copyFilesToMediastoreByUri(context, images, saveTo.album)
     }
 
     fun getContentValues(file: File, album: String): ContentValues = ContentValues().apply {
@@ -236,8 +231,7 @@ object SaveUtils {
         } else {
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         }
-
-        check(volumeUri != null) { "Failed to get external volume URI." }
+        if (volumeUri == null) throw IOException("Failed to get external volume URI.")
 
         val resolver = context.contentResolver
         val values = ContentValues(contentValues)

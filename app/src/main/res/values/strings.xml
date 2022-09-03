@@ -22,6 +22,9 @@
     <string name="useSnapshot">Use snapshot</string>
     <string name="useSnapshot_description">Instead of actually taking photos and waiting for the camera to return the image, a snapshot of the area that displays the image is used.\nMuch faster than a real photo, does not give the sound of taking a photo, but the size of the photo is limited by the size of the screen. Also, you cannot turn on the auto flash, only torch mode allowed.</string>
 
+    <string name="flipFrontal">Mirror frontal result picture</string>
+    <string name="flipFrontal_description">On some devices, the result of taking picture with the frontal camera may be mirrored. Select this item if you want to correct the result.</string>
+
     <string name="saveToGallery">Save to phone gallery also</string>
     <string name="saveToGallery_description">Allows you to save photos, in addition to the app\'s memory, also to the phone\'s gallery for the user.</string>
 

@@ -12,12 +12,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.permission.PermissionsDelegate
 import com.ivan200.photoadapter.permission.ResultType
-import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.utils.SaveTo
 import com.ivan200.photoadapter.utils.SaveUtils
 import com.ivan200.photoadapterexample.Prefs
 import com.ivan200.photoadapterexample.R
-import kotlinx.coroutines.NonCancellable.cancel
 
 class MainFragment : Fragment(R.layout.fragment_main) {
     private val navigateGallery = Navigation.createNavigateOnClickListener(R.id.action_mainFragment_to_galleryFragment)
@@ -35,7 +33,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         permissionsDelegate = PermissionsDelegate(
             requireActivity(),
             savedInstanceState,
-            this::onPermissionResult,
+            this::onPermissionResult
         )
     }
 
@@ -62,6 +60,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             .setSaveTo(if (prefs.saveToGallery) SaveTo.ToGalleryWithAlbum(prefs.galleryName) else SaveTo.OnlyInternal)
             .setPreviewImage(prefs.previewImage)
             .setFullScreenMode(prefs.fullScreenMode)
+            .setFlipFrontResult(prefs.flipFrontal)
             .setFitMode(prefs.fitMode)
 //            .setMaxImageSize(prefs.maxImageSize)
             .setUseSnapshot(prefs.useSnapshot)
@@ -71,8 +70,9 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
     private fun onPermissionResult(resultType: ResultType) = when (resultType) {
         is ResultType.Allow -> cameraBuilder.start(this)
-        is ResultType.Denied -> Toast
-            .makeText(requireContext(), getString(R.string.toast_permission_rejected), Toast.LENGTH_SHORT).show()
+        is ResultType.Denied ->
+            Toast
+                .makeText(requireContext(), getString(R.string.toast_permission_rejected), Toast.LENGTH_SHORT).show()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
