@@ -104,10 +104,7 @@ class CameraImplOntario @JvmOverloads constructor(
         }
         if (cameraBuilder.fullScreenMode) {
             selectors.add(
-                SizeSelectors.aspectRatio(
-                    AspectRatio.of(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels),
-                    0.1f
-                )
+                SizeSelectors.aspectRatio(AspectRatio.of(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels), 0.1f)
             )
         } else {
             val aspect = resources.displayMetrics.let {
@@ -116,12 +113,13 @@ class CameraImplOntario @JvmOverloads constructor(
             selectors.add(SizeSelectors.aspectRatio(aspect, 0.1f))
         }
 
-        val maxS = cameraBuilder.maxImageSize
-        if (maxS != null) {
-            snapshotMaxWidth = maxS
-            snapshotMaxHeight = maxS
-
-            selectors.add(SizeSelectors.and(SizeSelectors.maxWidth(maxS), SizeSelectors.maxHeight(maxS)))
+        cameraBuilder.maxWidth?.let {
+            snapshotMaxWidth = it
+            selectors.add(SizeSelectors.maxWidth(it))
+        }
+        cameraBuilder.maxHeight?.let {
+            snapshotMaxHeight = it
+            selectors.add(SizeSelectors.maxHeight(it))
         }
         selectors.add(SizeSelectors.biggest())
 

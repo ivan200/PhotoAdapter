@@ -2,12 +2,10 @@
 
 package com.ivan200.photoadapter.utils
 
-import android.annotation.SuppressLint
-import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Point
 import android.graphics.PointF
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK
@@ -15,13 +13,7 @@ import android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
-import android.media.MediaScannerConnection
-import android.net.Uri
 import android.os.Build
-import android.os.Environment
-import android.os.StatFs
-import android.provider.MediaStore
-import android.util.Log
 import android.util.Size
 import android.util.TypedValue
 import android.view.Display
@@ -30,25 +22,15 @@ import android.view.Surface.ROTATION_180
 import android.view.Surface.ROTATION_270
 import android.view.Surface.ROTATION_90
 import android.view.WindowManager
-import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_UNDEFINED
 import com.ivan200.photoadapter.base.FacingDelegate
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
-import java.nio.file.Files
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -169,17 +151,20 @@ object ImageUtils {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun Size.scaleDown(maxSide: Int?): Size {
-        if (maxSide == null || maxSide < 0 || (width <= maxSide && height <= maxSide)) {
+    fun Point.scaleDown(maxX: Int?, maxY: Int?): Point {
+        val setX = maxX ?: x
+        val setY = maxY ?: y
+
+        if (setX < 0 || setY < 0 || (x <= setX && y <= setY)) {
             return this
         }
-        if (width == 0 || height == 0) {
-            return Size(0, 0)
+        if (x == 0 || y == 0) {
+            return Point(0, 0)
         }
-        val ratio = width.toFloat() / height.toFloat()
+        val ratio = x.toFloat() / y.toFloat()
         return when {
-            ratio >= 1 -> Size(maxSide, (maxSide / ratio).toInt())
-            else -> Size((maxSide * ratio).toInt(), maxSide)
+            ratio >= 1 -> Point(setX, (setY / ratio).toInt())
+            else -> Point((setX * ratio).toInt(), setY)
         }
     }
 

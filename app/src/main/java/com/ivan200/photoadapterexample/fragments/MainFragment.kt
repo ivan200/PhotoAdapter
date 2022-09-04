@@ -12,6 +12,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.permission.PermissionsDelegate
 import com.ivan200.photoadapter.permission.ResultType
+import com.ivan200.photoadapter.utils.CameraImplSelector
 import com.ivan200.photoadapter.utils.SaveTo
 import com.ivan200.photoadapter.utils.SaveUtils
 import com.ivan200.photoadapterexample.Prefs
@@ -35,6 +36,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             savedInstanceState,
             this::onPermissionResult
         )
+        updateCameraBuilder()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -65,14 +67,13 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 //            .setMaxImageSize(prefs.maxImageSize)
             .setUseSnapshot(prefs.useSnapshot)
             .setDialogTheme(R.style.AppThemeDialog)
-            .setForceUseCamera1Impl(prefs.forceCamera1)
+            .setCameraImplSelector(if (prefs.forceCamera1) CameraImplSelector.AlwaysCamera1 else CameraImplSelector.Camera2FromApi21)
     }
 
     private fun onPermissionResult(resultType: ResultType) = when (resultType) {
         is ResultType.Allow -> cameraBuilder.start(this)
         is ResultType.Denied ->
-            Toast
-                .makeText(requireContext(), getString(R.string.toast_permission_rejected), Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.toast_permission_rejected), Toast.LENGTH_SHORT).show()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

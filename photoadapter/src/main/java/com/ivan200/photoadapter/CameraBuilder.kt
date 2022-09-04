@@ -8,6 +8,7 @@ import androidx.annotation.AnyRes
 import androidx.annotation.IntRange
 import androidx.core.util.Consumer
 import androidx.fragment.app.Fragment
+import com.ivan200.photoadapter.utils.CameraImplSelector
 import com.ivan200.photoadapter.utils.SaveTo
 import kotlinx.parcelize.Parcelize
 
@@ -42,13 +43,14 @@ data class CameraBuilder private constructor(
     var fullScreenMode: Boolean = false,
     var fitMode: Boolean = false,
     var saveTo: SaveTo = SaveTo.OnlyInternal,
-    var maxImageSize: Int? = null,
+    var maxWidth: Int? = null,
+    var maxHeight: Int? = null,
     var useSnapshot: Boolean = true,
     var requestCode: Int = 0,
     var dialogTheme: Int = 0,
     @IntRange(from = 1, to = 100)
     var outputJpegQuality: Int? = null,
-    var forceUseCamera1Impl: Boolean = false,
+    var cameraImplSelector: CameraImplSelector = CameraImplSelector.Camera2IfAnyFullSupport,
     var flipFrontResult: Boolean = false
 ) : Parcelable {
 
@@ -61,9 +63,10 @@ data class CameraBuilder private constructor(
     fun setFullScreenMode(fullScreenMode: Boolean) = apply { this.fullScreenMode = fullScreenMode }
     fun setFitMode(fitMode: Boolean) = apply { this.fitMode = fitMode }
     fun setPreviewImage(previewImage: Boolean) = apply { this.previewImage = previewImage }
-    fun setMaxImageSize(maxImageSize: Int) = apply { this.maxImageSize = maxImageSize }
+    fun setMaxWidth(maxWidth: Int) = apply { this.maxWidth = maxWidth }
+    fun setMaxHeight(maxHeight: Int) = apply { this.maxHeight = maxHeight }
     fun setUseSnapshot(useSnapshot: Boolean) = apply { this.useSnapshot = useSnapshot }
-    fun setForceUseCamera1Impl(forceUseCamera1Impl: Boolean) = apply { this.forceUseCamera1Impl = forceUseCamera1Impl }
+    fun setCameraImplSelector(cameraImplSelector: CameraImplSelector) = apply { this.cameraImplSelector = cameraImplSelector }
     fun setRequestCode(requestCode: Int) = apply { this.requestCode = requestCode }
     fun setDialogTheme(@AnyRes dialogTheme: Int) = apply { this.dialogTheme = dialogTheme }
     fun setOutputJpegQuality(@IntRange(from = 1, to = 100) outputJpegQuality: Int) = apply { this.outputJpegQuality = outputJpegQuality }
@@ -83,15 +86,6 @@ data class CameraBuilder private constructor(
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, onSuccess: Consumer<List<Uri>>, onCancel: Runnable? = null) {
         if (requestCode == getCode()) {
-            Companion.onActivityResult(resultCode, data, onSuccess, onCancel)
-        }
-    }
-
-    companion object {
-        private const val REQUEST_IMAGE_CAPTURE = 7411 // random number
-
-        @Suppress("UNCHECKED_CAST")
-        fun onActivityResult(resultCode: Int, data: Intent?, onSuccess: Consumer<List<Uri>>, onCancel: Runnable? = null) {
             when (resultCode) {
                 Activity.RESULT_CANCELED -> onCancel?.run()
                 Activity.RESULT_OK -> {
@@ -102,5 +96,9 @@ data class CameraBuilder private constructor(
                 }
             }
         }
+    }
+
+    companion object {
+        private const val REQUEST_IMAGE_CAPTURE = 7411 // random number
     }
 }

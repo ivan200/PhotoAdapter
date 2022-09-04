@@ -5,9 +5,11 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
+import android.util.Size
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
@@ -26,6 +28,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toPointF
 import androidx.core.net.toFile
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -45,6 +48,7 @@ import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.camerax.touch.TouchHandler
 import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.utils.ImageUtils.dpToPx
+import com.ivan200.photoadapter.utils.ImageUtils.scaleDown
 import com.ivan200.photoadapter.utils.SaveUtils
 import java.io.File
 import java.util.concurrent.ExecutionException
@@ -162,6 +166,7 @@ class CameraXView @JvmOverloads constructor(
     }
 
     private fun onDisplayRotated() {
+        // TODO Поправить поворот фотки
         imageCapture?.targetRotation = rotationDetector.deviceOrientation
     }
 
@@ -257,11 +262,15 @@ class CameraXView @JvmOverloads constructor(
                 builder.outputJpegQuality?.let {
                     setJpegQuality(it)
                 }
-                val maxSize = builder.maxImageSize
-                if (maxSize != null && maxSize > 0) {
-                    setTargetResolution(ImageUtils.targetSize(cameraRatio, maxSize))
-                } else {
-                    setTargetAspectRatio(cameraRatio)
+                if (builder.fullScreenMode) {
+                    val screenSize = Point(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels)
+                    val scaledSize = screenSize.scaleDown(builder.maxWidth, builder.maxHeight)
+                    if (screenSize != scaledSize) {
+                        setTargetResolution(Size(scaledSize.x, scaledSize.y))
+                    } else {
+                        val pictureRatio = ImageUtils.aspectRatio(screenSize.toPointF())
+                        setTargetAspectRatio(pictureRatio)
+                    }
                 }
             }
             .build()
@@ -357,7 +366,16 @@ class CameraXView @JvmOverloads constructor(
             val exif = ImageUtils.getExifByRotation(rotationDetector.sumOrientation)
             val photoFile = SaveUtils.createImageFile(context, builder.saveTo)
             val jpegQuality = builder.outputJpegQuality ?: DEFAULT_JPEG_QUALITY
-            BitmapSaver(photoFile, it, exif, builder.maxImageSize, jpegQuality, this::onSnapshotSaved, this::onSnapshotSaveError).save()
+            BitmapSaver(
+                photoFile = photoFile,
+                result = it,
+                exif = exif,
+                maxWidth = builder.maxWidth,
+                maxHeight = builder.maxHeight,
+                jpegQuality = jpegQuality,
+                onSaved = this::onSnapshotSaved,
+                onSavedError = this::onSnapshotSaveError
+            ).save()
         }
     }
 

@@ -68,7 +68,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         super.onCreate(savedInstanceState)
         cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
 
-        CameraView.forceUseCamera1Impl = cameraBuilder.forceUseCamera1Impl
+        CameraView.cameraSelector = cameraBuilder.cameraImplSelector
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -86,6 +86,15 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             }
         }
 
+        if (cameraBuilder.fullScreenMode) {
+            // Очищаем значение обозначающее что вью камеры должно быть над панелью кнопок
+            (cameraFrame.layoutParams as? RelativeLayout.LayoutParams)?.apply {
+                arrayOf(RelativeLayout.BELOW, RelativeLayout.ABOVE, RelativeLayout.LEFT_OF, RelativeLayout.RIGHT_OF).forEach {
+                    addRule(it, 0)
+                }
+            }
+        }
+
         cameraViewModel.curPageLoaded.observe(requireActivity()) {
             if (cameraBuilder.previewImage) {
                 loadThumbImage(it)
@@ -98,8 +107,13 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                     // TODO Обработать соостояния ошибок
                     initText.isVisible = false
                 }
-                CameraViewState.Initializing -> initText.isVisible = true
-                CameraViewState.NoPermissions -> initText.isVisible = false
+                CameraViewState.Initializing -> {
+                    initText.isVisible = true
+                }
+                CameraViewState.NoPermissions -> {
+                    // TODO не срабатывает обработка пермишенов при разворачивании
+                    initText.isVisible = false
+                }
                 CameraViewState.NotInitialized -> initText.isVisible = false
                 CameraViewState.Streaming -> initText.isVisible = false
             }

@@ -10,7 +10,7 @@ import androidx.lifecycle.LiveData
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.camerax.CameraXView
 import com.ivan200.photoadapter.ontario.CameraImplOntario
-import com.ivan200.photoadapter.utils.ImageUtils
+import com.ivan200.photoadapter.utils.CameraImplSelector
 
 /**
  * @author ivan200
@@ -23,10 +23,10 @@ class CameraView @JvmOverloads constructor(
     @StyleRes defStyleRes: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), CameraDelegate {
 
-    val impl: CameraDelegate = if (forceUseCamera1Impl || !ImageUtils.allowCamera2Support(context)) {
-        CameraImplOntario(context, attrs)
-    } else {
+    val impl: CameraDelegate = if (cameraSelector.isImplCamera2(context)) {
         CameraXView(context, attrs, defStyleAttr)
+    } else {
+        CameraImplOntario(context, attrs)
     }.also {
         addView(it)
     }
@@ -47,6 +47,6 @@ class CameraView @JvmOverloads constructor(
     override fun restart() = impl.restart()
     companion object {
         /** this is workaround to chose implementation before it is created */
-        var forceUseCamera1Impl = false
+        var cameraSelector: CameraImplSelector = CameraImplSelector.Camera2IfAnyFullSupport
     }
 }
