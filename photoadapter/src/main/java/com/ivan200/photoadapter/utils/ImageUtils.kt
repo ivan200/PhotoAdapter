@@ -15,7 +15,6 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.os.Build
 import android.util.Size
-import android.util.TypedValue
 import android.view.Display
 import android.view.Surface.ROTATION_0
 import android.view.Surface.ROTATION_180
@@ -123,11 +122,6 @@ object ImageUtils {
         return false
     }
 
-    fun Number.dpToPx(context: Context? = null): Float {
-        val res = context?.resources ?: android.content.res.Resources.getSystem()
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), res.displayMetrics)
-    }
-
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun aspectRatio(size: PointF?): Int {
         if (size == null || size.x <= 0f || size.y <= 0f) {
@@ -142,6 +136,8 @@ object ImageUtils {
 
     private const val RATIO_4_3_VALUE: Double = 4.0 / 3.0
     private const val RATIO_16_9_VALUE: Double = 16.0 / 9.0
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private const val DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -150,7 +146,6 @@ object ImageUtils {
         else -> Size((targetSideSize / RATIO_4_3_VALUE).toInt(), targetSideSize)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun Point.scaleDown(maxX: Int?, maxY: Int?): Point {
         val setX = maxX ?: x
         val setY = maxY ?: y

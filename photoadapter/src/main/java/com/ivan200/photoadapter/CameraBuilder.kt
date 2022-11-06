@@ -15,26 +15,28 @@ import kotlinx.parcelize.Parcelize
 /**
  * Camera builder
  *
- * @property facingBack            camera facing: back (normal) or front (selfie)
- * @property changeCameraAllowed   allow to flip camera facing
- * @property previewImage          show result image after each photo taken
- * @property allowMultipleImages   allow take more than one image per session
- * @property lockRotate            lock auto rotating activity to disable view recreating
- * @property galleryName           allow to save images to phone gallery with specified name
- * @property fullScreenMode        full screen (16/9) or normal (4/3) mode
- * @property fitMode               fit camera surfaceView into screen
- * @property photosPath            specify photos path, if need
- * @property maxImageSize          preferred result image size
- * @property useSnapshot           take picture from snapshot (faster, no sound)
- * @property requestCode           specify code for starting activity
- * @property dialogTheme           customize alert dialog theme
- * @property outputJpegQuality     quality for saving jpeg image
- * @property forceUseCamera1Impl   force Camera1 implementation
+ * @param facingBack             camera facing: back (normal) or front (selfie)
+ * @param changeCameraAllowed    allow to flip camera facing
+ * @param previewImage           show result image after each photo taken
+ * @param allowMultipleImages    allow take more than one image per session
+ * @param lockRotate             lock auto rotating activity to disable view recreating
+ * @param fullScreenMode         full screen (16/9) or normal (4/3) mode
+ * @param fitMode                fit camera surfaceView into screen
+ * @param saveTo                 where will the images be saved
+ * @param maxWidth               preferred result image max width
+ * @param maxHeight              preferred result image max height
+ * @param useSnapshot            take picture from snapshot (faster, no sound)
+ * @param requestCode            specify code for starting activity
+ * @param dialogTheme            customize alert dialog theme
+ * @param outputJpegQuality      quality for saving jpeg image
+ * @param cameraImplSelector     selector of camera implementation
+ * @param flipFrontResult        does flipping of front image are enabled
+ *
  * Created by Ivan200 on 11.10.2019.
  */
 @Suppress("unused")
 @Parcelize
-data class CameraBuilder private constructor(
+data class CameraBuilder constructor(
     var facingBack: Boolean = true,
     var changeCameraAllowed: Boolean = true,
     var previewImage: Boolean = true,
@@ -51,7 +53,7 @@ data class CameraBuilder private constructor(
     @IntRange(from = 1, to = 100)
     var outputJpegQuality: Int? = null,
     var cameraImplSelector: CameraImplSelector = CameraImplSelector.Camera2IfAnyFullSupport,
-    var flipFrontResult: Boolean = false
+    var flipFrontResult: Boolean = true
 ) : Parcelable {
 
     constructor() : this(facingBack = true) // explicit "empty" constructor, as seen by Java.

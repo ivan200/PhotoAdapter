@@ -1,5 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ivan200.photoadapter"
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-feature
@@ -31,7 +30,7 @@
             android:theme="@style/AppThemePhoto"
             android:name="com.ivan200.photoadapter.CameraActivity"
             android:exported="false"
-            android:label="Photo"></activity>
+            android:label="Photo" />
     </application>
 </manifest>
 

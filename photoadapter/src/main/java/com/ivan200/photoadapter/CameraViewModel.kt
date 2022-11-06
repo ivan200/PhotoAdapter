@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.ivan200.photoadapter.base.FragmentChangeState
 import com.ivan200.photoadapter.utils.Event
+import com.ivan200.photoadapter.utils.parcelableArrayCompat
+import com.ivan200.photoadapter.utils.serializableCompat
 import java.io.File
 
 //
@@ -121,11 +123,8 @@ class CameraViewModel : ViewModel() {
     }
 
     fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        val savedPictureList = savedInstanceState.getParcelableArray(KEY_Pictures)
-            ?.filterIsInstance(PictureInfo::class.java)
-            ?.toMutableList()
-        _pictures.value = savedPictureList ?: arrayListOf()
-        _fragmentState.value = savedInstanceState.getSerializable(KEY_FragmentState) as? FragmentChangeState ?: defaultFragmentState
+        _pictures.value = savedInstanceState.parcelableArrayCompat<PictureInfo>(KEY_Pictures).orEmpty().toMutableList()
+        _fragmentState.value = savedInstanceState.serializableCompat(KEY_FragmentState) ?: defaultFragmentState
     }
 
     companion object {
@@ -134,3 +133,5 @@ class CameraViewModel : ViewModel() {
         private const val KEY_FragmentState = "KEY_FragmentState"
     }
 }
+
+

@@ -19,9 +19,13 @@
     <string name="photo_camera_front_description">Переключиться на переднюю камеру</string>
     <string name="photo_camera_external_description">Переключиться на внешнюю камеру</string>
 
+    <string name="photo_capture_description">Сделать снимок</string>
+
     <string name="photo_torch_on_description">Вспышка включена</string>
     <string name="photo_torch_off_description">Вспышка выключена</string>
     <string name="photo_torch_auto_description">Вспышка автоматическая</string>
     <string name="photo_torch_torch_description">Фонарик включён</string>
+
+    <string name="photo_result">Просмотреть результат</string>
 
 </resources>

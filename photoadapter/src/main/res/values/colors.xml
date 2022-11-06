@@ -6,14 +6,16 @@
     <color name="ColorBackgroundGrey50">#fafafa</color>
 
     <color name="colorCameraLayout">#000000</color>
-    <color name="colorActionLayout">#00000000</color> <!--black 12%--> <!--1f000000-->
-    <color name="colorCameraBackground">#000000</color> <!--212121-->
+    <color name="colorActionLayout">#00000000</color>
+    <color name="colorCameraBackground">#000000</color>
 
     <color name="icActive">#FFFFFFFF</color>
     <color name="icFocused">#DDFFFFFF</color>
     <color name="icPressed">#AAFFFFFF</color>
 
-    <color name="colorCircleIconNormal">#212121</color>
-    <color name="colorCircleIconPressed">#777777</color>
+    <color name="colorCamerasBackground">#50212121</color>
+
+    <color name="colorCircleIconNormal">#50212121</color>
+    <color name="colorCircleIconPressed">#50777777</color>
 
 </resources>

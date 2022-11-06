@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:minWidth="@dimen/size_select_camera"
+    android:minHeight="@dimen/size_select_camera"
+    android:orientation="vertical">
+
+    <com.ivan200.photoadapter.utils.CameraSelector
+        android:id="@+id/item_selector"
+        android:layout_width="@dimen/size_select_camera"
+        android:layout_height="@dimen/size_select_camera"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/item_text_checked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:minWidth="@dimen/size_select_camera"
+        android:minHeight="@dimen/size_select_camera"
+        android:orientation="vertical"
+        android:padding="2dp"
+        android:textColor="#FFF"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        tools:text="1" />
+
+    <TextView
+        android:id="@+id/item_text_unchecked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:minWidth="@dimen/size_select_camera"
+        android:minHeight="@dimen/size_select_camera"
+        android:orientation="vertical"
+        android:padding="2dp"
+        android:textColor="#000"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        tools:text="1×" />
+</FrameLayout>

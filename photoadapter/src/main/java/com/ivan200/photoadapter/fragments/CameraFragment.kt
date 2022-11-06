@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.ivan200.photoadapter.CameraActivity
@@ -23,19 +24,19 @@ import com.ivan200.photoadapter.base.CameraView
 import com.ivan200.photoadapter.base.CameraViewState
 import com.ivan200.photoadapter.base.FlashDelegate
 import com.ivan200.photoadapter.base.FragmentChangeState
+import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.utils.ANIMATION_FAST_MILLIS
 import com.ivan200.photoadapter.utils.ANIMATION_SLOW_MILLIS
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
-import com.ivan200.photoadapter.utils.hide
 import com.ivan200.photoadapter.utils.lockOrientation
 import com.ivan200.photoadapter.utils.onClick
 import com.ivan200.photoadapter.utils.padBottomViewWithInsets
 import com.ivan200.photoadapter.utils.padTopViewWithInsets
 import com.ivan200.photoadapter.utils.rotateItems
-import com.ivan200.photoadapter.utils.show
 import com.ivan200.photoadapter.utils.simulateClick
 import com.ivan200.photoadapter.utils.unlockOrientation
+import java.lang.ref.WeakReference
 
 //
 // Created by Ivan200 on 15.10.2019.
@@ -54,15 +55,18 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     private val actionLayout get() = requireView().findViewById<RelativeLayout>(R.id.action_layout)
     private val resultImage get() = requireView().findViewById<ImageButton>(R.id.result)
     private val buttonFit get() = requireView().findViewById<ImageButton>(R.id.btn_fit)
+    private val camerasRecycler get() = requireView().findViewById<RecyclerView>(R.id.select_camera_recycler)
 
     private val cameraViewModel: CameraViewModel by lazy {
-        ViewModelProvider(activity as CameraActivity).get(CameraViewModel::class.java)
+        ViewModelProvider(activity as CameraActivity)[CameraViewModel::class.java]
     }
 
     private var currentFlash: FlashDelegate = FlashDelegate.NoFlash
     private lateinit var cameraBuilder: CameraBuilder
 
     private var insets: WindowInsetsCompat? = null
+
+    private val camerasAdapter = CamerasAdapter(this::selectCamera)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,7 +86,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                     loadThumbImage(it.firstOrNull())
                 }
             } else if (it.size == 0) {
-                resultImage.hide()
+                resultImage.isVisible = false
             }
         }
 
@@ -106,9 +110,22 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                 is CameraViewState.Error -> {
                     // TODO Обработать соостояния ошибок
                     initText.isVisible = false
+                    val dialog = AlertDialog.Builder(requireActivity(), cameraBuilder.dialogTheme)
+                        .setTitle(android.R.string.dialog_alert_title)
+                        .setMessage(it.error.name)
+                        .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .create()
+                    dialog.show()
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+                    }
                 }
                 CameraViewState.Initializing -> {
                     initText.isVisible = true
+//                    switchCamera.isVisible = false
+//                    torchSwitch.isVisible = false
                 }
                 CameraViewState.NoPermissions -> {
                     // TODO не срабатывает обработка пермишенов при разворачивании
@@ -120,24 +137,28 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
 
         cameraView.cameraInfo.observe(viewLifecycleOwner) {
-            if (it != null) {
-                val list = cameraView.cameraInfoList
+            val list = cameraView.cameraInfoList
 
-                switchCamera.isVisible = list.size > 1
-                switchCamera.setImageResource(it.cameraFacing.iconRes)
-                switchCamera.contentDescription = getString(it.cameraFacing.descriptionRes)
-                switchCamera.setOnClickListener {
-                    cameraView.changeFacing()
-                }
-                torchSwitch.isVisible = it.hasFlashUnit
-                if (it.supportedFlash.size > 0) {
-                    currentFlash = it.supportedFlash.first()
-                } else {
-                    currentFlash = FlashDelegate.NoFlash
-                }
+            switchCamera.isVisible = list.size > 1
+
+            val sameFacingCameras = list[it.cameraFacing]!!
+            if (sameFacingCameras.size > 1) {
+                camerasRecycler.isVisible = true
+                camerasAdapter.update(sameFacingCameras, it)
             } else {
-                switchCamera.isVisible = false
-                torchSwitch.isVisible = false
+                camerasRecycler.isVisible = false
+            }
+
+            switchCamera.setImageResource(it.cameraFacing.iconRes)
+            switchCamera.contentDescription = getString(it.cameraFacing.descriptionRes)
+            switchCamera.setOnClickListener {
+                cameraView.changeFacing()
+            }
+            torchSwitch.isVisible = it.hasFlashUnit
+            currentFlash = if (it.supportedFlash.isNotEmpty()) {
+                it.supportedFlash.first()
+            } else {
+                FlashDelegate.NoFlash
             }
         }
 
@@ -145,6 +166,10 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         cameraView.setCameraBuilder(cameraBuilder)
 
         cameraView.takePictureResult.observe(requireActivity(), this::onPictureTaken)
+
+        camerasRecycler.adapter = camerasAdapter
+        camerasRecycler.itemAnimator = null
+
 
 //        switchCamera.showIf { cameraBuilder.changeCameraAllowed && ImageUtils.hasDifferentFacings(requireActivity()) }
 //        switchCamera.onClick {
@@ -188,13 +213,13 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
     private fun loadThumbImage(pictureInfo: PictureInfo?) {
         if (cameraBuilder.allowMultipleImages && pictureInfo != null) {
-            resultImage.show()
+            resultImage.isVisible = true
             Glide.with(requireActivity())
                 .load(pictureInfo.file)
                 .apply(RequestOptions.circleCropTransform())
                 .into(resultImage)
         } else {
-            resultImage.hide()
+            resultImage.isVisible = false
         }
     }
 
@@ -218,11 +243,18 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         cameraView.takePicture()
         cameraViewModel.changeState(FragmentChangeState.WAITING_FOR_IMAGE)
         if (!cameraBuilder.previewImage && cameraBuilder.allowMultipleImages) {
+            val flashWeakRef = WeakReference(flashView)
             flashView.postDelayed({
-                flashView.show()
-                flashView.postDelayed({ flashView.hide() }, ANIMATION_FAST_MILLIS)
+                flashWeakRef.get()?.apply {
+                    isVisible = true
+                    postDelayed({ flashWeakRef.get()?.isVisible = false }, ANIMATION_FAST_MILLIS)
+                }
             }, ANIMATION_SLOW_MILLIS)
         }
+    }
+
+    private fun selectCamera(camera: SimpleCameraInfo) {
+        cameraView.selectCamera(camera)
     }
 
     private fun showGallery() {
@@ -231,7 +263,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
     private fun nextFlash() {
         val flashes = cameraView.cameraInfo.value?.supportedFlash ?: emptyList()
-        if (flashes.size > 0) {
+        if (flashes.isNotEmpty()) {
             var index = when (val flash = currentFlash) {
                 FlashDelegate.NoFlash -> 0
                 is FlashDelegate.HasFlash -> flashes.indexOf(flash) + 1
@@ -281,7 +313,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                     .create()
                 dialog.show()
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    dialog.getWindow()?.setBackgroundDrawableResource(android.R.color.transparent)
+                    dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
                 }
             }
             is TakePictureResult.ImageTaken -> {

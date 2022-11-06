@@ -8,7 +8,7 @@ import com.ivan200.photoadapter.R
  * @author ivan200
  * @since 22.02.2022
  */
-sealed class FlashDelegate() {
+sealed class FlashDelegate {
     object NoFlash : FlashDelegate()
 
     sealed class HasFlash : FlashDelegate() {

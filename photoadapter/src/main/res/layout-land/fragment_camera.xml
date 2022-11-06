@@ -16,18 +16,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/statusView"
+        android:layout_toStartOf="@id/action_layout"
         android:layout_toLeftOf="@id/action_layout"
-        android:gravity="center"
-        android:layout_toStartOf="@id/action_layout">
+        android:gravity="center">
 
         <TextView
             android:id="@+id/initText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
             android:layout_gravity="center"
             android:text="Инициализация"
-            />
+            android:textColor="@android:color/white" />
 
         <com.ivan200.photoadapter.base.CameraView
             android:id="@+id/cameraView"
@@ -35,8 +34,7 @@
             android:layout_height="match_parent"
             android:keepScreenOn="true"
             android:visibility="visible"
-            tools:visibility="visible"
-            />
+            tools:visibility="visible" />
     </FrameLayout>
 
     <androidx.appcompat.widget.AppCompatImageButton
@@ -47,6 +45,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/photo_torch_on_description"
         android:clickable="true"
         android:focusable="true"
         android:scaleType="center"
@@ -73,6 +72,24 @@
         android:background="@color/colorCameraBackground"
         android:visibility="gone" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/select_camera_recycler"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/margin_default"
+        android:layout_toLeftOf="@id/action_layout"
+        android:background="@drawable/cameras_bg"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:reverseLayout="true"
+        tools:itemCount="2"
+        tools:listitem="@layout/select_camera_cell"
+        tools:orientation="vertical"
+        tools:scrollbars="vertical"
+        tools:visibility="visible" />
+
     <RelativeLayout
         android:id="@+id/action_layout"
         android:layout_width="wrap_content"
@@ -94,6 +111,7 @@
             android:focusable="true"
             android:paddingLeft="@dimen/margin_default"
             android:paddingRight="@dimen/margin_default"
+            android:contentDescription="@string/photo_capture_description"
             app:srcCompat="@drawable/ic_photo_take_picture" />
 
         <FrameLayout
@@ -112,6 +130,7 @@
                 android:layout_height="@dimen/size_icon_bounding"
                 android:layout_gravity="center"
                 android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@string/photo_result"
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="fitCenter"
@@ -135,6 +154,7 @@
                 android:layout_height="@dimen/size_icon_bounding"
                 android:layout_gravity="center"
                 android:background="@drawable/bg_icon_gray"
+                android:contentDescription="@string/photo_camera_rear_description"
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="center"

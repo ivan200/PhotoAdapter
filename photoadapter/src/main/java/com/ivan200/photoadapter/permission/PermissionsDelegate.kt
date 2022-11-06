@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import com.ivan200.photoadapter.CameraBuilder
@@ -29,11 +28,11 @@ import com.ivan200.photoadapter.utils.SaveTo
 open class PermissionsDelegate(
     val activity: ComponentActivity,
     savedInstanceState: Bundle?,
+    val dialogTheme: Int = 0,
     var onPermissionResult: (ResultType) -> Unit
 ) {
 
     private var permissions: Array<String> = emptyArray()
-    private var dialogTheme = 0
     private var needToShowDialog = true
     private var permissionResults: List<Pair<String, Boolean>> = emptyList()
     private val missingPermissions: Array<String> get() = permissionResults.filter { it.second == false }.map { it.first }.toTypedArray()
@@ -110,7 +109,6 @@ open class PermissionsDelegate(
                     }
                 }
             }.toTypedArray()
-        dialogTheme = cameraBuilder.dialogTheme
     }
 
     /**
@@ -119,10 +117,10 @@ open class PermissionsDelegate(
      * @param context
      */
     open fun openAppSettings(context: Context) {
-        PermissionSettingUtils.gotoPhonePermissionSettings(resultLauncher, activity, this::CanNotGoToSettings)
+        PermissionSettingUtils.gotoPhonePermissionSettings(resultLauncher, activity, this::canNotGoToSettings)
     }
 
-    fun CanNotGoToSettings() {
+    fun canNotGoToSettings() {
         onPermissionResult.invoke(ResultType.Denied.CanNotGoToSettings)
     }
 
@@ -136,18 +134,18 @@ open class PermissionsDelegate(
         val titleId = when (blockedPermission) {
             Manifest.permission.CAMERA -> R.string.permission_camera_goto_settings_title
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE -> R.string.permission_camera_goto_settings_title
+            Manifest.permission.WRITE_EXTERNAL_STORAGE -> R.string.permission_sdcard_goto_settings_title
             else -> 0
         }
 
         val messageId = when (blockedPermission) {
             Manifest.permission.CAMERA -> R.string.permission_camera_rationale_goto_settings
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE -> R.string.permission_camera_rationale_goto_settings
+            Manifest.permission.WRITE_EXTERNAL_STORAGE -> R.string.permission_sdcard_rationale_goto_settings
             else -> 0
         }
 
-        val dialog = AlertDialog.Builder(activity, dialogTheme)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, dialogTheme)
             .setTitle(titleId)
             .setIconAttribute(android.R.attr.alertDialogIcon)
             .setMessage(messageId)

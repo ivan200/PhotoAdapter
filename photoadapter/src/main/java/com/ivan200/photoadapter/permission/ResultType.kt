@@ -47,7 +47,7 @@ sealed class ResultType {
          */
         object DeniedAfterSettings : Denied()
         /**
-         * The user went to the settings, returned, and still refused to give permissions
+         * User pressed button go to settings, but it was failed
          */
         object CanNotGoToSettings : Denied()
     }

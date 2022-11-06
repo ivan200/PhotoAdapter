@@ -3,7 +3,6 @@ package com.ivan200.photoadapter.base
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import com.ivan200.photoadapter.CameraBuilder
-import java.io.File
 
 /**
  * @author ivan200
@@ -20,11 +19,11 @@ interface CameraDelegate {
 
     fun setLifecycleOwner(owner: LifecycleOwner?)
     fun setCameraBuilder(cameraBuilder: CameraBuilder)
-    val cameraInfo: LiveData<SimpleCameraInfo?>
+    val cameraInfo: LiveData<SimpleCameraInfo>
     val cameraInfoList: Map<FacingDelegate, List<SimpleCameraInfo>>
     fun changeFacing()
     fun changeSameFacingCamera()
-    fun selectSameFacingCameraByIndex(index: Int)   //TODO Прикрутить переключение камер одной стороны
+    fun selectCamera(camera: SimpleCameraInfo)
     fun restart()
     fun takePicture()
     val takePictureResult: LiveData<TakePictureResult>

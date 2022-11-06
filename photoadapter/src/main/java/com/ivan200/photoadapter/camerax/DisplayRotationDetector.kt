@@ -1,5 +1,6 @@
 package com.ivan200.photoadapter.camerax
 
+import android.annotation.TargetApi
 import android.content.Context
 import android.hardware.SensorManager
 import android.hardware.display.DisplayManager
@@ -15,6 +16,7 @@ import com.ivan200.photoadapter.utils.ImageUtils.displayCompat
  * @author ivan200
  * @since 24.02.2022
  */
+@TargetApi(21)
 class DisplayRotationDetector(
     val context: Context,
     var onOrientationChangedListener: Runnable? = null

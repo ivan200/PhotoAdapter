@@ -33,8 +33,8 @@ class ChangeCameraProvider {
     var cameraInfoList: Map<FacingDelegate, List<SimpleCameraInfo>> = mapOf()
         private set
 
-    private val _cameraInfo = MutableLiveData<SimpleCameraInfo?>()
-    val cameraInfo: LiveData<SimpleCameraInfo?> = _cameraInfo
+    private val _cameraInfo = MutableLiveData<SimpleCameraInfo>()
+    val cameraInfo: LiveData<SimpleCameraInfo> = _cameraInfo
 
     private val selectedList: MutableMap<FacingDelegate, SimpleCameraInfo> = mutableMapOf()
     private var currentCameraInfo: SimpleCameraInfo? = null
@@ -45,7 +45,9 @@ class ChangeCameraProvider {
         this.provider = provider
         this.cameraParams = cameraParams
         cameraInfoList = getFilledCameraInfoList()
-        currentCameraInfo = selectFirstCamera(cameraParams)
+        if (currentCameraInfo == null) {
+            currentCameraInfo = selectFirstCamera(cameraParams)
+        }
         updateCameraInfo()
     }
 
@@ -149,10 +151,11 @@ class ChangeCameraProvider {
                     cameraFacing = getFacing(cameraInfo),
                     hasFlashUnit = it.hasFlashUnit(),
                     physicalSize = getPhysicalSize(characteristics),
-                    supportedFlash = supportedFlash.sortedBy { it.orderValue },
+                    supportedFlash = supportedFlash.sortedBy(FlashDelegate.HasFlash::orderValue),
                     fov = getCameraFov(characteristics),
                     focal = getFocalLength(characteristics),
-                    name = cameraInfo?.cameraId.orEmpty()
+                    name = cameraInfo?.cameraId.orEmpty(),
+                    nameSelected = cameraInfo?.cameraId.orEmpty()
                 )
             )
         }
@@ -171,7 +174,9 @@ class ChangeCameraProvider {
         val canCountZoom: Boolean = sameFacingCameras.all { it.focal > 0 && it.physicalSize.x > 0 && it.physicalSize.y > 0 }
         val mainZoomValue: Float = if (canCountZoom) mainCamera.zoomValue() else 1f
         return sameFacingCameras.mapIndexed { index, simpleCameraInfo ->
-            val name = if (canCountZoom) getCameraName(simpleCameraInfo, mainZoomValue) else (index + 1).toString()
+            val cameraZoom = simpleCameraInfo.zoomValue()
+            val name = if (canCountZoom) getCameraName(cameraZoom, mainZoomValue) else (index + 1).toString()
+            val nameSelected = if (canCountZoom) getCameraNameSelected(cameraZoom, mainZoomValue) else (index + 1).toString()
             SimpleCameraInfo(
                 simpleCameraInfo.cameraId,
                 simpleCameraInfo.cameraFacing,
@@ -180,15 +185,18 @@ class ChangeCameraProvider {
                 simpleCameraInfo.physicalSize,
                 simpleCameraInfo.fov,
                 simpleCameraInfo.focal,
-                name
+                name,
+                nameSelected
             )
         }
     }
 
-    // Get the intended camera name by knowing the camera parameters
-    // so name will be: "1","2","3" or ".5",".8" or "1.5","2.2"
-    private fun getCameraName(camera: SimpleCameraInfo, mainZoomValue: Float): String {
-        val result = camera.zoomValue() / mainZoomValue
+    /**
+     * Get the intended camera name by knowing the camera parameters
+     * so name will be: "1","2","3" or ".5",".8" or "1.5","2.2"
+     */
+    private fun getCameraName(cameraZoom: Float, mainZoomValue: Float): String {
+        val result = cameraZoom / mainZoomValue
         val bd1 = BigDecimal(result.toDouble()).setScale(1, RoundingMode.HALF_UP)
         val bd2 = BigDecimal(result.toDouble()).setScale(0, RoundingMode.HALF_UP)
         return when {
@@ -196,6 +204,18 @@ class ChangeCameraProvider {
             bd1 < (1).toBigDecimal() && bd1 > BigDecimal.ZERO -> bd1.toString().substring(1)
             else -> bd1.toString()
         }
+    }
+
+    /**
+     * Get the selected camera name by knowing the camera parameters
+     * so name will be: "1×","2×","3×" or "0.5×","0.8×" or "1.5×","2.2×"
+     */
+    private fun getCameraNameSelected(cameraZoom: Float, mainZoomValue: Float): String {
+        val result = cameraZoom / mainZoomValue
+        val bd1 = BigDecimal(result.toDouble()).setScale(1, RoundingMode.HALF_UP)
+        val bd2 = BigDecimal(result.toDouble()).setScale(0, RoundingMode.HALF_UP)
+        val name = if (bd1.toFloat() == bd2.toFloat()) bd2.toString() else bd1.toString()
+        return name + "×"
     }
 
     /**
@@ -208,7 +228,7 @@ class ChangeCameraProvider {
         return focal / diagonal
     }
 
-    @SuppressLint("UnsafeOptInUsageError")
+    @SuppressLint("RestrictedApi")
     private fun getFacing(info: CameraInfoInternal?): FacingDelegate {
         if (info == null) return FacingDelegate.BACK
         return when (info.lensFacing) {
@@ -218,6 +238,7 @@ class ChangeCameraProvider {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     private fun getPhysicalSize(cameraCharacteristics: CameraCharacteristicsCompat?): PointF {
         val configs = cameraCharacteristics?.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
         if (configs != null) {
@@ -226,6 +247,7 @@ class ChangeCameraProvider {
         return PointF(0f, 0f)
     }
 
+    @SuppressLint("RestrictedApi")
     private fun getCameraFov(cameraCharacteristics: CameraCharacteristicsCompat?): Float {
         val fArr = cameraCharacteristics?.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
         if (fArr != null && fArr.isNotEmpty()) {
@@ -241,6 +263,7 @@ class ChangeCameraProvider {
         return 0.0f
     }
 
+    @SuppressLint("RestrictedApi")
     private fun getFocalLength(cameraCharacteristics: CameraCharacteristicsCompat?): Float {
         val fArr = cameraCharacteristics?.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
         return if (fArr != null && fArr.isNotEmpty()) {

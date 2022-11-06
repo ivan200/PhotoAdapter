@@ -11,6 +11,8 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.ivan200.photoadapter.base.FragmentChangeState
@@ -19,21 +21,20 @@ import com.ivan200.photoadapter.permission.ResultType
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
 import com.ivan200.photoadapter.utils.SaveUtils
 import com.ivan200.photoadapter.utils.hideSystemUI
-import com.ivan200.photoadapter.utils.invisible
-import com.ivan200.photoadapter.utils.show
+import com.ivan200.photoadapter.utils.parcelableCompat
 
 @Suppress("MemberVisibilityCanBePrivate")
 class CameraActivity : AppCompatActivity() {
 
     private val cameraViewModel: CameraViewModel by lazy {
-        ViewModelProvider(this@CameraActivity).get(CameraViewModel::class.java)
+        ViewModelProvider(this@CameraActivity)[CameraViewModel::class.java]
     }
 
     val container: View get() = findViewById(R.id.content_frame)
     val frameCamera: FrameLayout get() = findViewById(R.id.frame_camera)
     val frameGallery: FrameLayout get() = findViewById(R.id.frame_gallery)
 
-    val cameraBuilder: CameraBuilder by lazy { intent.getParcelableExtra(KEY_CAMERA_BUILDER)!! }
+    val cameraBuilder: CameraBuilder by lazy { intent.parcelableCompat(KEY_CAMERA_BUILDER)!! }
 
     lateinit var permissionsDelegate: PermissionsDelegate
 
@@ -54,17 +55,14 @@ class CameraActivity : AppCompatActivity() {
         cameraViewModel.curPageLoaded.observe(this, pageLoadedObserver)
         cameraViewModel.success.observe(this, successCalledObserver)
 
-        permissionsDelegate = PermissionsDelegate(
-            this,
-            savedInstanceState,
-            {
-                when (it) {
-                    is ResultType.Denied -> cancel(false)
-                    ResultType.Allow.AlreadyHas -> Unit
-                    is ResultType.Allow -> cameraViewModel.restartCamera()
-                }
+        permissionsDelegate = PermissionsDelegate(this, savedInstanceState) {
+            when (it) {
+                is ResultType.Denied -> cancel(false)
+                ResultType.Allow.AlreadyHas -> Unit
+                is ResultType.Allow -> cameraViewModel.restartCamera()
             }
-        )
+        }
+        permissionsDelegate.initWithBuilder(cameraBuilder)
     }
 
     var pageLoadedObserver = Observer<PictureInfo> {
@@ -82,13 +80,13 @@ class CameraActivity : AppCompatActivity() {
     }
 
     fun showCamera() {
-        frameCamera.show()
-        frameGallery.invisible()
+        frameCamera.isVisible = true
+        frameGallery.isInvisible = true
     }
 
     fun showGallery() {
-        frameGallery.show()
-        frameCamera.invisible()
+        frameGallery.isVisible = true
+        frameCamera.isInvisible = true
     }
 
     override fun onStart() {
@@ -96,9 +94,7 @@ class CameraActivity : AppCompatActivity() {
         permissionsDelegate.queryPermissionsOnStart()
 
         if (cameraBuilder.fullScreenMode) {
-            container.postDelayed({
-                container.hideSystemUI()
-            }, IMMERSIVE_FLAG_TIMEOUT)
+            this.hideSystemUI()
         }
     }
 
@@ -190,6 +186,5 @@ class CameraActivity : AppCompatActivity() {
                 .putExtra(KEY_CAMERA_BUILDER, builder)
 
         const val photosExtraName = "photos"
-        private const val IMMERSIVE_FLAG_TIMEOUT = 500L
     }
 }

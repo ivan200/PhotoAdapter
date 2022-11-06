@@ -21,35 +21,32 @@ class ResultSaver(
     private val saveHandler = Handler()
 
     fun save() {
-        saveInBackground(
-            Runnable {
-                runCatching {
-                    FileOutputStream(photoFile).buffered().use {
-                        it.write(result.data)
-                    }
-                    // by default we always flip front, but if requested flipping, we dont flip it (inverse logic)
-                    if (!flipFrontRequested &&
-                        !result.isSnapshot &&
-                        result.facing == Facing.FRONT
-                    ) {
-                        val exif = when (result.rotation) {
-                            90 -> ExifInterface.ORIENTATION_TRANSPOSE
-                            180 -> ExifInterface.ORIENTATION_FLIP_VERTICAL
-                            270 -> ExifInterface.ORIENTATION_TRANSVERSE
-                            else -> ExifInterface.ORIENTATION_FLIP_HORIZONTAL
-                        }
-
-                        val exifInterface = ExifInterface(photoFile)
-                        exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, exif.toString())
-                        exifInterface.saveAttributes()
-                    }
-                }.onSuccess {
-                    onSaved.invoke(photoFile)
-                }.onFailure {
-                    onSavedError.invoke(it)
+        saveInBackground {
+            runCatching {
+                FileOutputStream(photoFile).buffered().use {
+                    it.write(result.data)
                 }
+                if (flipFrontRequested &&
+                    !result.isSnapshot &&
+                    result.facing == Facing.FRONT
+                ) {
+                    val exif = when (result.rotation) {
+                        90 -> ExifInterface.ORIENTATION_TRANSPOSE
+                        180 -> ExifInterface.ORIENTATION_FLIP_VERTICAL
+                        270 -> ExifInterface.ORIENTATION_TRANSVERSE
+                        else -> ExifInterface.ORIENTATION_FLIP_HORIZONTAL
+                    }
+
+                    val exifInterface = ExifInterface(photoFile)
+                    exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, exif.toString())
+                    exifInterface.saveAttributes()
+                }
+            }.onSuccess {
+                onSaved.invoke(photoFile)
+            }.onFailure {
+                onSavedError.invoke(it)
             }
-        )
+        }
     }
 
     @Synchronized

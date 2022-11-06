@@ -26,26 +26,24 @@ class BitmapSaver(
     private val saveHandler = Handler()
 
     fun save() {
-        saveInBackground(
-            Runnable {
-                runCatching {
-                    val bitmap = scaleBitmap(maxWidth, maxHeight, result)
-                    FileOutputStream(photoFile).buffered().use {
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, jpegQuality, it)
-                    }
-                    bitmap.recycle()
-                    if (exif != ExifInterface.ORIENTATION_UNDEFINED && exif != ExifInterface.ORIENTATION_NORMAL) {
-                        val exifInterface = ExifInterface(photoFile)
-                        exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, exif.toString())
-                        exifInterface.saveAttributes()
-                    }
-                }.onSuccess {
-                    onSaved.invoke(photoFile)
-                }.onFailure {
-                    onSavedError.invoke(it)
+        saveInBackground {
+            runCatching {
+                val bitmap = scaleBitmap(maxWidth, maxHeight, result)
+                FileOutputStream(photoFile).buffered().use {
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, jpegQuality, it)
                 }
+                bitmap.recycle()
+                if (exif != ExifInterface.ORIENTATION_UNDEFINED && exif != ExifInterface.ORIENTATION_NORMAL) {
+                    val exifInterface = ExifInterface(photoFile)
+                    exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, exif.toString())
+                    exifInterface.saveAttributes()
+                }
+            }.onSuccess {
+                onSaved.invoke(photoFile)
+            }.onFailure {
+                onSavedError.invoke(it)
             }
-        )
+        }
     }
 
     @Synchronized

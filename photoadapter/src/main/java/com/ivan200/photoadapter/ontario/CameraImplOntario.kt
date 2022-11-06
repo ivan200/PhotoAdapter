@@ -8,7 +8,6 @@ import android.util.AttributeSet
 import android.view.Gravity.CENTER
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -42,7 +41,7 @@ import com.otaliastudios.cameraview.markers.DefaultAutoFocusMarker
 import com.otaliastudios.cameraview.size.AspectRatio
 import com.otaliastudios.cameraview.size.SizeSelector
 import com.otaliastudios.cameraview.size.SizeSelectors
-import java.io.File
+import java.lang.ref.WeakReference
 
 /**
  * @author ivan200
@@ -53,15 +52,13 @@ class CameraImplOntario @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : CameraView(context, attrs), CameraDelegate {
 
-    private val _cameraInfo = MutableLiveData<SimpleCameraInfo?>()
-    override val cameraInfo: LiveData<SimpleCameraInfo?> = _cameraInfo
+    private val _cameraInfo = MutableLiveData<SimpleCameraInfo>()
+    override val cameraInfo: LiveData<SimpleCameraInfo> = _cameraInfo
     private val facings: Set<FacingDelegate> = ImageUtils.getFacings(context)
 
     private val _cameraInfoList: MutableMap<FacingDelegate, List<SimpleCameraInfo>> = facings.groupBy { it }
         .mapValues { emptyList<SimpleCameraInfo>() }.toMutableMap()
     override val cameraInfoList: Map<FacingDelegate, List<SimpleCameraInfo>> get() = _cameraInfoList
-
-    private var lifecycleOwner: LifecycleOwner? = null
 
     private val listener = Listener()
     private var isPictureSaving = false
@@ -72,8 +69,7 @@ class CameraImplOntario @JvmOverloads constructor(
     init {
         audio = Audio.OFF
         setAutoFocusMarker(DefaultAutoFocusMarker())
-        engine = // if (ImageUtils.allowCamera2Support(context)) Engine.CAMERA2 else
-            Engine.CAMERA1
+        engine = Engine.CAMERA1
         facing = Facing.BACK
         flash = Flash.OFF
         mapGesture(Gesture.LONG_TAP, GestureAction.NONE)
@@ -83,7 +79,7 @@ class CameraImplOntario @JvmOverloads constructor(
         mapGesture(Gesture.TAP, GestureAction.AUTO_FOCUS)
         grid = Grid.OFF
         mode = Mode.PICTURE
-        layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+        layoutParams = LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
             gravity = CENTER
         }
         playSounds = false
@@ -180,8 +176,11 @@ class CameraImplOntario @JvmOverloads constructor(
         // ontario does not support multiple same facing cameras
     }
 
-    override fun selectSameFacingCameraByIndex(index: Int) {
-        // ontario does not support multiple same facing cameras
+    override fun selectCamera(camera: SimpleCameraInfo) {
+        val currentFacing = cameraInfo.value?.cameraFacing
+        if (currentFacing != null && camera.cameraFacing != currentFacing) {
+            changeFacing()
+        }
     }
 
     override fun setFlash(flash: FlashDelegate.HasFlash) {
@@ -205,8 +204,8 @@ class CameraImplOntario @JvmOverloads constructor(
             }
 
             val hasFlash = options.supportedFlash.contains(Flash.ON) ||
-                options.supportedFlash.contains(Flash.AUTO) ||
-                options.supportedFlash.contains(Flash.TORCH)
+                    options.supportedFlash.contains(Flash.AUTO) ||
+                    options.supportedFlash.contains(Flash.TORCH)
 
             val supportedFlash: List<FlashDelegate.HasFlash> = if (hasFlash) {
                 if (builder.useSnapshot) {
@@ -226,14 +225,15 @@ class CameraImplOntario @JvmOverloads constructor(
             }
 
             val cameraInfo = SimpleCameraInfo(
-                cameraId = cameraIdMap.get(facing)!!,
+                cameraId = cameraIdMap[facing]!!,
                 cameraFacing = facing,
                 hasFlashUnit = hasFlash,
                 supportedFlash = supportedFlash.sortedBy { it.orderValue },
                 physicalSize = PointF(0f, 0f),
                 fov = 0f,
                 focal = 0f,
-                name = cameraIdMap.get(facing)!!
+                name = cameraIdMap[facing]!!,
+                nameSelected = cameraIdMap[facing]!!
             )
 
             _cameraInfoList[facing] = listOf(cameraInfo)
@@ -242,7 +242,6 @@ class CameraImplOntario @JvmOverloads constructor(
 
         override fun onCameraClosed() {
             _state.postValue(CameraViewState.Initializing)
-            _cameraInfo.postValue(null)
         }
 
         override fun onCameraError(exception: CameraException) {
@@ -269,31 +268,33 @@ class CameraImplOntario @JvmOverloads constructor(
         override fun onPictureTaken(result: PictureResult) {
             val photoFile = SaveUtils.createImageFile(context, builder.saveTo)
             isPictureSaving = true
+
+            val viewWeakRef = WeakReference(this@CameraImplOntario)
             ResultSaver(
                 photoFile = photoFile,
                 flipFrontRequested = builder.flipFrontResult,
                 result = result,
-                onSaved = this@CameraImplOntario::onPhotoSaved,
-                onSavedError = this@CameraImplOntario::onPhotoSaveError
+                onSaved = {
+                    viewWeakRef.get()?.apply {
+                        isPictureSaving = false
+                        _takePictureResult.postValue(TakePictureResult.ImageTaken(it))
+                    }
+                },
+                onSavedError = {
+                    viewWeakRef.get()?.apply {
+                        isPictureSaving = false
+                        _takePictureResult.postValue(TakePictureResult.ImageTakeException(CaptureError.ERROR_FILE_IO, it))
+                    }
+                }
             ).save()
         }
-    }
-
-    private fun onPhotoSaved(photoFile: File) {
-        isPictureSaving = false
-        _takePictureResult.postValue(TakePictureResult.ImageTaken(photoFile))
-    }
-
-    private fun onPhotoSaveError(ex: Throwable) {
-        isPictureSaving = false
-        _takePictureResult.postValue(TakePictureResult.ImageTakeException(CaptureError.ERROR_FILE_IO, ex))
     }
 
     private companion object {
 
         // since camera options in ontario does not contain camera id on an open map, i prefer to set a virtual id
         @Suppress("DEPRECATION")
-        private val cameraIdMap = hashMapOf<FacingDelegate, String>(
+        private val cameraIdMap = hashMapOf(
             FacingDelegate.BACK to android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK.toString(), // Noncompliant
             FacingDelegate.FRONT to android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT.toString() // Noncompliant
         )

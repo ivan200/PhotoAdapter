@@ -13,6 +13,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.github.chrisbanes.photoview.PhotoView
 import com.ivan200.photoadapter.PictureInfo
+import com.ivan200.photoadapter.utils.SimpleDiffUtilCallback
 
 //
 // Created by Ivan200 on 16.10.2019.
@@ -33,7 +34,8 @@ class GalleryAdapter(var onCurrentPageLoaded: ((PictureInfo) -> Unit)? = null) :
             images = ArrayList(newListImages)
             notifyDataSetChanged()
         } else {
-            val productDiffResult = DiffUtil.calculateDiff(PictureDiffUtilCallback(images, newListImages))
+            val diffCalback = SimpleDiffUtilCallback(images, newListImages) { it.file.absolutePath }
+            val productDiffResult = DiffUtil.calculateDiff(diffCalback)
             images = ArrayList(newListImages)
             productDiffResult.dispatchUpdatesTo(this)
         }
@@ -76,17 +78,6 @@ class GalleryAdapter(var onCurrentPageLoaded: ((PictureInfo) -> Unit)? = null) :
     @Suppress("RedundantOverride")
     override fun onBindViewHolder(holder: PagerVH, position: Int, payloads: MutableList<Any>) {
         super.onBindViewHolder(holder, position, payloads)
-    }
-
-    inner class PictureDiffUtilCallback(private val oldList: List<PictureInfo>, private val newList: List<PictureInfo>) :
-        DiffUtil.Callback() {
-        override fun getOldListSize(): Int = oldList.size
-        override fun getNewListSize(): Int = newList.size
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-            oldList[oldItemPosition].file.absolutePath == newList[newItemPosition].file.absolutePath
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-            oldList[oldItemPosition].file.absolutePath == newList[newItemPosition].file.absolutePath
     }
 }
 

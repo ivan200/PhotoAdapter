@@ -14,5 +14,6 @@ data class SimpleCameraInfo(
     val physicalSize: PointF,
     val fov: Float,
     val focal: Float,
-    val name: String
+    val name: String,
+    val nameSelected: String
 )

@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.RelativeLayout
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -20,7 +21,6 @@ import com.ivan200.photoadapter.utils.onClick
 import com.ivan200.photoadapter.utils.padBottomViewWithInsets
 import com.ivan200.photoadapter.utils.padTopViewWithInsets
 import com.ivan200.photoadapter.utils.rotateItems
-import com.ivan200.photoadapter.utils.showIf
 import com.ivan200.photoadapter.utils.simulateClick
 import me.relex.circleindicator.CircleIndicator3
 
@@ -75,7 +75,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
             if (it.size == 0) {
                 cameraViewModel.changeState(FragmentChangeState.CAMERA)
             }
-            indicator.showIf { it.size > 1 }
+            indicator.isVisible = it.size > 1
             pagerAdapter.update(it, cameraViewModel.imageNumber)
         }
 
@@ -87,8 +87,8 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
             pagerImages.setCurrentItem(cameraViewModel.imageNumber, false)
         }
 
-        btnMore.showIf(cameraBuilder::allowMultipleImages)
-            .onClick(this::onMorePhotosPressed)
+        btnMore.isVisible = cameraBuilder.allowMultipleImages
+        btnMore.onClick(this::onMorePhotosPressed)
 
         btnAccept.onClick(cameraViewModel::success)
 

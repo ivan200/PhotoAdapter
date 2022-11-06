@@ -6,4 +6,9 @@
     <dimen name="height_toolbar">56dp</dimen>
     <dimen name="margin_default">16dp</dimen>
 
+    <dimen name="size_select_camera">40dp</dimen>
+    <dimen name="size_select_camera_radius">20dp</dimen>
+
+    <dimen name="focusViewSize">72dp</dimen>
+
 </resources>

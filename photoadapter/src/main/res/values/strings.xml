@@ -18,8 +18,14 @@
     <string name="photo_camera_front_description">Switch to front camera</string>
     <string name="photo_camera_external_description">Switch to external camera</string>
 
+    <string name="photo_capture_description">Capture</string>
+
     <string name="photo_torch_on_description">Flash on</string>
     <string name="photo_torch_off_description">Flash off</string>
     <string name="photo_torch_auto_description">Flash auto</string>
     <string name="photo_torch_torch_description">Torch on</string>
+
+    <string name="photo_result">View result</string>
+
+
 </resources>

@@ -47,10 +47,12 @@ import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.camerax.touch.TouchHandler
 import com.ivan200.photoadapter.utils.ImageUtils
-import com.ivan200.photoadapter.utils.ImageUtils.dpToPx
 import com.ivan200.photoadapter.utils.ImageUtils.scaleDown
 import com.ivan200.photoadapter.utils.SaveUtils
+import com.ivan200.photoadapter.utils.dpToPx
 import java.io.File
+import java.io.IOException
+import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 
@@ -59,6 +61,7 @@ import java.util.concurrent.Executors
  * @since 24.02.2022
  */
 @TargetApi(21)
+@Suppress("MemberVisibilityCanBePrivate")
 class CameraXView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -86,7 +89,7 @@ class CameraXView @JvmOverloads constructor(
     private val cameraProviderFutureListener = CameraProviderFutureListener()
     private var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>? = null
 
-    private val _torchState = MutableLiveData<Boolean>(false)
+    private val _torchState = MutableLiveData(false)
     val torchState: LiveData<Boolean> = _torchState
 
     private val _takePictureResult = MutableLiveData<TakePictureResult>()
@@ -173,8 +176,8 @@ class CameraXView @JvmOverloads constructor(
     fun setUiOnPermission() {
         if (lifecycleOwner == null) return
 
-        val hasCameraPermission = ContextCompat
-            .checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+        val hasCameraPermission =
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
         if (hasCameraPermission) {
             _state.postValue(CameraViewState.Initializing)
@@ -194,7 +197,7 @@ class CameraXView @JvmOverloads constructor(
         cameraProviderFuture?.addListener(cameraProviderFutureListener, ContextCompat.getMainExecutor(context))
     }
 
-    private inner class CameraProviderFutureListener() : Runnable {
+    private inner class CameraProviderFutureListener : Runnable {
         override fun run() {
             try {
                 cameraProvider = cameraProviderFuture!!.get()
@@ -209,7 +212,7 @@ class CameraXView @JvmOverloads constructor(
         }
     }
 
-    private inner class CameraLifecycleObserver() : LifecycleEventObserver {
+    private inner class CameraLifecycleObserver : LifecycleEventObserver {
         override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
             when (event) {
                 Lifecycle.Event.ON_START -> {
@@ -254,11 +257,8 @@ class CameraXView @JvmOverloads constructor(
             setSurfaceProvider(viewFinder.surfaceProvider)
         }
 
-        imageCapture = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .setTargetRotation(rotation)
-            .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-            .apply {
+        imageCapture = ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).setTargetRotation(rotation)
+            .setFlashMode(ImageCapture.FLASH_MODE_OFF).apply {
                 builder.outputJpegQuality?.let {
                     setJpegQuality(it)
                 }
@@ -272,8 +272,7 @@ class CameraXView @JvmOverloads constructor(
                         setTargetAspectRatio(pictureRatio)
                     }
                 }
-            }
-            .build()
+            }.build()
 
         cameraProvider?.let {
             it.unbindAll()
@@ -316,46 +315,40 @@ class CameraXView @JvmOverloads constructor(
 
         // Setup image capture metadata
         val metadata = Metadata().apply {
-            isReversedHorizontal = when {
-                // by default we always flip front, but if requested flipping, we dont flip it (inverse logic)
-                builder.flipFrontResult -> false
-                // Mirror image when using the front camera
-                changeCameraProvider.cameraInfo.value?.cameraFacing == FacingDelegate.FRONT -> true
-                else -> false
-            }
+            // Mirror image when using the front camera
+            isReversedHorizontal = builder.flipFrontResult && changeCameraProvider.cameraInfo.value?.cameraFacing == FacingDelegate.FRONT
         }
 
         val photoFile = SaveUtils.createImageFile(context, builder.saveTo)
 
         // Create output options object which contains file + metadata
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
-            .setMetadata(metadata)
-            .build()
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).setMetadata(metadata).build()
 
+        val viewWeakRef = WeakReference(this)
         imageCapture?.takePicture(
             outputOptions,
             takePictureExecutor,
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    _takePictureResult.postValue(TakePictureResult.ImageTaken(outputFileResults.savedUri!!.toFile()))
+                    viewWeakRef.get()?.onPictureSaved(outputFileResults.savedUri!!.toFile())
                 }
 
                 override fun onError(exception: ImageCaptureException) {
-                    val reason = takePictureErrorMap[exception.imageCaptureError] ?: CaptureError.ERROR_UNKNOWN
-                    _takePictureResult.postValue(TakePictureResult.ImageTakeException(reason, exception))
+                    val reason = takePictureErrorMap[exception.imageCaptureError]
+                    viewWeakRef.get()?.onPictureSaveError(exception, reason)
                 }
             }
         )
     }
 
-    private fun onSnapshotSaved(photoFile: File) {
+    private fun onPictureSaved(photoFile: File) {
         _takePictureResult.postValue(TakePictureResult.ImageTaken(photoFile))
     }
 
-    private fun onSnapshotSaveError(ex: Throwable) {
+    private fun onPictureSaveError(ex: Throwable, error: CaptureError?) {
         _takePictureResult.postValue(
             TakePictureResult.ImageTakeException(
-                CaptureError.ERROR_FILE_IO,
+                error ?: CaptureError.ERROR_UNKNOWN,
                 ex
             )
         )
@@ -364,8 +357,15 @@ class CameraXView @JvmOverloads constructor(
     fun takeSnapshot() {
         viewFinder.bitmap?.let {
             val exif = ImageUtils.getExifByRotation(rotationDetector.sumOrientation)
-            val photoFile = SaveUtils.createImageFile(context, builder.saveTo)
+            val photoFile = try {
+                SaveUtils.createImageFile(context, builder.saveTo)
+            } catch (ex: IOException) {
+                onPictureSaveError(ex, CaptureError.ERROR_FILE_IO)
+                return
+            }
             val jpegQuality = builder.outputJpegQuality ?: DEFAULT_JPEG_QUALITY
+
+            val viewWeakRef = WeakReference(this)
             BitmapSaver(
                 photoFile = photoFile,
                 result = it,
@@ -373,35 +373,37 @@ class CameraXView @JvmOverloads constructor(
                 maxWidth = builder.maxWidth,
                 maxHeight = builder.maxHeight,
                 jpegQuality = jpegQuality,
-                onSaved = this::onSnapshotSaved,
-                onSavedError = this::onSnapshotSaveError
+                onSaved = { file -> viewWeakRef.get()?.onPictureSaved(file) },
+                onSavedError = { ex -> viewWeakRef.get()?.onPictureSaveError(ex, CaptureError.ERROR_FILE_IO) }
             ).save()
         }
     }
 
-    override val cameraInfo: LiveData<SimpleCameraInfo?> get() = changeCameraProvider.cameraInfo
+    override val cameraInfo: LiveData<SimpleCameraInfo> get() = changeCameraProvider.cameraInfo
     override val cameraInfoList: Map<FacingDelegate, List<SimpleCameraInfo>> get() = changeCameraProvider.cameraInfoList
     override fun changeFacing() = changeCameraProvider.toggleFacing()
     override fun changeSameFacingCamera() = changeCameraProvider.toggleSameFacingCamera()
-    override fun selectSameFacingCameraByIndex(index: Int) = changeCameraProvider.selectSameFacingCameraByIndex(index)
+    override fun selectCamera(camera: SimpleCameraInfo) = changeCameraProvider.selectCamera(camera)
 
     companion object {
-        private val cameraErrorMap = hashMapOf<Int, CameraError>(
-            CameraUnavailableException.CAMERA_UNKNOWN_ERROR to CameraError.CAMERA_UNKNOWN_ERROR,
-            CameraUnavailableException.CAMERA_DISABLED to CameraError.CAMERA_DISABLED,
-            CameraUnavailableException.CAMERA_DISCONNECTED to CameraError.CAMERA_DISCONNECTED,
-            CameraUnavailableException.CAMERA_ERROR to CameraError.CAMERA_ERROR,
-            CameraUnavailableException.CAMERA_IN_USE to CameraError.CAMERA_IN_USE,
-            CameraUnavailableException.CAMERA_MAX_IN_USE to CameraError.CAMERA_MAX_IN_USE,
+        // @formatter:off
+        private val cameraErrorMap = hashMapOf(
+            CameraUnavailableException.CAMERA_UNKNOWN_ERROR              to CameraError.CAMERA_UNKNOWN_ERROR,
+            CameraUnavailableException.CAMERA_DISABLED                   to CameraError.CAMERA_DISABLED,
+            CameraUnavailableException.CAMERA_DISCONNECTED               to CameraError.CAMERA_DISCONNECTED,
+            CameraUnavailableException.CAMERA_ERROR                      to CameraError.CAMERA_ERROR,
+            CameraUnavailableException.CAMERA_IN_USE                     to CameraError.CAMERA_IN_USE,
+            CameraUnavailableException.CAMERA_MAX_IN_USE                 to CameraError.CAMERA_MAX_IN_USE,
             CameraUnavailableException.CAMERA_UNAVAILABLE_DO_NOT_DISTURB to CameraError.CAMERA_UNAVAILABLE_DO_NOT_DISTURB
         )
-        private val takePictureErrorMap = hashMapOf<Int, CaptureError>(
-            ImageCapture.ERROR_UNKNOWN to CaptureError.ERROR_UNKNOWN,
-            ImageCapture.ERROR_FILE_IO to CaptureError.ERROR_FILE_IO,
+        private val takePictureErrorMap = hashMapOf(
+            ImageCapture.ERROR_UNKNOWN        to CaptureError.ERROR_UNKNOWN,
+            ImageCapture.ERROR_FILE_IO        to CaptureError.ERROR_FILE_IO,
             ImageCapture.ERROR_CAPTURE_FAILED to CaptureError.ERROR_CAPTURE_FAILED,
-            ImageCapture.ERROR_CAMERA_CLOSED to CaptureError.ERROR_CAMERA_CLOSED,
+            ImageCapture.ERROR_CAMERA_CLOSED  to CaptureError.ERROR_CAMERA_CLOSED,
             ImageCapture.ERROR_INVALID_CAMERA to CaptureError.ERROR_INVALID_CAMERA
         )
+        // @formatter:on
 
         private const val DEFAULT_JPEG_QUALITY = 95
     }
