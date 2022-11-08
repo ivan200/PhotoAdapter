@@ -29,6 +29,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.ivan200.photoadapter.R
 import java.io.Serializable
 import java.lang.ref.WeakReference
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.math.ceil
 
 fun <T : View> T.onClick(function: () -> Unit): T {
@@ -192,3 +194,10 @@ inline fun <reified T : Parcelable> Bundle.parcelableArrayCompat(key: String): A
     SDK_INT >= TIRAMISU -> getParcelableArray(key, T::class.java)
     else -> @Suppress("DEPRECATION") getParcelableArray(key)?.filterIsInstance<T>()?.toTypedArray()
 }
+
+//
+//Logger
+//
+inline val <T : Any> T.TAG: String get() = this::class.java.simpleName
+inline val <T : Any> T.logger: Logger get() = Logger.getLogger(this.TAG)
+inline fun <T : Any> T.log(value: Any) = logger.log(Level.INFO, value.toString())

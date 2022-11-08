@@ -58,6 +58,13 @@
         app:iconSpaceReserved="false"
         app:singleLineTitle="false" />
     <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="blurOnSwitch"
+        android:summary="@string/blurOnSwitch_description"
+        android:title="@string/blurOnSwitch"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
+    <CheckBoxPreference
         android:defaultValue="false"
         android:key="saveToGallery"
         android:summary="@string/saveToGallery_description"

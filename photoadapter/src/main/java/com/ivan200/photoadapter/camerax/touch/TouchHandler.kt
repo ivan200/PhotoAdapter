@@ -1,8 +1,10 @@
 package com.ivan200.photoadapter.camerax.touch
 
 import android.graphics.PointF
+import android.os.Build
 import android.view.MotionEvent
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.camera.core.Camera
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.view.PreviewView
@@ -14,6 +16,7 @@ import java.lang.ref.WeakReference
  * @author ivan200
  * @since 24.02.2022
  */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class TouchHandler(
     private val camera: Camera?,
     private val preview: PreviewView,

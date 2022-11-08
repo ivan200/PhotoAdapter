@@ -64,6 +64,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             .setPreviewImage(prefs.previewImage)
             .setFullScreenMode(prefs.fullScreenMode)
             .setFlipFrontResult(prefs.flipFrontal)
+            .setBlurOnSwitch(prefs.blurOnSwitch)
             .setFitMode(prefs.fitMode)
 //            .setMaxImageSize(prefs.maxImageSize)
             .setUseSnapshot(prefs.useSnapshot)

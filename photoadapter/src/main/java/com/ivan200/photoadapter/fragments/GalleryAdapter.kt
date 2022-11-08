@@ -1,24 +1,22 @@
 package com.ivan200.photoadapter.fragments
 
-import android.graphics.drawable.Drawable
+import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import com.github.chrisbanes.photoview.PhotoView
 import com.ivan200.photoadapter.PictureInfo
+import com.ivan200.photoadapter.fragments.GalleryAdapter.PagerVH
 import com.ivan200.photoadapter.utils.SimpleDiffUtilCallback
+import com.ivan200.photoadapter.utils.SimpleRequestListener
 
 //
 // Created by Ivan200 on 16.10.2019.
 //
-class GalleryAdapter(var onCurrentPageLoaded: ((PictureInfo) -> Unit)? = null) : RecyclerView.Adapter<GalleryAdapter.PagerVH>() {
+class GalleryAdapter(var onCurrentPageLoaded: ((PictureInfo) -> Unit)? = null) : RecyclerView.Adapter<PagerVH>() {
 
     inner class PagerVH(itemView: View) : RecyclerView.ViewHolder(itemView)
 
@@ -26,6 +24,7 @@ class GalleryAdapter(var onCurrentPageLoaded: ((PictureInfo) -> Unit)? = null) :
     var curPos = 0
 
     //remove images - with animation, add images - without, to smooth change fragments
+    @SuppressLint("NotifyDataSetChanged")
     fun update(newListImages: List<PictureInfo>, currentPosition: Int) {
         curPos = currentPosition
 
@@ -55,22 +54,8 @@ class GalleryAdapter(var onCurrentPageLoaded: ((PictureInfo) -> Unit)? = null) :
     override fun onBindViewHolder(holder: PagerVH, position: Int) {
         Glide.with(holder.itemView)
             .load(images[position].file)
-            .listener(object : RequestListener<Drawable> {
-                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                    if (position == curPos) onCurrentPageLoaded?.invoke(images[position])
-                    return false
-                }
-
-                override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    if (position == curPos) onCurrentPageLoaded?.invoke(images[position])
-                    return false
-                }
+            .listener(SimpleRequestListener {
+                if (position == curPos) onCurrentPageLoaded?.invoke(images[position])
             })
             .into(holder.itemView as PhotoView)
     }
@@ -80,4 +65,3 @@ class GalleryAdapter(var onCurrentPageLoaded: ((PictureInfo) -> Unit)? = null) :
         super.onBindViewHolder(holder, position, payloads)
     }
 }
-

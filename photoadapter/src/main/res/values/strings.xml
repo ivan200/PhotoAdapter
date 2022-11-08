@@ -27,5 +27,7 @@
 
     <string name="photo_result">View result</string>
 
+    <string name="camera_init_text">Initializing</string>
+
 
 </resources>

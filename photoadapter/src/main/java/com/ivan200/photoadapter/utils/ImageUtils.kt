@@ -5,6 +5,8 @@ package com.ivan200.photoadapter.utils
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.graphics.Point
 import android.graphics.PointF
 import android.hardware.Camera
@@ -14,6 +16,10 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.os.Build
+import android.renderscript.Allocation
+import android.renderscript.Element
+import android.renderscript.RenderScript
+import android.renderscript.ScriptIntrinsicBlur
 import android.util.Size
 import android.view.Display
 import android.view.Surface.ROTATION_0
@@ -185,5 +191,50 @@ object ImageUtils {
         ROTATION_180 -> ORIENTATION_ROTATE_180
         ROTATION_270 -> ORIENTATION_ROTATE_270
         else -> ORIENTATION_UNDEFINED
+    }
+
+    fun scaleBitmap(maxWidth: Int?, maxHeight: Int?, source: Bitmap): Bitmap {
+        try {
+            val bitmapSize = Point(source.width, source.height)
+            val scaledSize = bitmapSize.scaleDown(maxWidth, maxHeight)
+            val needScale = scaledSize != bitmapSize
+            if (!needScale) {
+                return source
+            }
+            val matrix = Matrix().apply {
+                setScale(scaledSize.x / source.width.toFloat(), scaledSize.y / source.height.toFloat())
+            }
+            val bitmap = Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
+            source.recycle()
+            return bitmap
+        } catch (ex: Exception) {
+            return source
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+//    @WorkerThread
+    fun blurBitmap(bitmap: Bitmap?, applicationContext: Context, radius: Float): Bitmap? {
+        if (bitmap == null) return null
+        try {
+            // Create the output bitmap
+            val output = Bitmap.createBitmap(bitmap.width, bitmap.height, bitmap.config)
+
+            // Blur the image
+            val rsContext = RenderScript.create(applicationContext, RenderScript.ContextType.DEBUG)
+            val inAlloc = Allocation.createFromBitmap(rsContext, bitmap)
+            val outAlloc = Allocation.createTyped(rsContext, inAlloc.type)
+            val theIntrinsic = ScriptIntrinsicBlur.create(rsContext, Element.U8_4(rsContext))
+            theIntrinsic.apply {
+                setRadius(radius)
+                theIntrinsic.setInput(inAlloc)
+                theIntrinsic.forEach(outAlloc)
+            }
+            outAlloc.copyTo(output)
+            rsContext.finish()
+            return output
+        } catch (ex: Exception) {
+            return null
+        }
     }
 }

@@ -1,11 +1,9 @@
 package com.ivan200.photoadapter.camerax
 
 import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.graphics.Point
 import android.os.Handler
 import androidx.exifinterface.media.ExifInterface
-import com.ivan200.photoadapter.utils.ImageUtils.scaleDown
+import com.ivan200.photoadapter.utils.ImageUtils.scaleBitmap
 import java.io.File
 import java.io.FileOutputStream
 
@@ -49,20 +47,5 @@ class BitmapSaver(
     @Synchronized
     private fun saveInBackground(runnable: Runnable) {
         saveHandler.post(runnable)
-    }
-
-    fun scaleBitmap(maxWidth: Int?, maxHeight: Int?, source: Bitmap): Bitmap {
-        val bitmapSize = Point(source.width, source.height)
-        val scaledSize = bitmapSize.scaleDown(maxWidth, maxHeight)
-        val needScale = scaledSize != bitmapSize
-        if (!needScale) {
-            return source
-        }
-        val matrix = Matrix().apply {
-            setScale(scaledSize.x / source.width.toFloat(), scaledSize.y / source.height.toFloat())
-        }
-        val bitmap = Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
-        source.recycle()
-        return bitmap
     }
 }

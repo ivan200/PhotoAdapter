@@ -128,7 +128,6 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 //                    torchSwitch.isVisible = false
                 }
                 CameraViewState.NoPermissions -> {
-                    // TODO не срабатывает обработка пермишенов при разворачивании
                     initText.isVisible = false
                 }
                 CameraViewState.NotInitialized -> initText.isVisible = false

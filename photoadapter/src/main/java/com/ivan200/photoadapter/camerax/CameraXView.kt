@@ -13,6 +13,7 @@ import android.util.Size
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.camera.core.Camera
@@ -30,11 +31,13 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toPointF
 import androidx.core.net.toFile
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.bumptech.glide.Glide
 import com.google.common.util.concurrent.ListenableFuture
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.base.CameraDelegate
@@ -49,12 +52,14 @@ import com.ivan200.photoadapter.camerax.touch.TouchHandler
 import com.ivan200.photoadapter.utils.ImageUtils
 import com.ivan200.photoadapter.utils.ImageUtils.scaleDown
 import com.ivan200.photoadapter.utils.SaveUtils
+import com.ivan200.photoadapter.utils.SimpleRequestListener
 import com.ivan200.photoadapter.utils.dpToPx
 import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
+import kotlin.math.min
 
 /**
  * @author ivan200
@@ -114,6 +119,13 @@ class CameraXView @JvmOverloads constructor(
         this.addView(it)
     }
 
+    val blurView = ImageView(context, attrs, defStyleAttr, defStyleRes).also {
+        it.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        it.scaleType = ImageView.ScaleType.CENTER_CROP
+        it.isVisible = false
+        this.addView(it)
+    }
+
     override fun setFlash(flash: FlashDelegate.HasFlash) {
         if (_torchState.value == true && flash != FlashDelegate.HasFlash.Torch) {
             camera?.cameraControl?.enableTorch(false)
@@ -133,8 +145,10 @@ class CameraXView @JvmOverloads constructor(
     override fun setFitMode(fit: Boolean) {
         if (fit) {
             viewFinder.scaleType = PreviewView.ScaleType.FIT_CENTER
+            blurView.scaleType = ImageView.ScaleType.FIT_CENTER
         } else {
             viewFinder.scaleType = PreviewView.ScaleType.FILL_CENTER
+            blurView.scaleType = ImageView.ScaleType.CENTER_CROP
         }
     }
 
@@ -152,13 +166,11 @@ class CameraXView @JvmOverloads constructor(
             it.lifecycle.addObserver(cameraLifecycleObserver)
             lifecycleOwner = it
 
-            changeCameraProvider.cameraInfo.observe(it) { info: SimpleCameraInfo? ->
-                if (info != null) {
-                    try {
-                        bindCameraUseCases(info)
-                    } catch (e: Exception) {
-                        processCameraException(e)
-                    }
+            changeCameraProvider.cameraInfo.observe(it) { info: SimpleCameraInfo ->
+                try {
+                    bindCameraUseCases(info)
+                } catch (e: Exception) {
+                    processCameraException(e)
                 }
             }
         }
@@ -166,6 +178,10 @@ class CameraXView @JvmOverloads constructor(
 
     override fun setCameraBuilder(cameraBuilder: CameraBuilder) {
         this.builder = cameraBuilder
+
+        if (cameraBuilder.fitMode) {
+            setFitMode(true)
+        }
     }
 
     private fun onDisplayRotated() {
@@ -283,10 +299,12 @@ class CameraXView @JvmOverloads constructor(
                 *(useCases.toTypedArray())
             )
         }
-
         viewFinder.previewStreamState.observe(lifecycleOwner!!) {
             if (it == PreviewView.StreamState.STREAMING) {
-                _state.postValue(CameraViewState.Streaming)
+                if (_state.value !is CameraViewState.Streaming) {
+                    _state.postValue(CameraViewState.Streaming)
+                    blurView.isVisible = false
+                }
             } else {
                 if (_state.value is CameraViewState.Streaming) {
                     _state.postValue(CameraViewState.Initializing)
@@ -381,9 +399,41 @@ class CameraXView @JvmOverloads constructor(
 
     override val cameraInfo: LiveData<SimpleCameraInfo> get() = changeCameraProvider.cameraInfo
     override val cameraInfoList: Map<FacingDelegate, List<SimpleCameraInfo>> get() = changeCameraProvider.cameraInfoList
-    override fun changeFacing() = changeCameraProvider.toggleFacing()
+    override fun changeFacing() = showBlur(changeCameraProvider::toggleFacing)
+
     override fun changeSameFacingCamera() = changeCameraProvider.toggleSameFacingCamera()
-    override fun selectCamera(camera: SimpleCameraInfo) = changeCameraProvider.selectCamera(camera)
+
+    override fun selectCamera(camera: SimpleCameraInfo) = showBlur {
+        changeCameraProvider.selectCamera(camera)
+    }
+
+    fun showBlur(onNext: () -> Unit) {
+        if (!builder.blurOnSwitch) {
+            onNext.invoke()
+            return
+        }
+
+        val bitmap = viewFinder.bitmap
+        if (bitmap != null && bitmap.width > 0 && bitmap.height > 0) {
+            val size = min(measuredWidth, measuredHeight) / 2
+            val scaled = ImageUtils.scaleBitmap(size, size, bitmap)
+            val blur = ImageUtils.blurBitmap(scaled, context, 25f)
+            if (blur == null) {
+                onNext.invoke()
+            } else {
+                blurView.isVisible = true
+                Glide.with(context)
+                    .load(blur)
+                    .listener(SimpleRequestListener {
+                        blurView.isVisible = it
+                        onNext.invoke()
+                    })
+                    .into(blurView)
+            }
+        } else {
+            onNext.invoke()
+        }
+    }
 
     companion object {
         // @formatter:off

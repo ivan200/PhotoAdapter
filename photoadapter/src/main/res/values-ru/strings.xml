@@ -28,4 +28,6 @@
 
     <string name="photo_result">Просмотреть результат</string>
 
+    <string name="camera_init_text">Инициализация</string>
+
 </resources>

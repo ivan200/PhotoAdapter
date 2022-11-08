@@ -48,6 +48,7 @@ data class CameraBuilder constructor(
     var maxWidth: Int? = null,
     var maxHeight: Int? = null,
     var useSnapshot: Boolean = true,
+    var blurOnSwitch: Boolean = true,
     var requestCode: Int = 0,
     var dialogTheme: Int = 0,
     @IntRange(from = 1, to = 100)
@@ -68,6 +69,7 @@ data class CameraBuilder constructor(
     fun setMaxWidth(maxWidth: Int) = apply { this.maxWidth = maxWidth }
     fun setMaxHeight(maxHeight: Int) = apply { this.maxHeight = maxHeight }
     fun setUseSnapshot(useSnapshot: Boolean) = apply { this.useSnapshot = useSnapshot }
+    fun setBlurOnSwitch(blurOnSwitch: Boolean) = apply { this.blurOnSwitch = blurOnSwitch }
     fun setCameraImplSelector(cameraImplSelector: CameraImplSelector) = apply { this.cameraImplSelector = cameraImplSelector }
     fun setRequestCode(requestCode: Int) = apply { this.requestCode = requestCode }
     fun setDialogTheme(@AnyRes dialogTheme: Int) = apply { this.dialogTheme = dialogTheme }

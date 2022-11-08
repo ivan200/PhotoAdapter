@@ -20,14 +20,6 @@
         android:layout_toLeftOf="@id/action_layout"
         android:gravity="center">
 
-        <TextView
-            android:id="@+id/initText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Инициализация"
-            android:textColor="@android:color/white" />
-
         <com.ivan200.photoadapter.base.CameraView
             android:id="@+id/cameraView"
             android:layout_width="match_parent"
@@ -35,6 +27,15 @@
             android:keepScreenOn="true"
             android:visibility="visible"
             tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/initText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/camera_init_text"
+            android:textColor="@android:color/white" />
+
     </FrameLayout>
 
     <androidx.appcompat.widget.AppCompatImageButton
