@@ -21,15 +21,12 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
 import android.util.Size
-import android.view.Display
 import android.view.Surface.ROTATION_0
 import android.view.Surface.ROTATION_180
 import android.view.Surface.ROTATION_270
 import android.view.Surface.ROTATION_90
-import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
-import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270
@@ -168,11 +165,6 @@ object ImageUtils {
             else -> Point((setX * ratio).toInt(), setY)
         }
     }
-
-    @Suppress("DEPRECATION")
-    val Context.displayCompat: Display?
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) display else null
-            ?: ContextCompat.getSystemService(this, WindowManager::class.java)?.defaultDisplay
 
     /** Checking whether the system orientation of the device is landscape */
     fun isDefaultOrientationLandscape(context: Context): Boolean {

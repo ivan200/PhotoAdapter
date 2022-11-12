@@ -62,6 +62,7 @@
         android:clickable="true"
         android:focusable="true"
         android:scaleType="center"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_photo_fill"
         tools:visibility="visible" />
 

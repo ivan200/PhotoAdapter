@@ -10,7 +10,7 @@ import android.view.Surface.ROTATION_180
 import android.view.Surface.ROTATION_270
 import android.view.Surface.ROTATION_90
 import androidx.core.content.ContextCompat
-import com.ivan200.photoadapter.utils.ImageUtils.displayCompat
+import com.ivan200.photoadapter.utils.displayCompat
 
 /**
  * @author ivan200

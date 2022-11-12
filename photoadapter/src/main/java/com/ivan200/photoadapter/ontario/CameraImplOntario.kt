@@ -98,9 +98,7 @@ class CameraImplOntario @JvmOverloads constructor(
     override fun setCameraBuilder(cameraBuilder: CameraBuilder) {
         this.builder = cameraBuilder
         val selectors = mutableListOf<SizeSelector>()
-        if (cameraBuilder.fitMode) {
-            setFitMode(true)
-        }
+        setFitMode(!cameraBuilder.fillPreview)
         if (cameraBuilder.fullScreenMode) {
             selectors.add(
                 SizeSelectors.aspectRatio(AspectRatio.of(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels), 0.1f)

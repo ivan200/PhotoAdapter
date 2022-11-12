@@ -1,36 +1,42 @@
 package com.ivan200.photoadapter
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
-import androidx.annotation.AnyRes
+import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IntRange
-import androidx.core.util.Consumer
 import androidx.fragment.app.Fragment
 import com.ivan200.photoadapter.utils.CameraImplSelector
 import com.ivan200.photoadapter.utils.SaveTo
+import com.ivan200.photoadapter.utils.parcelableArrayCompat
 import kotlinx.parcelize.Parcelize
 
 /**
  * Camera builder
  *
- * @param facingBack             camera facing: back (normal) or front (selfie)
- * @param changeCameraAllowed    allow to flip camera facing
- * @param previewImage           show result image after each photo taken
- * @param allowMultipleImages    allow take more than one image per session
- * @param lockRotate             lock auto rotating activity to disable view recreating
- * @param fullScreenMode         full screen (16/9) or normal (4/3) mode
- * @param fitMode                fit camera surfaceView into screen
- * @param saveTo                 where will the images be saved
- * @param maxWidth               preferred result image max width
- * @param maxHeight              preferred result image max height
- * @param useSnapshot            take picture from snapshot (faster, no sound)
- * @param requestCode            specify code for starting activity
- * @param dialogTheme            customize alert dialog theme
- * @param outputJpegQuality      quality for saving jpeg image
- * @param cameraImplSelector     selector of camera implementation
- * @param flipFrontResult        does flipping of front image are enabled
+ * @param facingBack          camera facing: back (normal) or front (selfie)
+ * @param allowChangeCamera   allow to flip camera facing
+ * @param allowPreviewResult  show result image after each photo taken
+ * @param allowMultipleImages allow take more than one image per session
+ * @param lockRotate          lock auto rotating activity to disable view recreating
+ * @param fullScreenMode      full screen (16/9) or normal (4/3) mode
+ * @param fillPreview         fill camera surfaceView into screen
+ * @param allowToggleFit      allow toggle between fit preview/fill preview
+ * @param saveTo              where will the images be saved
+ * @param maxWidth            preferred result image max width
+ * @param maxHeight           preferred result image max height
+ * @param useSnapshot         take picture from snapshot (faster, no sound)
+ * @param blurOnSwitch        whenever switching cameras, show blurred image, instead of black screen
+ * @param dialogTheme         customize alert dialog theme
+ * @param outputJpegQuality   quality for saving jpeg image
+ * @param cameraImplSelector  selector of camera implementation
+ * @param flipFrontResult     does flipping of front image are enabled
  *
  * Created by Ivan200 on 11.10.2019.
  */
@@ -38,71 +44,61 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class CameraBuilder constructor(
     var facingBack: Boolean = true,
-    var changeCameraAllowed: Boolean = true,
-    var previewImage: Boolean = true,
+    var allowChangeCamera: Boolean = true,
+    var allowPreviewResult: Boolean = true,
     var allowMultipleImages: Boolean = true,
     var lockRotate: Boolean = true,
     var fullScreenMode: Boolean = false,
-    var fitMode: Boolean = false,
+    var fillPreview: Boolean = true,
+    var allowToggleFit: Boolean = true,
     var saveTo: SaveTo = SaveTo.OnlyInternal,
     var maxWidth: Int? = null,
     var maxHeight: Int? = null,
     var useSnapshot: Boolean = true,
     var blurOnSwitch: Boolean = true,
-    var requestCode: Int = 0,
     var dialogTheme: Int = 0,
     @IntRange(from = 1, to = 100)
     var outputJpegQuality: Int? = null,
-    var cameraImplSelector: CameraImplSelector = CameraImplSelector.Camera2IfAnyFullSupport,
+    var cameraImplSelector: CameraImplSelector = CameraImplSelector.Camera2FromApi21,
     var flipFrontResult: Boolean = true
 ) : Parcelable {
-
     constructor() : this(facingBack = true) // explicit "empty" constructor, as seen by Java.
 
-    fun setCameraFacingBack(facingBack: Boolean) = apply { this.facingBack = facingBack }
-    fun setChangeCameraAllowed(changeCameraAllowed: Boolean) = apply { this.changeCameraAllowed = changeCameraAllowed }
-    fun setAllowMultipleImages(allowMultipleImages: Boolean) = apply { this.allowMultipleImages = allowMultipleImages }
-    fun setLockRotate(lockRotate: Boolean) = apply { this.lockRotate = lockRotate }
-    fun setFullScreenMode(fullScreenMode: Boolean) = apply { this.fullScreenMode = fullScreenMode }
-    fun setFitMode(fitMode: Boolean) = apply { this.fitMode = fitMode }
-    fun setPreviewImage(previewImage: Boolean) = apply { this.previewImage = previewImage }
-    fun setMaxWidth(maxWidth: Int) = apply { this.maxWidth = maxWidth }
-    fun setMaxHeight(maxHeight: Int) = apply { this.maxHeight = maxHeight }
-    fun setUseSnapshot(useSnapshot: Boolean) = apply { this.useSnapshot = useSnapshot }
-    fun setBlurOnSwitch(blurOnSwitch: Boolean) = apply { this.blurOnSwitch = blurOnSwitch }
-    fun setCameraImplSelector(cameraImplSelector: CameraImplSelector) = apply { this.cameraImplSelector = cameraImplSelector }
-    fun setRequestCode(requestCode: Int) = apply { this.requestCode = requestCode }
-    fun setDialogTheme(@AnyRes dialogTheme: Int) = apply { this.dialogTheme = dialogTheme }
-    fun setOutputJpegQuality(@IntRange(from = 1, to = 100) outputJpegQuality: Int) = apply { this.outputJpegQuality = outputJpegQuality }
-    fun setFlipFrontResult(flipFrontalPicture: Boolean) = apply { this.flipFrontResult = flipFrontalPicture }
-    fun setSaveTo(saveTo: SaveTo) = apply { this.saveTo = saveTo }
-
-    fun start(activity: Activity) {
-        activity.startActivityForResult(CameraActivity.getIntent(activity, this), getCode())
+    fun registerForResult(fragment: Fragment, onSuccess: ImagesTakenCallback, onCancel: Runnable? = null): ActivityResultLauncher<Intent> {
+        return fragment.registerForActivityResult(ActivityResultContracts.StartActivityForResult(), Callback(onSuccess, onCancel))
     }
 
-    // TODO Добавить нормальный старт активити
-    fun start(fragment: Fragment) {
-        fragment.startActivityForResult(CameraActivity.getIntent(fragment.requireContext(), this), getCode())
+    fun registerForResult(
+        activity: ComponentActivity,
+        onSuccess: ImagesTakenCallback,
+        onCancel: Runnable? = null
+    ): ActivityResultLauncher<Intent> {
+        return activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult(), Callback(onSuccess, onCancel))
     }
 
-    private fun getCode() = if (requestCode == 0) REQUEST_IMAGE_CAPTURE else requestCode
+    fun getTakePictureIntent(context: Context): Intent {
+        return CameraActivity.getIntent(context, this)
+    }
 
-    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?, onSuccess: Consumer<List<Uri>>, onCancel: Runnable? = null) {
-        if (requestCode == getCode()) {
-            when (resultCode) {
+    fun onActivityResult(resultCode: Int, data: Intent?, onSuccess: ImagesTakenCallback, onCancel: Runnable? = null) {
+        Callback(onSuccess, onCancel).onActivityResult(ActivityResult(resultCode, data))
+    }
+
+    inner class Callback(private val callback: ImagesTakenCallback, private val onCancel: Runnable? = null) :
+        ActivityResultCallback<ActivityResult> {
+        override fun onActivityResult(result: ActivityResult) {
+            when (result.resultCode) {
                 Activity.RESULT_CANCELED -> onCancel?.run()
                 Activity.RESULT_OK -> {
-                    val uris = data?.extras?.get(CameraActivity.photosExtraName)?.let {
-                        (it as Array<*>).toList().filterIsInstance<Uri>()
-                    }
-                    onSuccess.accept(uris)
+                    val uris = result.data?.parcelableArrayCompat<Uri>(CameraActivity.photosExtraName)?.toList().orEmpty()
+                    callback.onImagesTaken(uris)
                 }
+                else -> Unit
             }
         }
     }
 
-    companion object {
-        private const val REQUEST_IMAGE_CAPTURE = 7411 // random number
+    interface ImagesTakenCallback {
+        fun onImagesTaken(images: List<Uri>)
     }
 }

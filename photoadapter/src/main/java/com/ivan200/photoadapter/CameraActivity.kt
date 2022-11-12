@@ -66,7 +66,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     var pageLoadedObserver = Observer<PictureInfo> {
-        if (cameraBuilder.previewImage && cameraViewModel.fragmentState.value == FragmentChangeState.WAITING_FOR_IMAGE) {
+        if (cameraBuilder.allowPreviewResult && cameraViewModel.fragmentState.value == FragmentChangeState.WAITING_FOR_IMAGE) {
             cameraViewModel.changeState(FragmentChangeState.GALLERY)
         }
     }
@@ -181,7 +181,7 @@ class CameraActivity : AppCompatActivity() {
     companion object {
         private const val KEY_CAMERA_BUILDER = "KEY_CAMERA_BUILDER"
 
-        fun getIntent(context: Context, builder: CameraBuilder) =
+        internal fun getIntent(context: Context, builder: CameraBuilder) =
             Intent(context, CameraActivity::class.java)
                 .putExtra(KEY_CAMERA_BUILDER, builder)
 

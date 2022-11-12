@@ -4,8 +4,11 @@
     <string name="fullScreenMode">Full screen mode</string>
     <string name="fullScreenMode_description">When turned on, the camera will be stretched to full screen and the navigation buttons will be hidden</string>
 
-    <string name="fitMode">Fit mode</string>
-    <string name="fitMode_description">When turned on, the camera will fit into the screen based on the size of the phone\'s matrix.\nAllows you to see the entire photo area without cropping the sides of the photo.</string>
+    <string name="fillPreview">Fill the camera preview</string>
+    <string name="fillPreview_description">When turned on, the camera will fill in the preview. When turned off, it will be fit into the screen based on the camera dimensions</string>
+
+    <string name="allowToggleFit">Allow to switch the fit mode</string>
+    <string name="allowToggleFit_description">In the upper left corner of the screen there will be a button to switch modes: fit preview / fill preview of the camera</string>
 
     <string name="previewImage">Preview image</string>
     <string name="previewImage_description">After taking a photo, you will be able to view result of the photo to make sure that the photo is not blurred, with the option to delete it.</string>
@@ -26,7 +29,7 @@
     <string name="flipFrontal_description">Usually frontal photos need to be mirrored in order to be displayed to the user. If you uncheck this box, the photos will remain original, without mirroring.</string>
 
     <string name="blurOnSwitch">Blur when switching cameras</string>
-    <string name="blurOnSwitch_description">In the Camera 2 implementation, a black background is displayed when switching cameras. This checkbox allows you to show a blurred snapshot from the last camera instead.</string>
+    <string name="blurOnSwitch_description">In the Camera2 implementation, a black background is displayed when switching cameras. This checkbox allows you to show a blurred snapshot from the last camera instead.</string>
 
     <string name="saveToGallery">Save to phone gallery also</string>
     <string name="saveToGallery_description">Allows you to save photos, in addition to the app\'s memory, also to the phone\'s gallery for the user.</string>

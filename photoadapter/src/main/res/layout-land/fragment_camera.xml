@@ -46,11 +46,13 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:background="?selectableItemBackgroundBorderless"
-        android:contentDescription="@string/photo_torch_on_description"
         android:clickable="true"
+        android:contentDescription="@string/photo_torch_on_description"
         android:focusable="true"
         android:scaleType="center"
-        app:srcCompat="@drawable/ic_photo_flash_off" />
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_photo_flash_off"
+        tools:visibility="visible" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btn_fit"
@@ -62,6 +64,7 @@
         android:clickable="true"
         android:focusable="true"
         android:scaleType="center"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_photo_fill"
         tools:visibility="visible" />
 
@@ -109,10 +112,10 @@
             android:layout_centerInParent="true"
             android:background="@color/colorTransparent"
             android:clickable="true"
+            android:contentDescription="@string/photo_capture_description"
             android:focusable="true"
             android:paddingLeft="@dimen/margin_default"
             android:paddingRight="@dimen/margin_default"
-            android:contentDescription="@string/photo_capture_description"
             app:srcCompat="@drawable/ic_photo_take_picture" />
 
         <FrameLayout
@@ -131,8 +134,8 @@
                 android:layout_height="@dimen/size_icon_bounding"
                 android:layout_gravity="center"
                 android:background="?selectableItemBackgroundBorderless"
-                android:contentDescription="@string/photo_result"
                 android:clickable="true"
+                android:contentDescription="@string/photo_result"
                 android:focusable="true"
                 android:scaleType="fitCenter"
                 android:visibility="gone"
@@ -155,8 +158,8 @@
                 android:layout_height="@dimen/size_icon_bounding"
                 android:layout_gravity="center"
                 android:background="@drawable/bg_icon_gray"
-                android:contentDescription="@string/photo_camera_rear_description"
                 android:clickable="true"
+                android:contentDescription="@string/photo_camera_rear_description"
                 android:focusable="true"
                 android:scaleType="center"
                 android:visibility="gone"

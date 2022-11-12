@@ -1,6 +1,5 @@
 package com.ivan200.photoadapterexample.fragments
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -18,7 +17,7 @@ import com.ivan200.photoadapter.utils.SaveUtils
 import com.ivan200.photoadapterexample.Prefs
 import com.ivan200.photoadapterexample.R
 
-class MainFragment : Fragment(R.layout.fragment_main) {
+class MainFragment : Fragment(R.layout.fragment_main), CameraBuilder.ImagesTakenCallback {
     private val navigateGallery = Navigation.createNavigateOnClickListener(R.id.action_mainFragment_to_galleryFragment)
 
     private val mActivity get() = activity as AppCompatActivity
@@ -26,7 +25,9 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     private val fabPhoto get() = requireView().findViewById<FloatingActionButton>(R.id.fabPhoto)
     private val fabGallery get() = requireView().findViewById<FloatingActionButton>(R.id.fabGallery)
 
-    private var cameraBuilder = CameraBuilder()
+    private val cameraBuilder = CameraBuilder()
+    private val takePicturesLauncher = cameraBuilder.registerForResult(this, this)
+
     private lateinit var permissionsDelegate: PermissionsDelegate
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +36,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         permissionsDelegate = PermissionsDelegate(
             requireActivity(),
             savedInstanceState,
-            cameraBuilder.dialogTheme,
+            R.style.AppThemeDialog,
             this::onPermissionResult
         )
     }
@@ -55,27 +56,27 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
     private fun updateCameraBuilder() {
         val prefs = Prefs(requireContext())
-        cameraBuilder = CameraBuilder()
-            .setCameraFacingBack(prefs.facingBack)
-            .setChangeCameraAllowed(prefs.changeCameraAllowed)
-            .setAllowMultipleImages(prefs.allowMultipleImages)
-            .setLockRotate(prefs.lockRotate)
-            .setSaveTo(if (prefs.saveToGallery) SaveTo.ToGalleryWithAlbum(prefs.galleryName) else SaveTo.OnlyInternal)
-            .setPreviewImage(prefs.previewImage)
-            .setFullScreenMode(prefs.fullScreenMode)
-            .setFlipFrontResult(prefs.flipFrontal)
-            .setBlurOnSwitch(prefs.blurOnSwitch)
-            .setFitMode(prefs.fitMode)
-//            .setMaxImageSize(prefs.maxImageSize)
-            .setUseSnapshot(prefs.useSnapshot)
-            .setDialogTheme(R.style.AppThemeDialog)
-            .setCameraImplSelector(if (prefs.forceCamera1) CameraImplSelector.AlwaysCamera1 else CameraImplSelector.Camera2FromApi21)
+        cameraBuilder.apply {
+            facingBack = prefs.facingBack
+            allowChangeCamera = prefs.allowChangeCamera
+            allowMultipleImages = prefs.allowMultipleImages
+            lockRotate = prefs.lockRotate
+            saveTo = if (prefs.saveToGallery) SaveTo.ToGalleryWithAlbum(prefs.galleryName) else SaveTo.OnlyInternal
+            allowPreviewResult = prefs.allowPreviewResult
+            fullScreenMode = prefs.fullScreenMode
+            flipFrontResult = prefs.flipFrontal
+            blurOnSwitch = prefs.blurOnSwitch
+            fillPreview = prefs.fillPreview
+            allowToggleFit = prefs.allowToggleFit
+            useSnapshot = prefs.useSnapshot
+            dialogTheme = R.style.AppThemeDialog
+            cameraImplSelector = if (prefs.forceCamera1) CameraImplSelector.AlwaysCamera1 else CameraImplSelector.Camera2FromApi21
+        }
     }
 
     private fun onPermissionResult(resultType: ResultType) = when (resultType) {
-        is ResultType.Allow -> cameraBuilder.start(this)
-        is ResultType.Denied ->
-            Toast.makeText(requireContext(), getString(R.string.toast_permission_rejected), Toast.LENGTH_SHORT).show()
+        is ResultType.Allow -> takePicturesLauncher.launch(cameraBuilder.getTakePictureIntent(requireContext()))
+        is ResultType.Denied -> Toast.makeText(requireContext(), getString(R.string.toast_permission_rejected), Toast.LENGTH_SHORT).show()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -83,12 +84,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         permissionsDelegate.saveInstanceState(outState)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        cameraBuilder.onActivityResult(requestCode, resultCode, data, this::onImagesTaken)
-    }
-
-    private fun onImagesTaken(images: List<Uri>) {
+    override fun onImagesTaken(images: List<Uri>) {
         Prefs(requireContext()).images = Prefs(requireContext()).images.apply { addAll(images.map { it.toString() }) }
         navigateGallery.onClick(fabGallery)
     }

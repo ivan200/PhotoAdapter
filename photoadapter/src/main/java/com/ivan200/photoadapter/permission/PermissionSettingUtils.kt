@@ -12,7 +12,7 @@ import java.util.*
 object PermissionSettingUtils {
 
     fun gotoPhonePermissionSettings(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
-        var brand = try {
+        val brand = try {
             Build.BRAND.lowercase(Locale.US)
         } catch (e: Exception) {
             null

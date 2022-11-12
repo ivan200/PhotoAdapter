@@ -19,8 +19,7 @@ import com.ivan200.photoadapter.utils.SaveTo
  *
  * @param activity             activity for checking permissions
  * @param savedInstanceState   instance state to restore state of this delegate
- * @param onPermissionResult   function what called after permissions granted
- * @param onPermissionRejected function what called after permissions rejected
+ * @param onPermissionResult   function what called after getting permissions request result
  *
  * @author ivan200
  * @since 06.08.2022
@@ -177,7 +176,7 @@ open class PermissionsDelegate(
             }
         dialog.show()
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            dialog.getWindow()?.setBackgroundDrawableResource(android.R.color.transparent)
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         }
     }
 

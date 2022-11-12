@@ -9,15 +9,22 @@
         app:iconSpaceReserved="false"
         app:singleLineTitle="false" />
     <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="fitMode"
-        android:summary="@string/fitMode_description"
-        android:title="@string/fitMode"
+        android:defaultValue="true"
+        android:key="fillPreview"
+        android:summary="@string/fillPreview_description"
+        android:title="@string/fillPreview"
         app:iconSpaceReserved="false"
         app:singleLineTitle="false" />
     <CheckBoxPreference
         android:defaultValue="true"
-        android:key="previewImage"
+        android:key="allowToggleFit"
+        android:summary="@string/allowToggleFit_description"
+        android:title="@string/allowToggleFit"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="allowPreviewResult"
         android:summary="@string/previewImage_description"
         android:title="@string/previewImage"
         app:iconSpaceReserved="false"
@@ -31,7 +38,7 @@
         app:singleLineTitle="false" />
     <CheckBoxPreference
         android:defaultValue="true"
-        android:key="changeCameraAllowed"
+        android:key="allowChangeCamera"
         android:summary="@string/changeCameraAllowed_description"
         android:title="@string/changeCameraAllowed"
         app:iconSpaceReserved="false"

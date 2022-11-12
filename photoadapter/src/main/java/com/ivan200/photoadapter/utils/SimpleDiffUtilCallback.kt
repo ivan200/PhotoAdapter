@@ -3,6 +3,8 @@ package com.ivan200.photoadapter.utils
 import androidx.recyclerview.widget.DiffUtil
 
 /**
+ * Simple callback for [DiffUtil]
+ *
  * @author ivan200
  * @since 11.09.2022
  */

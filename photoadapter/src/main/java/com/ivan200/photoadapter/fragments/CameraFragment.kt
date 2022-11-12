@@ -80,7 +80,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         super.onViewCreated(view, savedInstanceState)
 
         cameraViewModel.pictures.observe(requireActivity()) {
-            if (!cameraBuilder.previewImage) {
+            if (!cameraBuilder.allowPreviewResult) {
                 if (!cameraBuilder.allowMultipleImages && it.isNotEmpty()) {
                     cameraViewModel.success()
                 } else {
@@ -101,7 +101,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
 
         cameraViewModel.curPageLoaded.observe(requireActivity()) {
-            if (cameraBuilder.previewImage) {
+            if (cameraBuilder.allowPreviewResult) {
                 loadThumbImage(it)
             }
         }
@@ -124,7 +124,10 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                     }
                 }
                 CameraViewState.Initializing -> {
-                    initText.isVisible = true
+                    if (!cameraBuilder.blurOnSwitch) {
+                        initText.isVisible = true
+                    }
+
 //                    switchCamera.isVisible = false
 //                    torchSwitch.isVisible = false
                 }
@@ -137,28 +140,34 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
 
         cameraView.cameraInfo.observe(viewLifecycleOwner) {
-            val list = cameraView.cameraInfoList
+            if (cameraBuilder.allowChangeCamera) {
+                val list = cameraView.cameraInfoList
 
-            switchCamera.isVisible = list.size > 1
+                switchCamera.isVisible = list.size > 1
 
-            val sameFacingCameras = list[it.cameraFacing]!!
-            if (sameFacingCameras.size > 1) {
-                camerasRecycler.isVisible = true
-                camerasAdapter.update(sameFacingCameras, it, cameraViewModel.rotate.value!!)
+                val sameFacingCameras = list[it.cameraFacing]!!
+                if (sameFacingCameras.size > 1) {
+                    camerasRecycler.isVisible = true
+                    camerasAdapter.update(sameFacingCameras, it, cameraViewModel.rotate.value!!)
+                } else {
+                    camerasRecycler.isVisible = false
+                }
+
+                switchCamera.setImageResource(it.cameraFacing.iconRes)
+                switchCamera.contentDescription = getString(it.cameraFacing.descriptionRes)
+                switchCamera.setOnClickListener {
+                    cameraView.changeFacing()
+                }
+                //TODO анимировать наличие вспышки через fade-in
+                torchSwitch.isVisible = it.hasFlashUnit
+                currentFlash = if (it.supportedFlash.isNotEmpty()) {
+                    it.supportedFlash.first()
+                } else {
+                    FlashDelegate.NoFlash
+                }
             } else {
+                switchCamera.isVisible = false
                 camerasRecycler.isVisible = false
-            }
-
-            switchCamera.setImageResource(it.cameraFacing.iconRes)
-            switchCamera.contentDescription = getString(it.cameraFacing.descriptionRes)
-            switchCamera.setOnClickListener {
-                cameraView.changeFacing()
-            }
-            torchSwitch.isVisible = it.hasFlashUnit
-            currentFlash = if (it.supportedFlash.isNotEmpty()) {
-                it.supportedFlash.first()
-            } else {
-                FlashDelegate.NoFlash
             }
         }
 
@@ -172,8 +181,11 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         camerasRecycler.adapter = camerasAdapter
         camerasRecycler.itemAnimator = null
 
-        buttonFit.setOnClickListener {
-            cameraView.setFitMode(!cameraView.isFit)
+        if (cameraBuilder.allowToggleFit) {
+            buttonFit.isVisible = true
+            buttonFit.setOnClickListener {
+                cameraView.setFitMode(!cameraView.isFit)
+            }
         }
 
         cameraViewModel.fragmentState.observe(requireActivity()) {
@@ -246,7 +258,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     private fun takePicture() {
         cameraView.takePicture()
         cameraViewModel.changeState(FragmentChangeState.WAITING_FOR_IMAGE)
-        if (!cameraBuilder.previewImage && cameraBuilder.allowMultipleImages) {
+        if (!cameraBuilder.allowPreviewResult && cameraBuilder.allowMultipleImages) {
             val flashWeakRef = WeakReference(flashView)
             flashView.postDelayed({
                 flashWeakRef.get()?.apply {

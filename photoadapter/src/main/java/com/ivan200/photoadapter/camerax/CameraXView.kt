@@ -184,9 +184,7 @@ class CameraXView @JvmOverloads constructor(
     override fun setCameraBuilder(cameraBuilder: CameraBuilder) {
         this.builder = cameraBuilder
 
-        if (cameraBuilder.fitMode) {
-            setFitMode(true)
-        }
+        setFitMode(!cameraBuilder.fillPreview)
     }
 
     private fun onDisplayRotated() {
@@ -288,7 +286,9 @@ class CameraXView @JvmOverloads constructor(
             setSurfaceProvider(viewFinder.surfaceProvider)
         }
 
-        imageCapture = ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).setTargetRotation(rotation)
+        imageCapture = ImageCapture.Builder()
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .setTargetRotation(rotation)
             .setFlashMode(ImageCapture.FLASH_MODE_OFF).apply {
                 builder.outputJpegQuality?.let {
                     setJpegQuality(it)
@@ -302,6 +302,9 @@ class CameraXView @JvmOverloads constructor(
                         val pictureRatio = ImageUtils.aspectRatio(screenSize.toPointF())
                         setTargetAspectRatio(pictureRatio)
                     }
+                } else {
+                    val pictureRatio = ImageUtils.aspectRatio(cameraSize)
+                    setTargetAspectRatio(pictureRatio)
                 }
             }.build()
 
@@ -418,8 +421,12 @@ class CameraXView @JvmOverloads constructor(
 
     override fun changeSameFacingCamera() = changeCameraProvider.toggleSameFacingCamera()
 
-    override fun selectCamera(camera: SimpleCameraInfo) = showBlur {
-        changeCameraProvider.selectCamera(camera)
+    override fun selectCamera(camera: SimpleCameraInfo) {
+        if (camera != changeCameraProvider.cameraInfo.value) {
+            showBlur {
+                changeCameraProvider.selectCamera(camera)
+            }
+        }
     }
 
     fun showBlur(onNext: () -> Unit) {

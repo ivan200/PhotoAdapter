@@ -14,6 +14,7 @@ import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.TypedValue
+import android.view.Display
 import android.view.Surface
 import android.view.View
 import android.view.WindowInsets
@@ -39,9 +40,8 @@ fun <T : View> T.onClick(function: () -> Unit): T {
 }
 
 fun <T : Activity> T.lockOrientation() {
-    val windowManager = getSystemService(Context.WINDOW_SERVICE) as? WindowManager
-    if (windowManager != null) {
-        val rotation = windowManager.defaultDisplay.rotation
+    displayCompat?.let {
+        val rotation = it.rotation
         val orientation = when (resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> when (rotation) {
                 Surface.ROTATION_0,
@@ -58,6 +58,15 @@ fun <T : Activity> T.lockOrientation() {
         requestedOrientation = orientation
     }
 }
+
+fun <T : Activity> T.unlockOrientation() {
+    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+}
+
+@Suppress("DEPRECATION")
+val Context.displayCompat: Display?
+    get() = if (SDK_INT >= Build.VERSION_CODES.R) display else null
+        ?: ContextCompat.getSystemService(this, WindowManager::class.java)?.defaultDisplay
 
 @Suppress("DEPRECATION")
 fun <T : Activity> T.hideSystemUI() {
@@ -106,10 +115,6 @@ fun <T : Activity> T.showSystemUI() {
         }
         window.decorView.systemUiVisibility = flag
     }
-}
-
-fun <T : Activity> T.unlockOrientation() {
-    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 }
 
 internal fun View.padBottomViewWithInsets(insets: WindowInsetsCompat) {
@@ -194,6 +199,12 @@ inline fun <reified T : Parcelable> Bundle.parcelableArrayCompat(key: String): A
     SDK_INT >= TIRAMISU -> getParcelableArray(key, T::class.java)
     else -> @Suppress("DEPRECATION") getParcelableArray(key)?.filterIsInstance<T>()?.toTypedArray()
 }
+
+inline fun <reified T : Parcelable> Intent.parcelableArrayCompat(key: String): Array<out T>? = when {
+    SDK_INT >= TIRAMISU -> getParcelableArrayExtra(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelableArrayExtra(key)?.filterIsInstance<T>()?.toTypedArray()
+}
+
 
 //
 //Logger
