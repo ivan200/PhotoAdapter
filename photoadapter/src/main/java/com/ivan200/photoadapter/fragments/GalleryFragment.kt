@@ -31,7 +31,7 @@ import me.relex.circleindicator.CircleIndicator3
 class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsListener {
 
     private val cameraViewModel: CameraViewModel by lazy {
-        ViewModelProvider(activity as CameraActivity).get(CameraViewModel::class.java)
+        ViewModelProvider(activity as CameraActivity)[CameraViewModel::class.java]
     }
     private lateinit var cameraBuilder: CameraBuilder
 

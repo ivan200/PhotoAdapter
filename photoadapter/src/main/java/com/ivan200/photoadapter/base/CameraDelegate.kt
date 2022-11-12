@@ -28,4 +28,5 @@ interface CameraDelegate {
     fun takePicture()
     val takePictureResult: LiveData<TakePictureResult>
     fun setFlash(flash: FlashDelegate.HasFlash)
+    val orientationChanged: LiveData<Int>
 }

@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -143,7 +144,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             val sameFacingCameras = list[it.cameraFacing]!!
             if (sameFacingCameras.size > 1) {
                 camerasRecycler.isVisible = true
-                camerasAdapter.update(sameFacingCameras, it)
+                camerasAdapter.update(sameFacingCameras, it, cameraViewModel.rotate.value!!)
             } else {
                 camerasRecycler.isVisible = false
             }
@@ -166,16 +167,10 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
         cameraView.takePictureResult.observe(requireActivity(), this::onPictureTaken)
 
+        cameraView.orientationChanged.observe(requireActivity(), this::onOrientationChanged)
+
         camerasRecycler.adapter = camerasAdapter
         camerasRecycler.itemAnimator = null
-
-
-//        switchCamera.showIf { cameraBuilder.changeCameraAllowed && ImageUtils.hasDifferentFacings(requireActivity()) }
-//        switchCamera.onClick {
-//            currentFlash = Flash.OFF
-//            setFlash(currentFlash)
-//            cameraView.toggleFacing()
-//        }
 
         buttonFit.setOnClickListener {
             cameraView.setFitMode(!cameraView.isFit)
@@ -187,6 +182,16 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
         cameraViewModel.rotate.observe(requireActivity()) {
             rotateItems(it, capture, torchSwitch, resultImage, switchCamera)
+
+            if (camerasRecycler.isVisible) {
+                val layoutManager = camerasRecycler.layoutManager as LinearLayoutManager
+                val itemFirst = layoutManager.findFirstVisibleItemPosition()
+                val itemLast = layoutManager.findLastVisibleItemPosition()
+                for (i in itemFirst..itemLast) {
+                    val vh = camerasRecycler.findViewHolderForAdapterPosition(i)
+                    (vh as CamerasAdapter.CamerasViewHolder).rotateItem(it)
+                }
+            }
         }
 
         cameraViewModel.volumeKeyPressed.observe(requireActivity()) {
@@ -300,7 +305,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
     }
 
-    fun onPictureTaken(result: TakePictureResult) {
+    private fun onPictureTaken(result: TakePictureResult) {
         when (result) {
             is TakePictureResult.ImageTakeException -> {
                 val dialog = AlertDialog.Builder(requireActivity(), cameraBuilder.dialogTheme)
@@ -321,54 +326,21 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
     }
 
-//    inner class Listener : CameraListener() {
-//        override fun onCameraOpened(options: CameraOptions) {
-//            super.onCameraOpened(options)
-//            supportedFlash = options.supportedFlash.sortedBy { it.ordinal }.toList()
-//            torchSwitch.showIf { options.supportedFlash.size > 1 }
-//        }
-//
-//        override fun onPictureTaken(result: PictureResult) {
-//            super.onPictureTaken(result)
-//            ResultCheckSaver(requireActivity(), result, cameraBuilder, this::onCheckSaved)
-//                .checkSave()
-//        }
-//
-//        private fun onCheckSaved(resultCheckSaver: ResultCheckSaver) {
-//            if (!resultCheckSaver.checkResult) {
-//                onVerificationFailed()
-//            } else {
-//                cameraViewModel.onFileSaved(resultCheckSaver.photoFile, resultCheckSaver.thumbsFile)
-//            }
-//        }
-//
-//        override fun onCameraError(exception: CameraException) {
-//            super.onCameraError(exception)
-//            AlertDialog.Builder(activity, cameraBuilder.dialogTheme)
-//                .setTitle(android.R.string.dialog_alert_title)
-//                .setMessage(exception.localizedMessage)
-//                .setPositiveButton(android.R.string.ok) { dialog, _ ->
-//                    dialog.dismiss()
-//                }
-//                .create()
-//                .show()
-//        }
-//
-//        //Rotate items on screen if orientation locked
-//        override fun onOrientationChanged(orientation: Int) { TODO Обработать поворот экрана
-//            super.onOrientationChanged(orientation)
-//            if (!cameraBuilder.lockRotate) return
-//
-//            val invertAngle = when (orientation) {
-//                90 -> 270; 270 -> 90; else -> orientation
-//            }
-//            var rotAngle = cameraViewModel.rotate.value!!
-//            when (invertAngle) {
-//                (rotAngle + 90) % 360 -> rotAngle += 90
-//                (rotAngle - 90 + 360) % 360 -> rotAngle -= 90
-//                else -> rotAngle = invertAngle
-//            }
-//            cameraViewModel.rotate(rotAngle)
-//        }
-//    }
+    private fun onOrientationChanged(orientation: Int) {
+        if (!cameraBuilder.lockRotate) return
+
+        val updatedRotation = when (orientation) {
+            90 -> 270; 270 -> 90; else -> orientation
+        }
+        val lastRotation = cameraViewModel.rotate.value!!
+
+        val newRotation = when {
+            (lastRotation + 90) % 360 == updatedRotation -> lastRotation + 90
+            (lastRotation - 90 + 360) % 360 == updatedRotation -> lastRotation - 90
+            (lastRotation + 180) % 360 == updatedRotation && lastRotation < 0 -> lastRotation + 180
+            (lastRotation + 180) % 360 == updatedRotation && lastRotation > 0 -> lastRotation - 180
+            else -> updatedRotation
+        }
+        cameraViewModel.rotate(newRotation)
+    }
 }

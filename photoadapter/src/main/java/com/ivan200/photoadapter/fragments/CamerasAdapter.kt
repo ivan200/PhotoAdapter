@@ -12,6 +12,7 @@ import com.ivan200.photoadapter.R
 import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.utils.CameraSelector
 import com.ivan200.photoadapter.utils.SimpleDiffUtilCallback
+import com.ivan200.photoadapter.utils.rotateItems
 
 /**
  * @author ivan200
@@ -21,14 +22,15 @@ class CamerasAdapter(private val onCameraSelected: (SimpleCameraInfo) -> Unit) :
 
     data class SelectableCamera(
         val cameraInfo: SimpleCameraInfo,
-        val isSelected: Boolean
+        val isSelected: Boolean,
+        val rotateAngle: Int
     )
 
     var cameras: List<SelectableCamera> = listOf()
 
-    fun update(allCameras: List<SimpleCameraInfo>, current: SimpleCameraInfo) {
+    fun update(allCameras: List<SimpleCameraInfo>, current: SimpleCameraInfo, rotateAngle: Int) {
         val newList = allCameras.map {
-            SelectableCamera(it, it == current)
+            SelectableCamera(it, it == current, rotateAngle)
         }
 
         val diffCallback = SimpleDiffUtilCallback(oldList = cameras, newList = newList) { it.cameraInfo.cameraId }
@@ -68,8 +70,15 @@ class CamerasAdapter(private val onCameraSelected: (SimpleCameraInfo) -> Unit) :
             textChecked.isInvisible = camera.isSelected
             textUnchecked.isVisible = camera.isSelected
 
-            textChecked.text = camera.cameraInfo.nameSelected
-            textUnchecked.text = camera.cameraInfo.name
+            textChecked.text = camera.cameraInfo.name
+            textUnchecked.text = camera.cameraInfo.nameSelected
+
+            textChecked.rotation = camera.rotateAngle.toFloat()
+            textUnchecked.rotation = camera.rotateAngle.toFloat()
+        }
+
+        fun rotateItem(rotateAngle: Int) {
+            rotateItems(rotateAngle, textChecked, textUnchecked)
         }
 
         override fun onClick(v: View?) {

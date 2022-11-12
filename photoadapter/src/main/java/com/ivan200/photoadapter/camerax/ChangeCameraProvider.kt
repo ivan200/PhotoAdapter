@@ -215,7 +215,7 @@ class ChangeCameraProvider {
         val bd1 = BigDecimal(result.toDouble()).setScale(1, RoundingMode.HALF_UP)
         val bd2 = BigDecimal(result.toDouble()).setScale(0, RoundingMode.HALF_UP)
         val name = if (bd1.toFloat() == bd2.toFloat()) bd2.toString() else bd1.toString()
-        return name + "×"
+        return "$name×"
     }
 
     /**

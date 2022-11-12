@@ -92,7 +92,7 @@ class DisplayRotationDetector(
 
     private fun getOrientation() = context.displayCompat?.rotation ?: ROTATION_0
 
-    private companion object {
+    companion object {
         val rotationToDegree = mapOf(
             ROTATION_0 to 0,
             ROTATION_90 to 90,

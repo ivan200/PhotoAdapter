@@ -10,6 +10,8 @@ import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.util.Size
+import android.view.Surface.ROTATION_270
+import android.view.Surface.ROTATION_90
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
@@ -100,6 +102,9 @@ class CameraXView @JvmOverloads constructor(
     private val _takePictureResult = MutableLiveData<TakePictureResult>()
     override val takePictureResult: LiveData<TakePictureResult> = _takePictureResult
 
+    private val _orientationChanged = MutableLiveData<Int>()
+    override val orientationChanged: LiveData<Int> = _orientationChanged
+
     val takePictureExecutor = Executors.newSingleThreadExecutor()
 
     init {
@@ -185,8 +190,18 @@ class CameraXView @JvmOverloads constructor(
     }
 
     private fun onDisplayRotated() {
-        // TODO Поправить поворот фотки
-        imageCapture?.targetRotation = rotationDetector.deviceOrientation
+        if (builder.lockRotate) {
+            val invert = when (rotationDetector.sensorOrientation) {
+                ROTATION_90 -> ROTATION_270
+                ROTATION_270 -> ROTATION_90
+                else -> rotationDetector.sensorOrientation
+            }
+            imageCapture?.targetRotation = invert
+        } else {
+            imageCapture?.targetRotation = rotationDetector.deviceOrientation
+        }
+
+        _orientationChanged.postValue(DisplayRotationDetector.rotationToDegree[rotationDetector.sumOrientation])
     }
 
     fun setUiOnPermission() {

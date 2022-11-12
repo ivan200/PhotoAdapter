@@ -66,6 +66,9 @@ class CameraImplOntario @JvmOverloads constructor(
     private val _takePictureResult = MutableLiveData<TakePictureResult>()
     override val takePictureResult: LiveData<TakePictureResult> = _takePictureResult
 
+    private val _orientationChanged = MutableLiveData<Int>()
+    override val orientationChanged: LiveData<Int> = _orientationChanged
+
     init {
         audio = Audio.OFF
         setAutoFocusMarker(DefaultAutoFocusMarker())
@@ -287,6 +290,10 @@ class CameraImplOntario @JvmOverloads constructor(
                     }
                 }
             ).save()
+        }
+
+        override fun onOrientationChanged(orientation: Int) {
+            _orientationChanged.postValue(orientation)
         }
     }
 
