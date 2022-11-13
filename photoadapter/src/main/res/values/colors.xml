@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorBackgroundDark">#212121</color>
+    <color name="color_background_dark">#212121</color>
     <color name="text_shadow">#7F000000</color>
-    <color name="colorTransparent">#00000000</color>
-    <color name="ColorBackgroundGrey50">#fafafa</color>
+    <color name="color_transparent">#00000000</color>
+    <color name="color_background_grey_50">#fafafa</color>
 
-    <color name="colorCameraLayout">#000000</color>
-    <color name="colorActionLayout">#00000000</color>
-    <color name="colorCameraBackground">#000000</color>
+    <color name="color_camera_layout">#000000</color>
+    <color name="color_action_layout">#00000000</color>
+    <color name="color_camera_background">#000000</color>
 
-    <color name="icActive">#FFFFFFFF</color>
-    <color name="icFocused">#DDFFFFFF</color>
-    <color name="icPressed">#AAFFFFFF</color>
+    <color name="ic_active">#FFFFFFFF</color>
+    <color name="ic_focused">#DDFFFFFF</color>
+    <color name="ic_pressed">#AAFFFFFF</color>
 
-    <color name="colorCamerasBackground">#50212121</color>
+    <color name="color_cameras_background">#50212121</color>
 
-    <color name="colorCircleIconNormal">#50212121</color>
-    <color name="colorCircleIconPressed">#50777777</color>
+    <color name="color_circle_icon_normal">#212121</color>
+    <color name="color_circle_icon_pressed">#777777</color>
+
+    <color name="circle_icon_fullscreen_transparency">#50212121</color>
 
 </resources>

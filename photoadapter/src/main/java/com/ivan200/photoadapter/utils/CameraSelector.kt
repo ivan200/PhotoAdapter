@@ -34,14 +34,14 @@ class CameraSelector @JvmOverloads constructor(
         private set
 
     @ColorInt
-    private var checkboxSquareBackground = context.getColorCompat(R.color.colorCircleIconNormal)
+    private var camerasBackground = context.getColorCompat(R.color.color_circle_icon_normal)
 
     @ColorInt
-    private var checkboxSquareCheck = context.getColorCompat(R.color.ColorBackgroundGrey50)
+    private var selectedCameraBackground = context.getColorCompat(R.color.color_background_grey_50)
 
     fun setColors(@ColorInt checked: Int, @ColorInt check: Int) {
-        checkboxSquareBackground = checked
-        checkboxSquareCheck = check
+        camerasBackground = checked
+        selectedCameraBackground = check
     }
 
     @Keep
@@ -104,7 +104,7 @@ class CameraSelector @JvmOverloads constructor(
 
         drawCanvas.drawCircle(half, half, half * progress, checkboxSquare_checkPaint)
 
-        checkboxSquare_checkPaint.color = checkboxSquareCheck
+        checkboxSquare_checkPaint.color = selectedCameraBackground
 
         canvas.drawBitmap(drawBitmap, 0f, 0f, null)
     }

@@ -429,6 +429,9 @@ class CameraXView @JvmOverloads constructor(
         }
     }
 
+
+    override val isBlurring: Boolean get() = blurView.isVisible
+
     fun showBlur(onNext: () -> Unit) {
         if (!builder.blurOnSwitch) {
             onNext.invoke()

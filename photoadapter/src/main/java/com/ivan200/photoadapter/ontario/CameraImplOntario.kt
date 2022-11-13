@@ -177,6 +177,10 @@ class CameraImplOntario @JvmOverloads constructor(
         // ontario does not support multiple same facing cameras
     }
 
+    //since ontario have no callback at camera starts streaming, we can not blur previous snapshot
+    override val isBlurring: Boolean
+        get() = false
+
     override fun selectCamera(camera: SimpleCameraInfo) {
         val currentFacing = cameraInfo.value?.cameraFacing
         if (currentFacing != null && camera.cameraFacing != currentFacing) {

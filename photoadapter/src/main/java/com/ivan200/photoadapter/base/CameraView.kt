@@ -50,6 +50,7 @@ class CameraView @JvmOverloads constructor(
     override fun setFlash(flash: FlashDelegate.HasFlash) = impl.setFlash(flash)
     override fun restart() = impl.restart()
     override val orientationChanged: LiveData<Int> = impl.orientationChanged
+    override val isBlurring: Boolean get() = impl.isBlurring
 
     companion object {
         /** this is workaround to chose implementation before view is created */

@@ -212,3 +212,4 @@ inline fun <reified T : Parcelable> Intent.parcelableArrayCompat(key: String): A
 inline val <T : Any> T.TAG: String get() = this::class.java.simpleName
 inline val <T : Any> T.logger: Logger get() = Logger.getLogger(this.TAG)
 inline fun <T : Any> T.log(value: Any) = logger.log(Level.INFO, value.toString())
+inline fun <T : Any> T.log(tag: String, value: Any) = Logger.getLogger(tag).log(Level.INFO, value.toString())

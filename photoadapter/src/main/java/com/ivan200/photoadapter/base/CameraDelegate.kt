@@ -29,4 +29,5 @@ interface CameraDelegate {
     val takePictureResult: LiveData<TakePictureResult>
     fun setFlash(flash: FlashDelegate.HasFlash)
     val orientationChanged: LiveData<Int>
+    val isBlurring: Boolean
 }

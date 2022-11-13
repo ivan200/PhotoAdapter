@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="@color/colorCircleIconPressed">
+    android:color="@color/color_circle_icon_pressed">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/colorCircleIconNormal" />
+            <solid android:color="@color/color_circle_icon_normal" />
             <corners android:radius="@dimen/size_icon_radius" />
         </shape>
-        <ripple android:color="@color/colorCircleIconPressed"/>
+        <ripple android:color="@color/color_circle_icon_pressed" />
     </item>
 </ripple>

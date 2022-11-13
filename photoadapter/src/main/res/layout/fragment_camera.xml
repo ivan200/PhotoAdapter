@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorCameraBackground">
+    android:background="@color/color_camera_background">
 
     <View
         android:id="@+id/statusView"
@@ -71,7 +71,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.5"
-        android:background="@color/colorCameraBackground"
+        android:background="@color/color_camera_background"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -97,7 +97,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
-        android:background="@color/colorActionLayout"
+        android:background="@color/color_action_layout"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:visibility="visible">
@@ -132,7 +132,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:background="@color/colorTransparent"
+            android:background="@color/color_transparent"
             android:clickable="true"
             android:contentDescription="@string/photo_capture_description"
             android:focusable="true"

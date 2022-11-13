@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import com.ivan200.photoadapter.CameraBuilder
@@ -144,7 +145,7 @@ open class PermissionsDelegate(
             else -> 0
         }
 
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, dialogTheme)
+        val dialog = AlertDialog.Builder(activity, dialogTheme)
             .setTitle(titleId)
             .setIconAttribute(android.R.attr.alertDialogIcon)
             .setMessage(messageId)

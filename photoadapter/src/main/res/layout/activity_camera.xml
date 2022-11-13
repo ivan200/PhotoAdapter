@@ -4,7 +4,7 @@
     android:id="@+id/content_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorCameraBackground"
+    android:background="@color/color_camera_background"
     android:keepScreenOn="true"
     tools:activity="com.ivan200.photoadapter.CameraActivity">
 

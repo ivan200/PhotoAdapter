@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorCameraBackground">
+    android:background="@color/color_camera_background">
 
     <View
         android:id="@+id/statusView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"/>
+        android:layout_height="0dp" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager_images"
@@ -38,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
-        android:background="@color/colorActionLayout"
+        android:background="@color/color_action_layout"
         android:gravity="left"
         android:orientation="vertical"
         android:visibility="visible"
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:background="@color/colorTransparent"
+            android:background="@color/color_transparent"
             android:clickable="true"
             android:focusable="true"
             android:paddingLeft="@dimen/margin_default"
@@ -69,7 +69,7 @@
                 android:layout_width="@dimen/size_icon_bounding"
                 android:layout_height="@dimen/size_icon_bounding"
                 android:layout_gravity="center"
-                android:background="?selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_icon_gray"
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="center"
@@ -89,7 +89,7 @@
                 android:layout_width="@dimen/size_icon_bounding"
                 android:layout_height="@dimen/size_icon_bounding"
                 android:layout_gravity="center"
-                android:background="?selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_icon_gray"
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="center"

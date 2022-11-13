@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
 import android.widget.RelativeLayout
+import androidx.core.graphics.alpha
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -17,6 +18,7 @@ import com.ivan200.photoadapter.CameraViewModel
 import com.ivan200.photoadapter.R
 import com.ivan200.photoadapter.base.FragmentChangeState
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
+import com.ivan200.photoadapter.utils.getColorCompat
 import com.ivan200.photoadapter.utils.onClick
 import com.ivan200.photoadapter.utils.padBottomViewWithInsets
 import com.ivan200.photoadapter.utils.padTopViewWithInsets
@@ -67,6 +69,9 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
                     addRule(it, 0)
                 }
             }
+            val alpha = view.context.getColorCompat(R.color.circle_icon_fullscreen_transparency).alpha
+            btnMore.background.alpha = alpha
+            btnDelete.background.alpha = alpha
         }
         indicator.setViewPager(pagerImages)
         pagerAdapter.registerAdapterDataObserver(indicator.adapterDataObserver)

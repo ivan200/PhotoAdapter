@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.alpha
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -30,6 +31,7 @@ import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.utils.ANIMATION_FAST_MILLIS
 import com.ivan200.photoadapter.utils.ANIMATION_SLOW_MILLIS
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
+import com.ivan200.photoadapter.utils.getColorCompat
 import com.ivan200.photoadapter.utils.lockOrientation
 import com.ivan200.photoadapter.utils.onClick
 import com.ivan200.photoadapter.utils.padBottomViewWithInsets
@@ -98,6 +100,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                     addRule(it, 0)
                 }
             }
+            switchCamera.background.alpha = view.context.getColorCompat(R.color.circle_icon_fullscreen_transparency).alpha
         }
 
         cameraViewModel.curPageLoaded.observe(requireActivity()) {
@@ -124,12 +127,11 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                     }
                 }
                 CameraViewState.Initializing -> {
-                    if (!cameraBuilder.blurOnSwitch) {
+                    if (cameraBuilder.blurOnSwitch) {
+                        initText.isVisible = !cameraView.isBlurring
+                    } else {
                         initText.isVisible = true
                     }
-
-//                    switchCamera.isVisible = false
-//                    torchSwitch.isVisible = false
                 }
                 CameraViewState.NoPermissions -> {
                     initText.isVisible = false
