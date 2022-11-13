@@ -123,7 +123,6 @@
                 android:scaleType="center"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_photo_camera_rear"
-                app:tint="@android:color/white"
                 tools:visibility="visible" />
         </FrameLayout>
 

@@ -19,6 +19,9 @@ import com.ivan200.photoadapter.base.CameraViewState
 import com.ivan200.photoadapter.base.CaptureError
 import com.ivan200.photoadapter.base.FacingDelegate
 import com.ivan200.photoadapter.base.FlashDelegate
+import com.ivan200.photoadapter.base.ScaleDelegate
+import com.ivan200.photoadapter.base.ScaleDelegate.FILL
+import com.ivan200.photoadapter.base.ScaleDelegate.FIT
 import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.utils.ImageUtils
@@ -98,7 +101,7 @@ class CameraImplOntario @JvmOverloads constructor(
     override fun setCameraBuilder(cameraBuilder: CameraBuilder) {
         this.builder = cameraBuilder
         val selectors = mutableListOf<SizeSelector>()
-        setFitMode(!cameraBuilder.fillPreview)
+        setScaleType(if (cameraBuilder.fillPreview) FILL else FIT)
         if (cameraBuilder.fullScreenMode) {
             selectors.add(
                 SizeSelectors.aspectRatio(AspectRatio.of(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels), 0.1f)
@@ -124,16 +127,22 @@ class CameraImplOntario @JvmOverloads constructor(
         facing = if (cameraBuilder.facingBack) Facing.BACK else Facing.FRONT
     }
 
-    override fun setFitMode(fit: Boolean) {
-        layoutParams.apply {
-            width = if (fit) WRAP_CONTENT else MATCH_PARENT
-            height = if (fit) WRAP_CONTENT else MATCH_PARENT
+    override fun setScaleType(scale: ScaleDelegate) {
+        when (scale) {
+            FIT -> layoutParams.apply {
+                width = WRAP_CONTENT
+                height = WRAP_CONTENT
+            }
+            FILL -> layoutParams.apply {
+                width = MATCH_PARENT
+                height = MATCH_PARENT
+            }
         }
         requestLayout()
     }
 
-    override val isFit: Boolean
-        get() = layoutParams.width == WRAP_CONTENT
+    override val scaleType: ScaleDelegate
+        get() = if (layoutParams.width == WRAP_CONTENT) FIT else FILL
 
     override fun setLifecycleOwner(owner: LifecycleOwner?) {
         if (!ImageUtils.isCameraAvailable(context) || facings.isEmpty()) {

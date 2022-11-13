@@ -26,6 +26,8 @@ import com.ivan200.photoadapter.base.CameraView
 import com.ivan200.photoadapter.base.CameraViewState
 import com.ivan200.photoadapter.base.FlashDelegate
 import com.ivan200.photoadapter.base.FragmentChangeState
+import com.ivan200.photoadapter.base.ScaleDelegate
+import com.ivan200.photoadapter.base.ScaleDelegate.*
 import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.utils.ANIMATION_FAST_MILLIS
@@ -185,8 +187,14 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
         if (cameraBuilder.allowToggleFit) {
             buttonFit.isVisible = true
+            setScaleTypeIcon(cameraView.scaleType)
             buttonFit.setOnClickListener {
-                cameraView.setFitMode(!cameraView.isFit)
+                val newScaleType = when (cameraView.scaleType) {
+                    FIT -> FILL
+                    FILL -> FIT
+                }
+                cameraView.setScaleType(newScaleType)
+                setScaleTypeIcon(newScaleType)
             }
         }
 
@@ -227,6 +235,11 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         capture.onClick(this::takePicture)
         torchSwitch.onClick(this::nextFlash)
         resultImage.onClick(this::showGallery)
+    }
+
+    private fun setScaleTypeIcon(scaleType: ScaleDelegate) {
+        buttonFit.setImageResource(scaleType.iconRes)
+        buttonFit.contentDescription = getString(scaleType.descriptionRes)
     }
 
     private fun loadThumbImage(pictureInfo: PictureInfo?) {

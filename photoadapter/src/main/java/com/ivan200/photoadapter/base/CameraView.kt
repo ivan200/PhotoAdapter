@@ -38,7 +38,8 @@ class CameraView @JvmOverloads constructor(
     override val state: LiveData<CameraViewState> get() = impl.state
     override val cameraInfo: LiveData<SimpleCameraInfo> get() = impl.cameraInfo
     override val cameraInfoList: Map<FacingDelegate, List<SimpleCameraInfo>> get() = impl.cameraInfoList
-    override fun setFitMode(fit: Boolean) = impl.setFitMode(fit)
+    override fun setScaleType(scale: ScaleDelegate) = impl.setScaleType(scale)
+    override val scaleType: ScaleDelegate get() = impl.scaleType
     override fun setLifecycleOwner(owner: LifecycleOwner?) = impl.setLifecycleOwner(owner)
     override fun setCameraBuilder(cameraBuilder: CameraBuilder) = impl.setCameraBuilder(cameraBuilder)
     override fun changeFacing() = impl.changeFacing()
@@ -46,7 +47,6 @@ class CameraView @JvmOverloads constructor(
     override fun selectCamera(camera: SimpleCameraInfo) = impl.selectCamera(camera)
     override fun takePicture() = impl.takePicture()
     override val takePictureResult: LiveData<TakePictureResult> get() = impl.takePictureResult
-    override val isFit: Boolean get() = impl.isFit
     override fun setFlash(flash: FlashDelegate.HasFlash) = impl.setFlash(flash)
     override fun restart() = impl.restart()
     override val orientationChanged: LiveData<Int> = impl.orientationChanged

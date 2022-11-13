@@ -14,8 +14,8 @@ interface CameraDelegate {
     /**
      * fit camera into view (false = fill) fill by default
      */
-    fun setFitMode(fit: Boolean)
-    val isFit: Boolean
+    fun setScaleType(scale: ScaleDelegate)
+    val scaleType: ScaleDelegate
 
     fun setLifecycleOwner(owner: LifecycleOwner?)
     fun setCameraBuilder(cameraBuilder: CameraBuilder)

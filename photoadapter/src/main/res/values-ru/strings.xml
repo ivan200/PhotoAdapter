@@ -26,8 +26,10 @@
     <string name="photo_torch_auto_description">Вспышка автоматическая</string>
     <string name="photo_torch_torch_description">Фонарик включён</string>
 
-    <string name="photo_result">Просмотреть результат</string>
+    <string name="photo_scale_type_fill">Заполнить область просмотра</string>
+    <string name="photo_scale_type_fit">Вместить область просмотра</string>
 
+    <string name="photo_result">Просмотреть результат</string>
     <string name="camera_init_text">Инициализация</string>
 
 </resources>

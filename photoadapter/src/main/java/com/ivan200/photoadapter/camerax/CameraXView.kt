@@ -48,6 +48,9 @@ import com.ivan200.photoadapter.base.CameraViewState
 import com.ivan200.photoadapter.base.CaptureError
 import com.ivan200.photoadapter.base.FacingDelegate
 import com.ivan200.photoadapter.base.FlashDelegate
+import com.ivan200.photoadapter.base.ScaleDelegate
+import com.ivan200.photoadapter.base.ScaleDelegate.FILL
+import com.ivan200.photoadapter.base.ScaleDelegate.FIT
 import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.camerax.touch.TouchHandler
@@ -147,18 +150,21 @@ class CameraXView @JvmOverloads constructor(
         }
     }
 
-    override fun setFitMode(fit: Boolean) {
-        if (fit) {
-            viewFinder.scaleType = PreviewView.ScaleType.FIT_CENTER
-            blurView.scaleType = ImageView.ScaleType.FIT_CENTER
-        } else {
-            viewFinder.scaleType = PreviewView.ScaleType.FILL_CENTER
-            blurView.scaleType = ImageView.ScaleType.CENTER_CROP
+    override fun setScaleType(scale: ScaleDelegate) {
+        when (scale) {
+            FIT -> {
+                viewFinder.scaleType = PreviewView.ScaleType.FIT_CENTER
+                blurView.scaleType = ImageView.ScaleType.FIT_CENTER
+            }
+            FILL -> {
+                viewFinder.scaleType = PreviewView.ScaleType.FILL_CENTER
+                blurView.scaleType = ImageView.ScaleType.CENTER_CROP
+            }
         }
     }
 
-    override val isFit: Boolean
-        get() = viewFinder.scaleType == PreviewView.ScaleType.FIT_CENTER
+    override val scaleType: ScaleDelegate
+        get() = if (viewFinder.scaleType == PreviewView.ScaleType.FIT_CENTER) FIT else FILL
 
     override fun setLifecycleOwner(owner: LifecycleOwner?) {
         if (!ImageUtils.isCameraAvailable(context)) {
@@ -184,7 +190,7 @@ class CameraXView @JvmOverloads constructor(
     override fun setCameraBuilder(cameraBuilder: CameraBuilder) {
         this.builder = cameraBuilder
 
-        setFitMode(!cameraBuilder.fillPreview)
+        setScaleType(if (cameraBuilder.fillPreview) FILL else FIT)
     }
 
     private fun onDisplayRotated() {
