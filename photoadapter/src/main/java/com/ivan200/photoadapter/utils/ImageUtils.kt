@@ -2,6 +2,7 @@
 
 package com.ivan200.photoadapter.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -14,7 +15,6 @@ import android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK
 import android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CameraMetadata
 import android.os.Build
 import android.renderscript.Allocation
 import android.renderscript.Element
@@ -43,28 +43,6 @@ import kotlin.math.min
 
 @Suppress("MemberVisibilityCanBePrivate")
 object ImageUtils {
-
-    fun allowCamera2Support(activity: Context): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return false
-
-        (activity.getSystemService(Context.CAMERA_SERVICE) as? CameraManager)?.apply {
-            try {
-                cameraIdList.firstOrNull()?.let {
-                    val characteristics = getCameraCharacteristics(it)
-                    val support = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
-                    if (support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL ||
-                        support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3
-                    ) {
-                        return true
-                    }
-                }
-            } catch (ex: Throwable) {
-                return false
-            }
-        }
-        return false
-    }
-
     @Suppress("DEPRECATION")
     fun getFacingsOldWay(): Set<FacingDelegate> {
         val facings = mutableSetOf<FacingDelegate>()
@@ -79,7 +57,7 @@ object ImageUtils {
     }
 
     fun getFacings(context: Context): Set<FacingDelegate> {
-        if (!isCameraAvailable(context)) {
+        if (!isCameraAvailable(context, false)) {
             return emptySet()
         }
 
@@ -105,23 +83,25 @@ object ImageUtils {
         return facings
     }
 
-    fun isCameraAvailable(context: Context): Boolean {
+    @SuppressLint("UnsupportedChromeOsCameraSystemFeature")
+    fun isCameraAvailable(context: Context, useCamera2: Boolean): Boolean {
         val hasBack = context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
         if (hasBack) return true
 
         val hasFront = context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)
         if (hasFront) return true
 
-        // external only can be used with camerax implementation, and it only used with camera2 support
-        val hasExternal = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH &&
-            context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_EXTERNAL) && // Added in API level 20
-            allowCamera2Support(context)
-        if (hasExternal) return true
+        //ontario implementation is not support external camera at all
+        if (useCamera2) {
+            val hasAny = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1
+                    && context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
+            if (hasAny) return true
 
-//      dont use PackageManager.FEATURE_CAMERA_ANY, because it addad in api 20,
-//      and on api 20 with only external camera (without front and back) it will return true
-//      and ontario implementation is not support external camera at all
-
+            // external only can be used with camerax implementation, and it only used with camera2 support
+            val hasExternal = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH
+                    && context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_EXTERNAL) // Added in API level 20
+            if (hasExternal) return true
+        }
         return false
     }
 
@@ -171,9 +151,9 @@ object ImageUtils {
         val config = context.resources.configuration
         val rotation = context.displayCompat?.rotation
         val defaultLandscapeAndIsInLandscape = (rotation == ROTATION_0 || rotation == ROTATION_180) &&
-            config.orientation == Configuration.ORIENTATION_LANDSCAPE
+                config.orientation == Configuration.ORIENTATION_LANDSCAPE
         val defaultLandscapeAndIsInPortrait = (rotation == ROTATION_90 || rotation == ROTATION_270) &&
-            config.orientation == Configuration.ORIENTATION_PORTRAIT
+                config.orientation == Configuration.ORIENTATION_PORTRAIT
         return defaultLandscapeAndIsInLandscape || defaultLandscapeAndIsInPortrait
     }
 

@@ -1,6 +1,10 @@
 package com.ivan200.photoadapter.fragments
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.LOLLIPOP
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
@@ -22,6 +26,7 @@ import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.CameraViewModel
 import com.ivan200.photoadapter.PictureInfo
 import com.ivan200.photoadapter.R
+import com.ivan200.photoadapter.base.CameraError
 import com.ivan200.photoadapter.base.CameraView
 import com.ivan200.photoadapter.base.CameraViewState
 import com.ivan200.photoadapter.base.FlashDelegate
@@ -42,6 +47,7 @@ import com.ivan200.photoadapter.utils.rotateItems
 import com.ivan200.photoadapter.utils.simulateClick
 import com.ivan200.photoadapter.utils.unlockOrientation
 import java.lang.ref.WeakReference
+
 
 //
 // Created by Ivan200 on 15.10.2019.
@@ -114,17 +120,29 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         cameraView.state.observe(viewLifecycleOwner) {
             when (it) {
                 is CameraViewState.Error -> {
-                    // TODO Обработать соостояния ошибок
                     initText.isVisible = false
                     val dialog = AlertDialog.Builder(requireActivity(), cameraBuilder.dialogTheme)
                         .setTitle(android.R.string.dialog_alert_title)
-                        .setMessage(it.error.name)
+                        .setMessage(getString(it.error.messageRes))
                         .setPositiveButton(android.R.string.ok) { dialog, _ ->
                             dialog.dismiss()
                         }
+                        .apply {
+                            if (it.error == CameraError.CAMERA_UNAVAILABLE_DO_NOT_DISTURB && SDK_INT >= LOLLIPOP) {
+                                setNeutralButton(getString(R.string.camera_go_to_settings)) { dialog, _ ->
+                                    try {
+                                        val intent = Intent("android.settings.ZEN_MODE_SETTINGS")
+                                        startActivity(intent)
+                                    } catch (ex: ActivityNotFoundException) {
+                                        //do nothing
+                                    }
+                                    dialog.dismiss()
+                                }
+                            }
+                        }
                         .create()
                     dialog.show()
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    if (SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
                     }
                 }
@@ -255,12 +273,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     }
 
     override fun onApplyInsets(insets: WindowInsetsCompat) {
-        insets.let {
-            this.insets = it
-            if (view != null) {
-                setWindowInsets(it)
-            }
-        }
+        this.insets = insets
+        view?.let { setWindowInsets(insets) }
     }
 
     private fun setWindowInsets(insets: WindowInsetsCompat) {
@@ -335,15 +349,18 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     private fun onPictureTaken(result: TakePictureResult) {
         when (result) {
             is TakePictureResult.ImageTakeException -> {
+                val message = getString(result.error.messageRes)
+                val messageTryAgain = getString(R.string.capture_error_try_again)
+                val sumMessage = "$message\n$messageTryAgain"
                 val dialog = AlertDialog.Builder(requireActivity(), cameraBuilder.dialogTheme)
                     .setTitle(android.R.string.dialog_alert_title)
-                    .setMessage(result.ex?.localizedMessage) // TODO добавить тексты
+                    .setMessage(sumMessage)
                     .setPositiveButton(android.R.string.ok) { dialog, _ ->
                         dialog.dismiss()
                     }
                     .create()
                 dialog.show()
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                if (SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                     dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
                 }
             }

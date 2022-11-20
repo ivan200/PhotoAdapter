@@ -145,7 +145,7 @@ class CameraImplOntario @JvmOverloads constructor(
         get() = if (layoutParams.width == WRAP_CONTENT) FIT else FILL
 
     override fun setLifecycleOwner(owner: LifecycleOwner?) {
-        if (!ImageUtils.isCameraAvailable(context) || facings.isEmpty()) {
+        if (!ImageUtils.isCameraAvailable(context, false) || facings.isEmpty()) {
             _state.postValue(CameraViewState.Error(CameraError.NO_CAMERA))
             return
         }

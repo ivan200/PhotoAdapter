@@ -8,7 +8,6 @@
     <string name="button_no">Нет</string>
     <string name="button_delete">Удалить</string>
 
-
     <string name="permission_camera_goto_settings_title">Разрешите доступ к камере.</string>
     <string name="permission_camera_rationale_goto_settings">Чтобы сделать фото, приложению требуется разрешение на доступ к камере. Пожалуйста, перейдите в настройки и измените настройки доступа.</string>
 
@@ -32,4 +31,21 @@
     <string name="photo_result">Просмотреть результат</string>
     <string name="camera_init_text">Инициализация</string>
 
+    <string name="camera_error_no_camera">Мы не смогли найти камеру для выбранной стороны устройства</string>
+    <string name="camera_error_unknown">Неизвестная ошибка</string>
+    <string name="camera_error_disabled">Камера отключена из-за политик устройства и не может быть открыта.</string>
+    <string name="camera_error_disconnected">Устройство камеры является съемным и было отключено от устройства Android, или служба камеры отключила соединение из-за запроса доступа с более высоким приоритетом для устройства камеры.</string>
+    <string name="camera_error_in_error_state">Выбраная камера устройста в текущий момент находится в состоянии ошибки.</string>
+    <string name="camera_error_in_use">Выбранная камера уже используется</string>
+    <string name="camera_error_max_in_use">Достигнуто общесистемное ограничение на количество открытых камер, поэтому в данный момент камеру нельзя открыть.</string>
+    <string name="camera_error_do_not_disturb">Камера недоступна из-за политик диспетчера уведомлений. Пожалуйста перейдите в настройки и выключите режим \"Не беспокоить\".</string>
+    <string name="camera_go_to_settings">Настройки</string>
+
+    <string name="capture_error_unknown">Произошла ошибка захвата изобрважения.</string>
+    <string name="capture_error_file_io">Произошла ошибка при сохранении изображения в файл.</string>
+    <string name="capture_error_failed">Произошел сбой захвата изображения.</string>
+    <string name="capture_error_camera_closed">Камера была закрыта в процессе фотографирования.</string>
+    <string name="capture_error_invalid_camera">Захват изображния был вызван не у текущей выбранной камеры.</string>
+
+    <string name="capture_error_try_again">Пожалуйста, попробуйте сделать фото ещё раз.</string>
 </resources>

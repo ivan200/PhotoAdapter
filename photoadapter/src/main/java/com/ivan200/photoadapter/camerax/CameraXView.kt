@@ -167,7 +167,7 @@ class CameraXView @JvmOverloads constructor(
         get() = if (viewFinder.scaleType == PreviewView.ScaleType.FIT_CENTER) FIT else FILL
 
     override fun setLifecycleOwner(owner: LifecycleOwner?) {
-        if (!ImageUtils.isCameraAvailable(context)) {
+        if (!ImageUtils.isCameraAvailable(context, true)) {
             _state.postValue(CameraViewState.Error(CameraError.NO_CAMERA))
             return
         }

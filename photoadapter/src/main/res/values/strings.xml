@@ -31,5 +31,23 @@
     <string name="photo_result">View result</string>
     <string name="camera_init_text">Initializing</string>
 
+    <string name="camera_error_no_camera">We couldn\'t find a camera for the selected side of the device</string>
+    <string name="camera_error_unknown">Unknown error</string>
+    <string name="camera_error_disabled">The camera is disabled due to a device policy, and cannot be opened.</string>
+    <string name="camera_error_disconnected">The camera device is removable and has been disconnected from the Android device, or the camera service has shut down the connection due to a higher-priority access request for the camera device.</string>
+    <string name="camera_error_in_error_state">The selected device camera is currently in an error state.</string>
+    <string name="camera_error_in_use">The camera device is in use already</string>
+    <string name="camera_error_max_in_use"> The system-wide limit for number of open cameras or camera resources has been reached, and more camera devices cannot be opened.</string>
+    <string name="camera_error_do_not_disturb">The camera is unavailable due to notification manager policy. Please go to settings and turn off Do Not Disturb mode.</string>
+    <string name="camera_go_to_settings">Settings</string>
+
+    <string name="capture_error_unknown">An image capture error has occurred.</string>
+    <string name="capture_error_file_io">An error occurred while saving the image to a file.</string>
+    <string name="capture_error_failed">An image capture failure has occurred.</string>
+    <string name="capture_error_camera_closed">The camera was closed while taking picture.</string>
+    <string name="capture_error_invalid_camera">The image capture was called not on the currently selected camera.</string>
+
+    <string name="capture_error_try_again">Please try to take the photo again.</string>
+
 
 </resources>
