@@ -63,6 +63,7 @@ import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.min
 
@@ -71,7 +72,7 @@ import kotlin.math.min
  * @since 24.02.2022
  */
 @TargetApi(21)
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class CameraXView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -108,7 +109,7 @@ class CameraXView @JvmOverloads constructor(
     private val _orientationChanged = MutableLiveData<Int>()
     override val orientationChanged: LiveData<Int> = _orientationChanged
 
-    val takePictureExecutor = Executors.newSingleThreadExecutor()
+    val takePictureExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
     init {
         this.background = ColorDrawable(Color.BLACK)

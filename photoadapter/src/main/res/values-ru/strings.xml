@@ -7,6 +7,8 @@
     <string name="button_yes">Да</string>
     <string name="button_no">Нет</string>
     <string name="button_delete">Удалить</string>
+    <string name="button_plus">Добавить ещё</string>
+    <string name="button_back">Назад</string>
 
     <string name="permission_camera_goto_settings_title">Разрешите доступ к камере.</string>
     <string name="permission_camera_rationale_goto_settings">Чтобы сделать фото, приложению требуется разрешение на доступ к камере. Пожалуйста, перейдите в настройки и измените настройки доступа.</string>

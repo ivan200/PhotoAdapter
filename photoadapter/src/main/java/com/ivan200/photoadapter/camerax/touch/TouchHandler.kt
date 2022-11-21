@@ -23,11 +23,11 @@ class TouchHandler(
     private val focusView: FocusView
 ) : View.OnTouchListener, TapFinder.OnTapListener, ScrollFinder.OnScrollListener, ScaleFinder.OnScaleListener {
 
-    val tapFinder = TapFinder(preview.context, this)
-    val scaleFinder = ScaleFinder(preview.context, this)
-    val scrollFinder = ScrollFinder(preview.context, this)
+    private val tapFinder = TapFinder(preview.context, this)
+    private val scaleFinder = ScaleFinder(preview.context, this)
+    private val scrollFinder = ScrollFinder(preview.context, this)
 
-    var startScrollIndex = 0
+    private var startScrollIndex = 0
 
     /**
      * Zoom camera on scale

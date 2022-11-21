@@ -68,6 +68,7 @@ class MainFragment : Fragment(R.layout.fragment_main), CameraBuilder.ImagesTaken
             blurOnSwitch = prefs.blurOnSwitch
             fillPreview = prefs.fillPreview
             allowToggleFit = prefs.allowToggleFit
+            showBackButton = prefs.showBackButton
             useSnapshot = prefs.useSnapshot
             dialogTheme = R.style.AppThemeDialog
             cameraImplSelector = if (prefs.forceCamera1) CameraImplSelector.AlwaysCamera1 else CameraImplSelector.Camera2FromApi21

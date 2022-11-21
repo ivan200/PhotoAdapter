@@ -7,7 +7,7 @@
     <string name="fillPreview_description">При включении, камера будет заполнять предпросмотр полностью. При выключении - будет вписана в экран, исходя из размеров матрицы камеры</string>
 
     <string name="allowToggleFit">Разрешить переключать режим вписывания</string>
-    <string name="allowToggleFit_description">В левом верхнем углу будет кнопка для переключения режимов: вписать превью / заполнить превью камеры</string>
+    <string name="allowToggleFit_description">В углу экрана будет кнопка для переключения режимов: вписать превью / заполнить превью камеры</string>
 
     <string name="previewImage">Предпросмотр фотографии</string>
     <string name="previewImage_description">После фотографирования будет возможность просмотреть то что получилось на фото, чтобы убедиться что фото не смазалось, с возможностью удалить.</string>
@@ -17,6 +17,9 @@
 
     <string name="changeCameraAllowed">Разрешить переключать камеру</string>
     <string name="changeCameraAllowed_description">Дать возможность переключать камеру между задней и передней.</string>
+
+    <string name="showBackButton">Показать кнопку назад</string>
+    <string name="showBackButton_description">Если включено, в левом углу экрана будет отображаться стрелочка "Назад"</string>
 
     <string name="allowMultipleImages">Разрешить несколько фото</string>
     <string name="allowMultipleImages_description">Дать возможность делать несколько фото подряд за одну сессию, с возвратом массива картинок</string>

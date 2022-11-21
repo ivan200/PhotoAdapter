@@ -45,6 +45,13 @@
         app:singleLineTitle="false" />
     <CheckBoxPreference
         android:defaultValue="true"
+        android:key="showBackButton"
+        android:summary="@string/showBackButton_description"
+        android:title="@string/showBackButton"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
+    <CheckBoxPreference
+        android:defaultValue="true"
         android:key="allowMultipleImages"
         android:summary="@string/allowMultipleImages_description"
         android:title="@string/allowMultipleImages"

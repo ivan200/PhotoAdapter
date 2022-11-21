@@ -1,6 +1,7 @@
 package com.ivan200.photoadapter.ontario
 
 import android.os.Handler
+import android.os.Looper
 import androidx.exifinterface.media.ExifInterface
 import com.otaliastudios.cameraview.PictureResult
 import com.otaliastudios.cameraview.controls.Facing
@@ -18,7 +19,7 @@ class ResultSaver(
     private var onSaved: (File) -> Unit,
     private var onSavedError: (Throwable) -> Unit
 ) {
-    private val saveHandler = Handler()
+    private val saveHandler = Handler(Looper.myLooper()!!)
 
     fun save() {
         saveInBackground {

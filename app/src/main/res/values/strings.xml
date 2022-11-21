@@ -8,7 +8,7 @@
     <string name="fillPreview_description">When turned on, the camera will fill in the preview. When turned off, it will be fit into the screen based on the camera dimensions</string>
 
     <string name="allowToggleFit">Allow to switch the fit mode</string>
-    <string name="allowToggleFit_description">In the upper left corner of the screen there will be a button to switch modes: fit preview / fill preview of the camera</string>
+    <string name="allowToggleFit_description">In the corner of the screen there will be a button to switch modes: fit preview / fill preview of the camera</string>
 
     <string name="previewImage">Preview image</string>
     <string name="previewImage_description">After taking a photo, you will be able to view result of the photo to make sure that the photo is not blurred, with the option to delete it.</string>
@@ -18,6 +18,9 @@
 
     <string name="changeCameraAllowed">Change camera allowed</string>
     <string name="changeCameraAllowed_description">Allow you to switch the camera between the back and front.</string>
+
+    <string name="showBackButton">Show back button</string>
+    <string name="showBackButton_description">If enabled, there will be back arrow in top left corner of screen.</string>
 
     <string name="allowMultipleImages">Multiple images taking</string>
     <string name="allowMultipleImages_description">Allow you to take several photos per session, with the return of an array of images.</string>

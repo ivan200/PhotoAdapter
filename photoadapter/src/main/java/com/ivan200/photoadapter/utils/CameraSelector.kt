@@ -17,6 +17,7 @@ import kotlin.math.ceil
  * Вью выбора камеры
  * аналог обычного чекбокса, но при выделении анимированно рисуется белый кружок
  */
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class CameraSelector @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -25,7 +26,7 @@ class CameraSelector @JvmOverloads constructor(
 
     private val rectF = RectF()
     private val size = ceil(context.resources.getDimension(R.dimen.size_select_camera)).toInt()
-    private val drawBitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_4444)
+    private val drawBitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
     private val drawCanvas = Canvas(drawBitmap)
     private var progress = 0f
     private var checkAnimator: ObjectAnimator? = null

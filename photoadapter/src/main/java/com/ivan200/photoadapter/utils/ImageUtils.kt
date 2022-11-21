@@ -5,7 +5,6 @@ package com.ivan200.photoadapter.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.Point
@@ -20,7 +19,6 @@ import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
-import android.util.Size
 import android.view.Surface.ROTATION_0
 import android.view.Surface.ROTATION_180
 import android.view.Surface.ROTATION_270
@@ -69,8 +67,7 @@ object ImageUtils {
             try {
                 cameraIdList.forEach {
                     val characteristics = getCameraCharacteristics(it)
-                    val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
-                    when (facing) {
+                    when (characteristics.get(CameraCharacteristics.LENS_FACING)) {
                         CameraCharacteristics.LENS_FACING_BACK -> facings.add(FacingDelegate.BACK)
                         CameraCharacteristics.LENS_FACING_FRONT -> facings.add(FacingDelegate.FRONT)
                         else -> Unit // Ontario is not support external cameras
@@ -123,12 +120,6 @@ object ImageUtils {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private const val DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun targetSize(cameraRatio: Int, targetSideSize: Int): Size = when (cameraRatio) {
-        AspectRatio.RATIO_16_9 -> Size((targetSideSize / RATIO_16_9_VALUE).toInt(), targetSideSize)
-        else -> Size((targetSideSize / RATIO_4_3_VALUE).toInt(), targetSideSize)
-    }
-
     fun Point.scaleDown(maxX: Int?, maxY: Int?): Point {
         val setX = maxX ?: x
         val setY = maxY ?: y
@@ -144,17 +135,6 @@ object ImageUtils {
             ratio >= 1 -> Point(setX, (setY / ratio).toInt())
             else -> Point((setX * ratio).toInt(), setY)
         }
-    }
-
-    /** Checking whether the system orientation of the device is landscape */
-    fun isDefaultOrientationLandscape(context: Context): Boolean {
-        val config = context.resources.configuration
-        val rotation = context.displayCompat?.rotation
-        val defaultLandscapeAndIsInLandscape = (rotation == ROTATION_0 || rotation == ROTATION_180) &&
-                config.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val defaultLandscapeAndIsInPortrait = (rotation == ROTATION_90 || rotation == ROTATION_270) &&
-                config.orientation == Configuration.ORIENTATION_PORTRAIT
-        return defaultLandscapeAndIsInLandscape || defaultLandscapeAndIsInPortrait
     }
 
     fun getExifByRotation(rotation: Int): Int = when (rotation) {
@@ -185,7 +165,6 @@ object ImageUtils {
     }
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-//    @WorkerThread
     fun blurBitmap(bitmap: Bitmap?, applicationContext: Context, radius: Float): Bitmap? {
         if (bitmap == null) return null
         try {

@@ -119,16 +119,18 @@ fun <T : Activity> T.showSystemUI() {
 
 internal fun View.padBottomViewWithInsets(insets: WindowInsetsCompat) {
     val land = this.resources.getBoolean(R.bool.is_land)
+    val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
     this.setPadding(
-        if (land) 0 else insets.systemWindowInsetLeft,
-        if (land) insets.systemWindowInsetTop else 0,
-        insets.systemWindowInsetRight,
-        insets.systemWindowInsetBottom
+        if (land) 0 else systemBars.left,
+        if (land) systemBars.top else 0,
+        systemBars.right,
+        systemBars.bottom
     )
 }
 
 internal fun View.padTopViewWithInsets(insets: WindowInsetsCompat) {
-    this.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, insets.systemWindowInsetTop)
+    val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+    this.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, systemBars.top)
 }
 
 internal fun rotateItems(angle: Int, vararg views: View) {
@@ -211,5 +213,5 @@ inline fun <reified T : Parcelable> Intent.parcelableArrayCompat(key: String): A
 //
 inline val <T : Any> T.TAG: String get() = this::class.java.simpleName
 inline val <T : Any> T.logger: Logger get() = Logger.getLogger(this.TAG)
-inline fun <T : Any> T.log(value: Any) = logger.log(Level.INFO, value.toString())
-inline fun <T : Any> T.log(tag: String, value: Any) = Logger.getLogger(tag).log(Level.INFO, value.toString())
+fun <T : Any> T.log(value: Any) = logger.log(Level.INFO, value.toString())
+fun <T : Any> T.log(tag: String, value: Any) = Logger.getLogger(tag).log(Level.INFO, value.toString())

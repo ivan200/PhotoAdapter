@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.FitWindowsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content_frame"
     android:layout_width="match_parent"
@@ -13,7 +13,8 @@
         android:name="com.ivan200.photoadapter.fragments.CameraFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:tag="CameraFragment" />
+        android:tag="CameraFragment"
+        tools:layout="@layout/fragment_camera" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/frame_gallery"
@@ -21,6 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:tag="GalleryFragment"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        tools:layout="@layout/photo_fragment_gallery" />
 
-</androidx.appcompat.widget.FitWindowsFrameLayout>
+</FrameLayout>

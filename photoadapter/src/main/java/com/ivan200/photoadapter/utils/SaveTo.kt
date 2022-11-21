@@ -38,7 +38,7 @@ sealed class SaveTo : Parcelable {
      * Save to internal storage, then copy to gallery with [album] name
      * Beginning android Q we save file to gallery via MediaStore api with RELATIVE_PATH = DCIM/AlbumName
      *
-     * prior to android Q there was not RELATIVE_PATH column in MediaStore
+     * prior to android Q there was no RELATIVE_PATH column in MediaStore
      * so we need to manually copy files into `getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)/AlbumName/`
      * folder, and if success, request gallery to find this pictures
      * if this folder is not accesible, then we try to save file to gallery via MediaStore api without AlbumName

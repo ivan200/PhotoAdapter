@@ -41,7 +41,7 @@ interface CameraImplSelector : Parcelable {
 
     /**
      * If any camera have full Camera2 support, then Camera2 otherwise Camera1
-     * Or any camera has external supported level (since Camera1 is not support it)
+     * Or if any camera has external supported level (since Camera1 is not support it)
      */
     @Parcelize
     object Camera2IfAnyFullSupport : CameraImplSelector {

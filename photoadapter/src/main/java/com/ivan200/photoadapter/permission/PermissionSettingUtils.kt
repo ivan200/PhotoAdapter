@@ -28,7 +28,7 @@ object PermissionSettingUtils {
     /**
      * Jump to miui's permission management page
      */
-    fun gotoMiuiPermission(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
+    private fun gotoMiuiPermission(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
         val intent = Intent("miui.intent.action.APP_PERM_EDITOR")
         var componentName: ComponentName
         componentName =
@@ -53,7 +53,7 @@ object PermissionSettingUtils {
     /**
      * Jump to Meizu's permission management page
      */
-    fun gotoMeizuPermission(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
+    private fun gotoMeizuPermission(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
         val intent = Intent("com.meizu.safe.newpermission.ui.AppPermissionsActivity")
         intent.action = "com.meizu.safe.security.SHOW_APPSEC"
         intent.addCategory(Intent.CATEGORY_DEFAULT)
@@ -69,7 +69,7 @@ object PermissionSettingUtils {
     /**
      * Huawei's permission management page
      */
-    fun gotoHuaweiPermission(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
+    private fun gotoHuaweiPermission(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
         try {
             val intent = Intent()
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -96,7 +96,7 @@ object PermissionSettingUtils {
      *
      * @return
      */
-    fun goToDefaultSettings(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
+    private fun goToDefaultSettings(launcher: ActivityResultLauncher<Intent>, activity: Activity, onFail: () -> Unit) {
         val intent = Intent()
             .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             .apply {

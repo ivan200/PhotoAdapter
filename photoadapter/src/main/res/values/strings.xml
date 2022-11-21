@@ -7,6 +7,8 @@
     <string name="button_yes">Yes</string>
     <string name="button_no">No</string>
     <string name="button_delete">Delete</string>
+    <string name="button_plus">Add more</string>
+    <string name="button_back">Back</string>
 
     <string name="permission_camera_goto_settings_title">Allow access to the camera.</string>
     <string name="permission_camera_rationale_goto_settings">We need to access your camera for taking photos. Please go to settings and change access settings.</string>
@@ -48,6 +50,4 @@
     <string name="capture_error_invalid_camera">The image capture was called not on the currently selected camera.</string>
 
     <string name="capture_error_try_again">Please try to take the photo again.</string>
-
-
 </resources>

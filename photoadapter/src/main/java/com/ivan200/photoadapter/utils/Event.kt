@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @author ivan200
  * @since 06.08.2022
  */
+@Suppress("unused")
 open class Event<out T>(val content: T) {
 
     private val handled = AtomicBoolean(false)

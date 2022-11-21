@@ -1,6 +1,7 @@
 package com.ivan200.photoadapterexample
 
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 
@@ -9,6 +10,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                this@MainActivity.handleOnBackPressed()
+            }
+        })
     }
 
     override fun setTitle(title: CharSequence) {
@@ -16,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.title = title
     }
 
-    override fun onBackPressed() {
+    fun handleOnBackPressed() {
         findNavController(R.id.fragment_main).let {
             if (!it.popBackStack()) finish()
         }

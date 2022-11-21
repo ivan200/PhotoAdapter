@@ -2,7 +2,6 @@ package com.ivan200.photoadapter.fragments
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.LOLLIPOP
 import android.os.Bundle
@@ -66,6 +65,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     private val actionLayout get() = requireView().findViewById<RelativeLayout>(R.id.action_layout)
     private val resultImage get() = requireView().findViewById<ImageButton>(R.id.result)
     private val buttonFit get() = requireView().findViewById<ImageButton>(R.id.btn_fit)
+    private val btnBack get() = requireView().findViewById<ImageButton>(R.id.btn_back)
     private val camerasRecycler get() = requireView().findViewById<RecyclerView>(R.id.select_camera_recycler)
 
     private val cameraViewModel: CameraViewModel by lazy {
@@ -142,7 +142,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                         }
                         .create()
                     dialog.show()
-                    if (SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    if (SDK_INT < LOLLIPOP) {
                         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
                     }
                 }
@@ -221,7 +221,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
 
         cameraViewModel.rotate.observe(requireActivity()) {
-            rotateItems(it, capture, torchSwitch, resultImage, switchCamera)
+            rotateItems(it, capture, torchSwitch, resultImage, switchCamera, buttonFit, btnBack)
 
             if (camerasRecycler.isVisible) {
                 val layoutManager = camerasRecycler.layoutManager as LinearLayoutManager
@@ -253,6 +253,13 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         capture.onClick(this::takePicture)
         torchSwitch.onClick(this::nextFlash)
         resultImage.onClick(this::showGallery)
+
+        if (cameraBuilder.showBackButton) {
+            btnBack.isVisible = true
+            btnBack.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
+        } else {
+            btnBack.isVisible = false
+        }
     }
 
     private fun setScaleTypeIcon(scaleType: ScaleDelegate) {
@@ -360,7 +367,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                     }
                     .create()
                 dialog.show()
-                if (SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                if (SDK_INT < LOLLIPOP) {
                     dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
                 }
             }

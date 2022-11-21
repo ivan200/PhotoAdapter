@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.widget.FrameLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.isInvisible
@@ -44,11 +45,11 @@ class CameraActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
 
-        ViewCompat.setOnApplyWindowInsetsListener(container) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(container) { _, insets ->
             supportFragmentManager.fragments.forEach {
                 if (it is ApplyInsetsListener) it.onApplyInsets(insets)
             }
-            return@setOnApplyWindowInsetsListener insets.consumeSystemWindowInsets()
+            return@setOnApplyWindowInsetsListener insets
         }
 
         cameraViewModel.fragmentState.observe(this, changeFragmentsObserver)
@@ -63,19 +64,33 @@ class CameraActivity : AppCompatActivity() {
             }
         }
         permissionsDelegate.initWithBuilder(cameraBuilder)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                this@CameraActivity.handleOnBackPressed()
+            }
+        })
     }
 
-    var pageLoadedObserver = Observer<PictureInfo> {
+    val pageLoadedObserver = Observer<PictureInfo> {
         if (cameraBuilder.allowPreviewResult && cameraViewModel.fragmentState.value == FragmentChangeState.WAITING_FOR_IMAGE) {
             cameraViewModel.changeState(FragmentChangeState.GALLERY)
         }
     }
 
-    var changeFragmentsObserver = Observer<FragmentChangeState> {
+    val changeFragmentsObserver = Observer<FragmentChangeState> {
         when (it!!) {
             FragmentChangeState.CAMERA -> showCamera()
             FragmentChangeState.WAITING_FOR_IMAGE -> Unit
             FragmentChangeState.GALLERY -> showGallery()
+        }
+    }
+
+    fun handleOnBackPressed() {
+        if (cameraViewModel.fragmentState.value!! == FragmentChangeState.GALLERY) {
+            cameraViewModel.backPressed()
+        } else {
+            cancel(true)
         }
     }
 
@@ -98,15 +113,6 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        // super.onBackPressed()
-        if (cameraViewModel.fragmentState.value!! == FragmentChangeState.GALLERY) {
-            cameraViewModel.backPressed()
-        } else {
-            cancel(true)
-        }
-    }
-
     fun cancel(allowDismissDialog: Boolean) {
         if (cameraViewModel.pictures.value!!.isNotEmpty()) {
             showConfirmSaveDialog(cameraViewModel::success, this::cancelActivity, allowDismissDialog)
@@ -119,11 +125,11 @@ class CameraActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this, cameraBuilder.dialogTheme)
             .setTitle(R.string.title_confirm)
             .setMessage(R.string.save_photos_dialog)
-            .setPositiveButton(R.string.button_yes) { dialog, id ->
+            .setPositiveButton(R.string.button_yes) { dialog, _ ->
                 onYes.invoke()
                 dialog.dismiss()
             }
-            .setNegativeButton(R.string.button_no) { dialog, id ->
+            .setNegativeButton(R.string.button_no) { dialog, _ ->
                 onNo.invoke()
                 dialog.dismiss()
             }
@@ -134,7 +140,7 @@ class CameraActivity : AppCompatActivity() {
             }
         dialog.show()
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            dialog.getWindow()?.setBackgroundDrawableResource(android.R.color.transparent)
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         }
     }
 
@@ -145,7 +151,7 @@ class CameraActivity : AppCompatActivity() {
         finish()
     }
 
-    var successCalledObserver = Observer<Unit?> {
+    val successCalledObserver = Observer<Unit?> {
         cameraViewModel.pictures.value!!.let { pics ->
             val uris = SaveUtils.moveImagesToGallery(this, pics.map { it.file }, cameraBuilder.saveTo)
             intent.putExtra(photosExtraName, uris.toTypedArray())

@@ -5,12 +5,16 @@ import android.content.res.Configuration.ORIENTATION_UNDEFINED
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +26,7 @@ import com.ivan200.photoadapterexample.utils.SquareImageView
 //
 // Created by Ivan200 on 14.11.2019.
 //
-class GalleryFragment : Fragment(R.layout.fragment_gallery) {
+class GalleryFragment : Fragment(R.layout.fragment_gallery), MenuProvider {
     private val recyclerView get() = requireView().findViewById<RecyclerView>(R.id.gallery_recycle)
     private val mActivity get() = activity as AppCompatActivity
 
@@ -31,7 +35,8 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        setHasOptionsMenu(true)
+
+        mActivity.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         mActivity.title = getString(R.string.gallery)
 
         recyclerView.setHasFixedSize(true)
@@ -55,12 +60,14 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         recyclerView.layoutManager = GridLayoutManager(mActivity, span)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            mActivity.onBackPressed()
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == android.R.id.home) {
+            mActivity.onBackPressedDispatcher.onBackPressed()
             return true
         }
-        return super.onOptionsItemSelected(item)
+        return false
     }
 
     class GalleryAdapter(private val images: List<String>) :

@@ -51,6 +51,7 @@ data class CameraBuilder constructor(
     var fullScreenMode: Boolean = false,
     var fillPreview: Boolean = true,
     var allowToggleFit: Boolean = true,
+    var showBackButton: Boolean = true,
     var saveTo: SaveTo = SaveTo.OnlyInternal,
     var maxWidth: Int? = null,
     var maxHeight: Int? = null,

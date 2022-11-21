@@ -169,7 +169,7 @@ class ChangeCameraProvider {
         }
     }
 
-    fun mapWithNames(sameFacingCameras: List<SimpleCameraInfo>): List<SimpleCameraInfo> {
+    private fun mapWithNames(sameFacingCameras: List<SimpleCameraInfo>): List<SimpleCameraInfo> {
         val mainCamera = sameFacingCameras.minByOrNull { it.cameraId }!!
         val canCountZoom: Boolean = sameFacingCameras.all { it.focal > 0 && it.physicalSize.x > 0 && it.physicalSize.y > 0 }
         val mainZoomValue: Float = if (canCountZoom) mainCamera.zoomValue() else 1f

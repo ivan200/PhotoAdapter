@@ -19,6 +19,7 @@ class Prefs(context: Context) {
     var flipFrontal by AnyPref(context, true)
     var forceCamera1 by AnyPref(context, false)
     var blurOnSwitch by AnyPref(context, true)
+    var showBackButton by AnyPref(context, true)
 
     var images by AnyPref(context, mutableSetOf<String>())
     var imagePreviewNumber by AnyPref(context, 0)

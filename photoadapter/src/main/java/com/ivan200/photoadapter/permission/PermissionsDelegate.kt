@@ -9,7 +9,6 @@ import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import com.ivan200.photoadapter.CameraBuilder
 import com.ivan200.photoadapter.R
@@ -28,15 +27,15 @@ import com.ivan200.photoadapter.utils.SaveTo
 open class PermissionsDelegate(
     val activity: ComponentActivity,
     savedInstanceState: Bundle?,
-    val dialogTheme: Int = 0,
-    var onPermissionResult: (ResultType) -> Unit
+    private val dialogTheme: Int = 0,
+    private var onPermissionResult: (ResultType) -> Unit
 ) {
 
     private var permissions: Array<String> = emptyArray()
     private var needToShowDialog = true
     private var permissionResults: List<Pair<String, Boolean>> = emptyList()
-    private val missingPermissions: Array<String> get() = permissionResults.filter { it.second == false }.map { it.first }.toTypedArray()
-    private val hasAllPermissions get() = permissionResults.isEmpty() || permissionResults.all { it.second == true }
+    private val missingPermissions: Array<String> get() = permissionResults.filter { !it.second }.map { it.first }.toTypedArray()
+    private val hasAllPermissions get() = permissionResults.isEmpty() || permissionResults.all { it.second }
 
     private var resultLauncher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         updatePermissionResults()
@@ -54,7 +53,7 @@ open class PermissionsDelegate(
             onPermissionResult.invoke(if (needToShowDialog) ResultType.Allow.SystemRequest else ResultType.Allow.SystemRequest2)
         } else {
             if (needToShowDialog) {
-                val missedPermission = permissionResults.first { it.second == false }.first
+                val missedPermission = permissionResults.first { !it.second }.first
                 showDialogOnPermissionRejected(missedPermission)
             } else {
                 onPermissionResult.invoke(ResultType.Denied.DeniedAfterSettings)
@@ -75,10 +74,6 @@ open class PermissionsDelegate(
         permissionResults = permissions.map {
             it to (checkSelfPermission(activity, it) == PackageManager.PERMISSION_GRANTED)
         }
-    }
-
-    private fun getRationale(): Boolean = missingPermissions.let {
-        it.isNotEmpty() && it.any { ActivityCompat.shouldShowRequestPermissionRationale(activity, it) }
     }
 
     /**
@@ -120,7 +115,7 @@ open class PermissionsDelegate(
         PermissionSettingUtils.gotoPhonePermissionSettings(resultLauncher, activity, this::canNotGoToSettings)
     }
 
-    fun canNotGoToSettings() {
+    private fun canNotGoToSettings() {
         onPermissionResult.invoke(ResultType.Denied.CanNotGoToSettings)
     }
 
@@ -128,7 +123,6 @@ open class PermissionsDelegate(
      * Show dialog on permission rejected
      *
      * @param blockedPermission string of permission which was rejected
-     * @param canReAsk          if you can call system dialog for request permission once again
      */
     open fun showDialogOnPermissionRejected(blockedPermission: String) {
         val titleId = when (blockedPermission) {
@@ -192,7 +186,6 @@ open class PermissionsDelegate(
     }
 
     private companion object {
-        const val TAG = "PermissionsDelegate"
         const val KEY_NEED_TO_SHOW_DIALOG = "KEY_NEED_TO_SHOW_DIALOG"
         const val KEY_PERMISSIONS = "KEY_PERMISSIONS"
     }

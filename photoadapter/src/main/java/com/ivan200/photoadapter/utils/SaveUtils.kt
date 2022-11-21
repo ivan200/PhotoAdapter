@@ -15,7 +15,6 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
-import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,7 +29,7 @@ object SaveUtils {
     private const val NOT_PENDING = 0
     private const val COPY_BUFFER_SIZE = 1024
 
-    fun getFileName(): String {
+    private fun getFileName(): String {
         val timeStamp = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss.SSS", Locale.US).format(Date())
         return JPEG_FILE_PREFIX + timeStamp + JPEG_FILE_SUFFIX
     }
@@ -74,7 +73,7 @@ object SaveUtils {
         }
     }
 
-    fun copyImagesToGalleryWithAlbum(
+    private fun copyImagesToGalleryWithAlbum(
         context: Context,
         images: List<File>,
         saveTo: SaveTo.ToGalleryWithAlbum
@@ -96,7 +95,7 @@ object SaveUtils {
         return copyFilesToMediastoreByUri(context, images, saveTo.album)
     }
 
-    fun getContentValues(file: File, album: String): ContentValues = ContentValues().apply {
+    private fun getContentValues(file: File, album: String): ContentValues = ContentValues().apply {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             put(MediaStore.MediaColumns.TITLE, file.name)
             put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
@@ -125,14 +124,14 @@ object SaveUtils {
         }
     }
 
-    fun File.orNullIfNotWritable(): File? = try {
+    private fun File.orNullIfNotWritable(): File? = try {
         this.mkdirs()
         if (exists() && canWrite()) this else null
     } catch (ex: Exception) {
         null
     }
 
-    fun getSaveDir(album: String): File? {
+    private fun getSaveDir(album: String): File? {
         var dir: File? = runCatching {
             val dcimDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
             File(dcimDir, album)
@@ -148,7 +147,7 @@ object SaveUtils {
         return dir
     }
 
-    fun copyFilesToOtherDir(images: List<File>, albumStorageDir: File): List<File> {
+    private fun copyFilesToOtherDir(images: List<File>, albumStorageDir: File): List<File> {
         val newImageFiles = mutableListOf<File>()
         for (image in images) {
             try {
@@ -216,7 +215,7 @@ object SaveUtils {
         if (successAll) {
             return newUris
         } else {
-            newUris.filterNotNull().forEach {
+            newUris.forEach {
                 runCatching {
                     context.contentResolver.delete(it, null, null)
                 }
@@ -225,7 +224,7 @@ object SaveUtils {
         return null
     }
 
-    fun copyFileToMediastoreByUri(context: Context, contentValues: ContentValues, file: File): Result<Uri> = runCatching {
+    private fun copyFileToMediastoreByUri(context: Context, contentValues: ContentValues, file: File): Result<Uri> = runCatching {
         val volumeUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         } else {
@@ -245,7 +244,7 @@ object SaveUtils {
         var outputStream: OutputStream? = null
         try {
             outputStream = resolver.openOutputStream(outputUri) ?: throw IOException("Failed to get output stream.")
-            Files.copy(file.toPath(), outputStream)
+            copyFileToOutputStream(file, outputStream)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 contentValues.clear()
@@ -259,5 +258,16 @@ object SaveUtils {
             outputStream?.close()
         }
         return@runCatching outputUri
+    }
+
+    @Throws(IOException::class)
+    private fun copyFileToOutputStream(tempFile: File, outputStream: OutputStream) {
+        FileInputStream(tempFile).use { stream ->
+            val buf = ByteArray(COPY_BUFFER_SIZE)
+            var len: Int
+            while (stream.read(buf).also { len = it } > 0) {
+                outputStream.write(buf, 0, len)
+            }
+        }
     }
 }

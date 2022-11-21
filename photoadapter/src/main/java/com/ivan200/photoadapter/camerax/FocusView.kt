@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.Animation
@@ -11,12 +12,14 @@ import android.view.animation.AnimationSet
 import android.view.animation.ScaleAnimation
 import android.view.animation.TranslateAnimation
 import androidx.annotation.AttrRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StyleRes
 
 /**
  * @author ivan200
  * @since 31.02.2021
  */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class FocusView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

@@ -17,17 +17,31 @@
         android:layout_height="match_parent"
         android:layout_above="@id/action_layout_gallery"
         android:layout_below="@id/statusView"
-        android:background="@color/color_camera_layout">
+        android:background="@color/color_camera_layout"
+        android:orientation="horizontal">
 
     </androidx.viewpager2.widget.ViewPager2>
 
     <me.relex.circleindicator.CircleIndicator3
         android:id="@+id/indicator"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/size_indicators"
         android:layout_above="@id/action_layout_gallery"
         android:gravity="center"
         android:visibility="gone"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="@dimen/size_icon_bounding"
+        android:layout_height="@dimen/size_icon_bounding"
+        android:layout_below="@id/statusView"
+        android:background="?selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:scaleType="center"
+        android:visibility="visible"
+        app:srcCompat="@drawable/ic_back"
         tools:visibility="visible" />
 
     <RelativeLayout
@@ -57,6 +71,7 @@
                 android:layout_gravity="center"
                 android:background="@drawable/bg_icon_gray"
                 android:clickable="true"
+                android:contentDescription="@string/button_delete"
                 android:focusable="true"
                 android:scaleType="center"
                 app:srcCompat="@drawable/ic_photo_delete" />
@@ -70,11 +85,11 @@
             android:layout_centerHorizontal="true"
             android:background="@color/color_transparent"
             android:clickable="true"
+            android:contentDescription="@string/title_confirm"
             android:focusable="true"
             android:paddingTop="@dimen/margin_default"
             android:paddingBottom="@dimen/margin_default"
             app:srcCompat="@drawable/ic_photo_accept_picture" />
-
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -92,6 +107,7 @@
                 android:layout_gravity="center"
                 android:background="@drawable/bg_icon_gray"
                 android:clickable="true"
+                android:contentDescription="@string/button_plus"
                 android:focusable="true"
                 android:scaleType="center"
                 app:srcCompat="@drawable/ic_photo_more" />

@@ -13,22 +13,38 @@
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager_images"
-        android:layout_below="@id/statusView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/statusView"
         android:layout_toLeftOf="@id/action_layout_gallery"
-        tools:ignore="RtlHardcoded"
-        >
+        android:orientation="vertical"
+        tools:ignore="RtlHardcoded">
 
     </androidx.viewpager2.widget.ViewPager2>
 
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="@dimen/size_icon_bounding"
+        android:layout_height="@dimen/size_icon_bounding"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:background="?selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="@string/button_back"
+        android:focusable="true"
+        android:scaleType="center"
+        android:visibility="visible"
+        app:srcCompat="@drawable/ic_back"
+        tools:visibility="visible" />
+
     <me.relex.circleindicator.CircleIndicator3
         android:id="@+id/indicator"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_alignParentBottom="true"
+        android:layout_width="@dimen/size_indicators"
+        android:layout_height="match_parent"
         android:layout_toLeftOf="@id/action_layout_gallery"
+        android:orientation="vertical"
         android:visibility="gone"
+        app:ci_orientation="vertical"
         tools:ignore="RtlHardcoded"
         tools:visibility="visible" />
 
@@ -52,6 +68,7 @@
             android:layout_centerVertical="true"
             android:background="@color/color_transparent"
             android:clickable="true"
+            android:contentDescription="@string/title_confirm"
             android:focusable="true"
             android:paddingLeft="@dimen/margin_default"
             android:paddingRight="@dimen/margin_default"
@@ -71,6 +88,7 @@
                 android:layout_gravity="center"
                 android:background="@drawable/bg_icon_gray"
                 android:clickable="true"
+                android:contentDescription="@string/button_plus"
                 android:focusable="true"
                 android:scaleType="center"
                 app:srcCompat="@drawable/ic_photo_more" />
@@ -91,6 +109,7 @@
                 android:layout_gravity="center"
                 android:background="@drawable/bg_icon_gray"
                 android:clickable="true"
+                android:contentDescription="@string/button_delete"
                 android:focusable="true"
                 android:scaleType="center"
                 app:srcCompat="@drawable/ic_photo_delete" />

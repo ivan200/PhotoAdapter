@@ -18,8 +18,8 @@ import com.ivan200.photoadapter.utils.displayCompat
  */
 @TargetApi(21)
 class DisplayRotationDetector(
-    val context: Context,
-    var onOrientationChangedListener: Runnable? = null
+    private val context: Context,
+    private var onOrientationChangedListener: Runnable? = null
 ) : DisplayManager.DisplayListener {
 
     var sensorOrientation: Int = ROTATION_0

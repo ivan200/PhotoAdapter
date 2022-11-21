@@ -3,6 +3,7 @@
 
     <dimen name="size_icon_radius">28dp</dimen>
 
+    <dimen name="size_indicators">48dp</dimen>
     <dimen name="height_toolbar">56dp</dimen>
     <dimen name="margin_default">16dp</dimen>
 

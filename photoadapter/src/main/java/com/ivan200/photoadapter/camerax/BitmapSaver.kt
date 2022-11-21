@@ -2,6 +2,7 @@ package com.ivan200.photoadapter.camerax
 
 import android.graphics.Bitmap
 import android.os.Handler
+import android.os.Looper
 import androidx.exifinterface.media.ExifInterface
 import com.ivan200.photoadapter.utils.ImageUtils.scaleBitmap
 import java.io.File
@@ -21,7 +22,7 @@ class BitmapSaver(
     private val onSaved: (File) -> Unit,
     private val onSavedError: (Throwable) -> Unit
 ) {
-    private val saveHandler = Handler()
+    private val saveHandler = Handler(Looper.myLooper()!!)
 
     fun save() {
         saveInBackground {

@@ -16,12 +16,12 @@ import com.ivan200.photoadapter.utils.SimpleRequestListener
 //
 // Created by Ivan200 on 16.10.2019.
 //
-class GalleryAdapter(var onCurrentPageLoaded: ((PictureInfo) -> Unit)? = null) : RecyclerView.Adapter<PagerVH>() {
+class GalleryAdapter(private var onCurrentPageLoaded: ((PictureInfo) -> Unit)? = null) : RecyclerView.Adapter<PagerVH>() {
 
     inner class PagerVH(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-    var images: List<PictureInfo> = arrayListOf()
-    var curPos = 0
+    private var images: List<PictureInfo> = arrayListOf()
+    private var curPos = 0
 
     //remove images - with animation, add images - without, to smooth change fragments
     @SuppressLint("NotifyDataSetChanged")

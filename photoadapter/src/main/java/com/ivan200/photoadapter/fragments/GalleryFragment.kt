@@ -42,6 +42,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
     private val btnAccept get() = requireView().findViewById<ImageButton>(R.id.btn_accept)
     private val btnDelete get() = requireView().findViewById<ImageButton>(R.id.btn_deletePicture)
     private val btnMore get() = requireView().findViewById<ImageButton>(R.id.btn_more)
+    private val btnBack get() = requireView().findViewById<ImageButton>(R.id.btn_back)
     private val indicator get() = requireView().findViewById<CircleIndicator3>(R.id.indicator)
     private val actionLayout get() = requireView().findViewById<RelativeLayout>(R.id.action_layout_gallery)
 
@@ -108,15 +109,22 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
         }
 
         cameraViewModel.rotate.observe(requireActivity()) {
-            rotateItems(it, btnAccept, btnDelete, btnMore)
+            rotateItems(it, btnAccept, btnDelete, btnMore, btnBack)
         }
 
         insets?.let {
             setWindowInsets(it)
         }
+
+        if (cameraBuilder.showBackButton) {
+            btnBack.isVisible = true
+            btnBack.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
+        } else {
+            btnBack.isVisible = false
+        }
     }
 
-    fun onMorePhotosPressed() {
+    private fun onMorePhotosPressed() {
         if (cameraBuilder.allowMultipleImages) {
             cameraViewModel.needScrollToPage(0)
             cameraViewModel.changeState(FragmentChangeState.CAMERA)
@@ -136,26 +144,26 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
         }
     }
 
-    fun setWindowInsets(insets: WindowInsetsCompat) {
+    private fun setWindowInsets(insets: WindowInsetsCompat) {
         actionLayout.padBottomViewWithInsets(insets)
         if (!cameraBuilder.fullScreenMode) {
             statusView.padTopViewWithInsets(insets)
         }
     }
 
-    fun showDialogDeletePage(onOk: () -> Unit) {
+    private fun showDialogDeletePage(onOk: () -> Unit) {
         val dialog = AlertDialog.Builder(activity, cameraBuilder.dialogTheme)
             .setTitle(R.string.title_confirm)
             .setMessage(R.string.delete_dialog)
-            .setPositiveButton(R.string.button_yes) { dialog, id ->
+            .setPositiveButton(R.string.button_yes) { dialog, _ ->
                 onOk.invoke()
                 dialog.dismiss()
             }
-            .setNegativeButton(android.R.string.cancel) { dialog, id -> dialog.dismiss() }
+            .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.dismiss() }
             .create()
         dialog.show()
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            dialog.getWindow()?.setBackgroundDrawableResource(android.R.color.transparent)
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         }
     }
 }
