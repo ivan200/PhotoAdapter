@@ -1,6 +1,0 @@
-include ':app', ':photoadapter'
-rootProject.name='PhotoAdapterExample'
-
-//project(':photoadapter').projectDir = new File(settingsDir, '../max_modules/photoadapter')
-
-
