@@ -7,6 +7,7 @@ plugins {
 android {
     namespace = ("com.ivan200.photoadapterexample")
     compileSdk = rootProject.extra.get("compileSdkVersion") as Int
+    @Suppress("UnstableApiUsage")
     defaultConfig {
         applicationId = "com.ivan200.photoadapterexample"
         minSdk = rootProject.extra.get("minSdkVersion") as Int
@@ -17,6 +18,7 @@ android {
         multiDexEnabled = true
     }
     buildTypes {
+        @Suppress("UnstableApiUsage")
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -29,7 +31,7 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
     //appcompat
-    implementation("androidx.appcompat:appcompat:1.5.1")
+    implementation("androidx.appcompat:appcompat:1.6.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     //multidex
