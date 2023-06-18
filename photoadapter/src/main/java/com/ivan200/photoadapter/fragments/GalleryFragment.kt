@@ -55,6 +55,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
 
         cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
         pagerAdapter = GalleryAdapter(cameraViewModel::updateOnCurrentPageLoaded)
+
         pagerImages.adapter = pagerAdapter
         pagerImages.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -77,8 +78,11 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
         indicator.setViewPager(pagerImages)
         pagerAdapter.registerAdapterDataObserver(indicator.adapterDataObserver)
 
+        pagerAdapter.update(cameraViewModel.pictures.value!!, cameraViewModel.imageNumber)
+        pagerImages.setCurrentItem(cameraViewModel.imageNumber, false)
+
         cameraViewModel.pictures.observe(requireActivity()) {
-            if (it.size == 0) {
+            if (it.isEmpty()) {
                 cameraViewModel.changeState(FragmentChangeState.CAMERA)
             }
             indicator.isVisible = it.size > 1
@@ -89,8 +93,10 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
             showDialogDeletePage(cameraViewModel::deleteCurrentPage)
         }
 
-        cameraViewModel.scrollToPage.observe(requireActivity()) {
-            pagerImages.setCurrentItem(cameraViewModel.imageNumber, false)
+        cameraViewModel.scrollToFirstPage.observe(requireActivity()) {
+            it?.let {
+                pagerImages.setCurrentItem(cameraViewModel.imageNumber, false)
+            }
         }
 
         btnMore.isVisible = cameraBuilder.allowMultipleImages
@@ -102,8 +108,8 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
             it.get()?.apply { onMorePhotosPressed() }
         }
 
-        cameraViewModel.volumeKeyPressed.observe(requireActivity()) {
-            if (cameraViewModel.fragmentState.value == FragmentChangeState.GALLERY) {
+        cameraViewModel.acceptSimulate.observe(requireActivity()) {
+            it.get()?.let {
                 btnAccept.simulateClick()
             }
         }
@@ -126,7 +132,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
 
     private fun onMorePhotosPressed() {
         if (cameraBuilder.allowMultipleImages) {
-            cameraViewModel.needScrollToPage(0)
+            cameraViewModel.needScrollToFirstPage()
             cameraViewModel.changeState(FragmentChangeState.CAMERA)
         } else {
             showDialogDeletePage {

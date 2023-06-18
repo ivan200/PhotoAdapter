@@ -28,6 +28,7 @@ import kotlinx.parcelize.Parcelize
  * @param fullScreenMode      full screen (16/9) or normal (4/3) mode
  * @param fillPreview         fill camera surfaceView into screen
  * @param allowToggleFit      allow toggle between fit preview/fill preview
+ * @param showBackButton      show back button in top left corner
  * @param saveTo              where will the images be saved
  * @param maxWidth            preferred result image max width
  * @param maxHeight           preferred result image max height
@@ -38,7 +39,8 @@ import kotlinx.parcelize.Parcelize
  * @param cameraImplSelector  selector of camera implementation
  * @param flipFrontResult     does flipping of front image are enabled
  *
- * Created by Ivan200 on 11.10.2019.
+ * @author Ivan200
+ * @since  11.10.2019
  */
 @Suppress("unused")
 @Parcelize
@@ -63,43 +65,81 @@ data class CameraBuilder constructor(
     var cameraImplSelector: CameraImplSelector = CameraImplSelector.Camera2FromApi21,
     var flipFrontResult: Boolean = true
 ) : Parcelable {
-    constructor() : this(facingBack = true) // explicit "empty" constructor, as seen by Java.
 
-    fun registerForResult(fragment: Fragment, onSuccess: ImagesTakenCallback, onCancel: Runnable? = null): ActivityResultLauncher<Intent> {
-        return fragment.registerForActivityResult(ActivityResultContracts.StartActivityForResult(), Callback(onSuccess, onCancel))
+    /** Explicit "empty" constructor, as seen by Java. */
+    constructor() : this(facingBack = true)
+
+    /**
+     * Register a request to start an activity for result from fragment
+     *
+     * @param fragment fragment for register request
+     * @param callback callback on result of taking picture
+     */
+    fun registerForResult(fragment: Fragment, callback: ImagesTakenCallback): ActivityResultLauncher<Intent> {
+        return fragment.registerForActivityResult(ActivityResultContracts.StartActivityForResult(), Callback(callback))
     }
 
+    /**
+     * Register a request to start an activity for result from activity
+     *
+     * @param activity activity for register request
+     * @param callback callback on result of taking picture
+     */
     fun registerForResult(
         activity: ComponentActivity,
-        onSuccess: ImagesTakenCallback,
-        onCancel: Runnable? = null
+        callback: ImagesTakenCallback
     ): ActivityResultLauncher<Intent> {
-        return activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult(), Callback(onSuccess, onCancel))
+        return activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult(), Callback(callback))
     }
 
+    /**
+     * Get intent of camera activity to launch it
+     *
+     * @param context for creating intent
+     */
     fun getTakePictureIntent(context: Context): Intent {
         return CameraActivity.getIntent(context, this)
     }
 
-    fun onActivityResult(resultCode: Int, data: Intent?, onSuccess: ImagesTakenCallback, onCancel: Runnable? = null) {
-        Callback(onSuccess, onCancel).onActivityResult(ActivityResult(resultCode, data))
+    /**
+     * Manually call on onActivityResult to get images uri
+     *
+     * @param resultCode the integer result code returned by CameraActivity through its setResult().
+     * @param data       an Intent, which can return result data to the caller
+     * @param callback   callback on result of taking picture
+     */
+    fun onActivityResult(resultCode: Int, data: Intent?, callback: ImagesTakenCallback) {
+        Callback(callback).onActivityResult(ActivityResult(resultCode, data))
     }
 
-    inner class Callback(private val callback: ImagesTakenCallback, private val onCancel: Runnable? = null) :
-        ActivityResultCallback<ActivityResult> {
+    private inner class Callback(private val callback: ImagesTakenCallback) : ActivityResultCallback<ActivityResult> {
         override fun onActivityResult(result: ActivityResult) {
             when (result.resultCode) {
-                Activity.RESULT_CANCELED -> onCancel?.run()
+                Activity.RESULT_CANCELED -> callback.onCancel()
                 Activity.RESULT_OK -> {
                     val uris = result.data?.parcelableArrayCompat<Uri>(CameraActivity.photosExtraName)?.toList().orEmpty()
                     callback.onImagesTaken(uris)
                 }
+
                 else -> Unit
             }
         }
     }
 
+    /**
+     * Callback on result of taking pictures
+     */
     interface ImagesTakenCallback {
+        /**
+         * Callback on images was taken
+         *
+         * @param images list of images uri
+         */
         fun onImagesTaken(images: List<Uri>)
+
+        /** Callback on back button was pressed */
+        fun onCancel() {
+            //Empty by default
+        }
     }
 }

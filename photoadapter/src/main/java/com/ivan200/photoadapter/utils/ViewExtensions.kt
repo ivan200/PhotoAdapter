@@ -2,6 +2,7 @@
 
 package com.ivan200.photoadapter.utils
 
+import android.animation.Animator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -27,6 +28,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import com.ivan200.photoadapter.R
 import java.io.Serializable
 import java.lang.ref.WeakReference
@@ -94,12 +96,12 @@ fun <T : Activity> T.hideSystemUI() {
             window.decorView.systemUiVisibility = flag
         }, 500L)
     }
-
-    //WindowInsetsControllerCompat(window, window.decorView).show(WindowInsetsCompat.Type.systemBars())
 }
 
 @Suppress("DEPRECATION", "KotlinConstantConditions")
 fun <T : Activity> T.showSystemUI() {
+//    WindowInsetsControllerCompat(window, window.decorView).show(WindowInsetsCompat.Type.systemBars())
+
     if (SDK_INT >= Build.VERSION_CODES.R) {
         window.setDecorFitsSystemWindows(true)
         window.insetsController?.apply {
@@ -134,8 +136,8 @@ internal fun View.padTopViewWithInsets(insets: WindowInsetsCompat) {
 }
 
 internal fun rotateItems(angle: Int, vararg views: View) {
-    val rotationDuration = 200L
     views.forEach {
+        val rotationDuration = it.resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
         it.animate().rotation(angle.toFloat()).setDuration(rotationDuration).start()
     }
 }
@@ -159,6 +161,40 @@ internal fun ImageButton.simulateClick(delay: Long = ANIMATION_SLOW_MILLIS) {
             invalidate()
         }
     }, delay)
+}
+
+/**
+ * Changing the visibility of the view with smooth showing or hiding
+ *
+ * @param show     show or hide the view
+ * @param listener view click listener, so when the view start smoothly hiding, view will immediately unclickable
+ *
+ * partially from here
+ * https://developer.android.com/develop/ui/views/animations/reveal-or-hide-view#CrossfadeAnimate
+ */
+fun View.animateFadeVisibility(show: Boolean, listener: View.OnClickListener? = null) {
+    val duration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
+    if (show) {
+        if (!isVisible || alpha != 1f) {
+            isVisible = true
+            clearAnimation()
+            animate().alpha(1f).setDuration(duration).setListener(null)
+        }
+        listener?.let { setOnClickListener(it) }
+    } else {
+        if (isVisible) {
+            clearAnimation()
+            animate().alpha(0f).setDuration(duration).setListener(object : Animator.AnimatorListener {
+                override fun onAnimationStart(animation: Animator) = Unit
+                override fun onAnimationCancel(animation: Animator) = Unit
+                override fun onAnimationRepeat(animation: Animator) = Unit
+                override fun onAnimationEnd(animation: Animator) {
+                    isVisible = false
+                }
+            })
+        }
+        listener?.let { setOnClickListener(null) }
+    }
 }
 
 /**

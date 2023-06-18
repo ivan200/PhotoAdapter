@@ -67,7 +67,7 @@ class CameraSelector @JvmOverloads constructor(
 
     private fun animateToCheckedState(newCheckedState: Boolean) {
         checkAnimator = ObjectAnimator.ofFloat(this, "progress", if (newCheckedState) 1f else 0f)
-        checkAnimator!!.duration = 300
+        checkAnimator!!.duration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
         checkAnimator!!.start()
     }
 
@@ -98,7 +98,11 @@ class CameraSelector @JvmOverloads constructor(
         if (visibility != VISIBLE) {
             return
         }
-        rectF.set(0f, 0f, size.toFloat(), size.toFloat())
+        rectF.left = 0f
+        rectF.top = 0f
+        rectF.right = size.toFloat()
+        rectF.bottom = size.toFloat()
+
         drawBitmap.eraseColor(0)
 
         val half = size.toFloat() / 2.toFloat()

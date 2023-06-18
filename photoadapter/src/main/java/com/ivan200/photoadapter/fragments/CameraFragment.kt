@@ -37,6 +37,7 @@ import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.utils.ANIMATION_FAST_MILLIS
 import com.ivan200.photoadapter.utils.ANIMATION_SLOW_MILLIS
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
+import com.ivan200.photoadapter.utils.animateFadeVisibility
 import com.ivan200.photoadapter.utils.getColorCompat
 import com.ivan200.photoadapter.utils.lockOrientation
 import com.ivan200.photoadapter.utils.onClick
@@ -96,7 +97,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                 } else {
                     loadThumbImage(it.firstOrNull())
                 }
-            } else if (it.size == 0) {
+            } else if (it.isEmpty()) {
                 resultImage.isVisible = false
             }
         }
@@ -113,7 +114,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
         cameraViewModel.curPageLoaded.observe(requireActivity()) {
             if (cameraBuilder.allowPreviewResult) {
-                loadThumbImage(it)
+                loadThumbImage(cameraViewModel.pictures.value?.firstOrNull())
             }
         }
 
@@ -165,23 +166,18 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             if (cameraBuilder.allowChangeCamera) {
                 val list = cameraView.cameraInfoList
 
-                switchCamera.isVisible = list.size > 1
-
                 val sameFacingCameras = list[it.cameraFacing]!!
                 if (sameFacingCameras.size > 1) {
-                    camerasRecycler.isVisible = true
                     camerasAdapter.update(sameFacingCameras, it, cameraViewModel.rotate.value!!)
-                } else {
-                    camerasRecycler.isVisible = false
                 }
+                camerasRecycler.animateFadeVisibility(sameFacingCameras.size > 1)
 
+                switchCamera.animateFadeVisibility(list.size > 1) { cameraView.changeFacing() }
                 switchCamera.setImageResource(it.cameraFacing.iconRes)
                 switchCamera.contentDescription = getString(it.cameraFacing.descriptionRes)
-                switchCamera.setOnClickListener {
-                    cameraView.changeFacing()
-                }
-                //TODO анимировать наличие вспышки через fade-in
-                torchSwitch.isVisible = it.hasFlashUnit
+
+                torchSwitch.animateFadeVisibility(it.hasFlashUnit) { this.nextFlash() }
+
                 currentFlash = if (it.supportedFlash.isNotEmpty()) {
                     it.supportedFlash.first()
                 } else {
@@ -234,8 +230,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
             }
         }
 
-        cameraViewModel.volumeKeyPressed.observe(requireActivity()) {
-            if (cameraViewModel.fragmentState.value == FragmentChangeState.CAMERA) {
+        cameraViewModel.captureSimulate.observe(requireActivity()) {
+            it?.let {
                 capture.simulateClick()
             }
         }

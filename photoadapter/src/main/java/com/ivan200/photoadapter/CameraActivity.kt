@@ -15,20 +15,20 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.ivan200.photoadapter.base.FragmentChangeState
 import com.ivan200.photoadapter.permission.PermissionsDelegate
 import com.ivan200.photoadapter.permission.ResultType
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
 import com.ivan200.photoadapter.utils.SaveUtils
+import com.ivan200.photoadapter.utils.SavedStateUtils.lazySavedStateViewModel
 import com.ivan200.photoadapter.utils.hideSystemUI
 import com.ivan200.photoadapter.utils.parcelableCompat
 
 @Suppress("MemberVisibilityCanBePrivate")
 class CameraActivity : AppCompatActivity() {
 
-    private val cameraViewModel: CameraViewModel by lazy {
-        ViewModelProvider(this@CameraActivity)[CameraViewModel::class.java]
+    private val cameraViewModel: CameraViewModel by lazySavedStateViewModel(this, this) {
+        CameraViewModel(it)
     }
 
     val container: View get() = findViewById(R.id.content_frame)
@@ -173,14 +173,8 @@ class CameraActivity : AppCompatActivity() {
         return super.onKeyDown(keyCode, event)
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        cameraViewModel.onRestoreInstanceState(savedInstanceState)
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        cameraViewModel.onSaveInstanceState(outState)
         permissionsDelegate.saveInstanceState(outState)
     }
 

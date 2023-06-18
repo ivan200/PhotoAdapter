@@ -43,7 +43,7 @@
     <string name="camera_error_do_not_disturb">Камера недоступна из-за политик диспетчера уведомлений. Пожалуйста перейдите в настройки и выключите режим \"Не беспокоить\".</string>
     <string name="camera_go_to_settings">Настройки</string>
 
-    <string name="capture_error_unknown">Произошла ошибка захвата изобрважения.</string>
+    <string name="capture_error_unknown">Произошла ошибка захвата изображения.</string>
     <string name="capture_error_file_io">Произошла ошибка при сохранении изображения в файл.</string>
     <string name="capture_error_failed">Произошел сбой захвата изображения.</string>
     <string name="capture_error_camera_closed">Камера была закрыта в процессе фотографирования.</string>
