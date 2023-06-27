@@ -246,6 +246,7 @@ class CameraImplOntario @JvmOverloads constructor(
                 physicalSize = PointF(0f, 0f),
                 fov = 0f,
                 focal = 0f,
+                supportedFps = emptyList(),
                 name = cameraIdMap[facing]!!,
                 nameSelected = cameraIdMap[facing]!!
             )

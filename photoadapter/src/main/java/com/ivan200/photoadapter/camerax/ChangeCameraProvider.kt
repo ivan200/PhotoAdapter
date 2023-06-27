@@ -154,6 +154,7 @@ class ChangeCameraProvider {
                     supportedFlash = supportedFlash.sortedBy(FlashDelegate.HasFlash::orderValue),
                     fov = getCameraFov(characteristics),
                     focal = getFocalLength(characteristics),
+                    supportedFps = getAvailableFps(characteristics),
                     name = cameraInfo?.cameraId.orEmpty(),
                     nameSelected = cameraInfo?.cameraId.orEmpty()
                 )
@@ -185,6 +186,7 @@ class ChangeCameraProvider {
                 simpleCameraInfo.physicalSize,
                 simpleCameraInfo.fov,
                 simpleCameraInfo.focal,
+                simpleCameraInfo.supportedFps,
                 name,
                 nameSelected
             )
@@ -245,6 +247,17 @@ class ChangeCameraProvider {
             return PointF(configs.width, configs.height)
         }
         return PointF(0f, 0f)
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun getAvailableFps(cameraCharacteristics: CameraCharacteristicsCompat?): List<IntRange> {
+        val configs = cameraCharacteristics?.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)
+        if (configs != null) {
+            return configs.map {
+                IntRange(it.lower, it.upper)
+            }
+        }
+        return emptyList()
     }
 
     @SuppressLint("RestrictedApi")

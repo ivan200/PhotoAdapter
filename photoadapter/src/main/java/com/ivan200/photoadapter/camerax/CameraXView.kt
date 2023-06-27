@@ -8,7 +8,9 @@ import android.graphics.Color
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
+import android.hardware.camera2.CaptureRequest
 import android.util.AttributeSet
+import android.util.Range
 import android.util.Size
 import android.view.Surface.ROTATION_270
 import android.view.Surface.ROTATION_90
@@ -18,6 +20,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraUnavailableException
 import androidx.camera.core.ImageAnalysis
@@ -286,10 +289,22 @@ class CameraXView @JvmOverloads constructor(
 
         val rotation = rotationDetector.deviceOrientation
 
-        preview = Preview.Builder().apply {
+
+        val previewBuilder = Preview.Builder().apply {
             setTargetAspectRatio(cameraRatio)
             setTargetRotation(rotation)
-        }.build().apply {
+        }
+
+        val fps60 = cameraInfo.supportedFps.filter { (it.first > 30 && it.first <= 60) || (it.last > 30 && it.last <= 60) }
+        if (fps60.isNotEmpty()) {
+            val sorted = fps60.sortedWith(compareByDescending<IntRange>(IntRange::last).thenByDescending(IntRange::first))
+            val maxRange = sorted.first()
+
+            Camera2Interop.Extender(previewBuilder)
+                .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(maxRange.first, maxRange.last))
+        }
+
+        preview = previewBuilder.build().apply {
             setSurfaceProvider(viewFinder.surfaceProvider)
         }
 

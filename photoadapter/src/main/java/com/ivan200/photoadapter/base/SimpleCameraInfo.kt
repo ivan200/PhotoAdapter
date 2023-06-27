@@ -26,6 +26,7 @@ data class SimpleCameraInfo(
     val physicalSize: PointF,
     val fov: Float,
     val focal: Float,
+    val supportedFps: List<IntRange>,
     val name: String,
     val nameSelected: String
 )
