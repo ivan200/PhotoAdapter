@@ -16,10 +16,9 @@ class ScrollFinder(context: Context, onScrollListener: ScrollFinder.OnScrollList
     private var horizontal = true
 
     private val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
-        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
 
-            //TODO проверить https://issuetracker.google.com/issues/238920463
-            if (e1 == null || e2 == null) return false // Got some crashes about this.
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+            if (e1 == null) return false // Got some crashes about this.
             if (e1.x != points[0].x || e1.y != points[0].y) {
                 // First step. We choose now if it's a vertical or horizontal scroll, and
                 // stick to it for the whole gesture.
