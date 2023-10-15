@@ -33,7 +33,7 @@ class TapFinder(context: Context, onTapListener: OnTapListener) {
         return notify
     }
 
-    interface OnTapListener {
+    fun interface OnTapListener {
         fun onTap(point: PointF)
     }
 }

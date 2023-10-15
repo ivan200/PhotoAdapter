@@ -79,7 +79,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     val changeFragmentsObserver = Observer<FragmentChangeState> {
-        when (it!!) {
+        when (it) {
             FragmentChangeState.CAMERA -> showCamera()
             FragmentChangeState.WAITING_FOR_IMAGE -> Unit
             FragmentChangeState.GALLERY -> showGallery()

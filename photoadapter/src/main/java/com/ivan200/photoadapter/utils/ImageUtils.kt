@@ -67,7 +67,7 @@ object ImageUtils {
             try {
                 cameraIdList.forEach {
                     val characteristics = getCameraCharacteristics(it)
-                    when (characteristics.get(CameraCharacteristics.LENS_FACING)) {
+                    when (characteristics[CameraCharacteristics.LENS_FACING]) {
                         CameraCharacteristics.LENS_FACING_BACK -> facings.add(FacingDelegate.BACK)
                         CameraCharacteristics.LENS_FACING_FRONT -> facings.add(FacingDelegate.FRONT)
                         else -> Unit // Ontario is not support external cameras

@@ -33,7 +33,7 @@ class ScaleFinder(context: Context, onScaleListener: OnScaleListener) {
         return notify
     }
 
-    interface OnScaleListener {
+    fun interface OnScaleListener {
         fun onScale(scaleFactor: Float)
     }
 }

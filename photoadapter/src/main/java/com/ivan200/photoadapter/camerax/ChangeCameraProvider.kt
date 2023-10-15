@@ -262,10 +262,10 @@ class ChangeCameraProvider {
 
     @SuppressLint("RestrictedApi")
     private fun getCameraFov(cameraCharacteristics: CameraCharacteristicsCompat?): Float {
-        val fArr = cameraCharacteristics?.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
-        if (fArr != null && fArr.isNotEmpty()) {
+        val fArr = cameraCharacteristics?.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)?.asList()
+        if (!fArr.isNullOrEmpty()) {
             val focal = fArr[0].toDouble()
-            val sizeF = cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
+            val sizeF = cameraCharacteristics[CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE]
             if (sizeF != null) {
                 val size = sizeF.width.toDouble()
                 if (size > 0.0f) {
@@ -278,8 +278,8 @@ class ChangeCameraProvider {
 
     @SuppressLint("RestrictedApi")
     private fun getFocalLength(cameraCharacteristics: CameraCharacteristicsCompat?): Float {
-        val fArr = cameraCharacteristics?.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
-        return if (fArr != null && fArr.isNotEmpty()) {
+        val fArr = cameraCharacteristics?.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)?.asList()
+        return if (!fArr.isNullOrEmpty()) {
             fArr[0]
         } else 0f
     }

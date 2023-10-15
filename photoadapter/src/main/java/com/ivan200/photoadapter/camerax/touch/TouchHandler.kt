@@ -93,11 +93,10 @@ class TouchHandler(
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         v.performClick()
 
-        return when {
-            tapFinder.handleTouchEvent(event) -> true
-            scaleFinder.handleTouchEvent(event) -> true
-            scrollFinder.handleTouchEvent(event) -> true
-            else -> true
-        }
+        var touchHandled = tapFinder.handleTouchEvent(event)
+        if (!touchHandled) touchHandled = scaleFinder.handleTouchEvent(event)
+        if (!touchHandled) scrollFinder.handleTouchEvent(event)
+
+        return true
     }
 }

@@ -50,7 +50,7 @@ interface CameraImplSelector : Parcelable {
             ContextCompat.getSystemService(context, CameraManager::class.java)?.apply {
                 return try {
                     cameraIdList.any {
-                        val supportedLevel = getCameraCharacteristics(it).get(INFO_SUPPORTED_HARDWARE_LEVEL)
+                        val supportedLevel = getCameraCharacteristics(it)[INFO_SUPPORTED_HARDWARE_LEVEL]
                         supportedLevel == INFO_SUPPORTED_HARDWARE_LEVEL_FULL
                                 || (SDK_INT >= Build.VERSION_CODES.N && supportedLevel == INFO_SUPPORTED_HARDWARE_LEVEL_3)
                                 || (SDK_INT >= Build.VERSION_CODES.P && supportedLevel == INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL)
