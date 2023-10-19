@@ -62,7 +62,6 @@ open class PermissionsDelegate(
     }
 
     init {
-        @Suppress("UNCHECKED_CAST")
         savedInstanceState?.apply {
             getBoolean(KEY_NEED_TO_SHOW_DIALOG, true).let { needToShowDialog = it }
             getStringArray(KEY_PERMISSIONS).let { permissions = it ?: emptyArray() }

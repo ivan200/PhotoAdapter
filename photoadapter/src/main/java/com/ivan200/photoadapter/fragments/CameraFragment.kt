@@ -172,17 +172,16 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                 }
                 camerasRecycler.animateFadeVisibility(sameFacingCameras.size > 1)
 
-                switchCamera.animateFadeVisibility(list.size > 1) { cameraView.changeFacing() }
+                switchCamera.animateFadeVisibility(list.size > 1) {
+                    cameraView.changeFacing()
+                    initFlash()
+                }
                 switchCamera.setImageResource(it.cameraFacing.iconRes)
                 switchCamera.contentDescription = getString(it.cameraFacing.descriptionRes)
 
                 torchSwitch.animateFadeVisibility(it.hasFlashUnit) { this.nextFlash() }
 
-                currentFlash = if (it.supportedFlash.isNotEmpty()) {
-                    it.supportedFlash.first()
-                } else {
-                    FlashDelegate.NoFlash
-                }
+                initFlash()
             } else {
                 switchCamera.isVisible = false
                 camerasRecycler.isVisible = false
@@ -307,6 +306,19 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
 
     private fun showGallery() {
         cameraViewModel.changeState(FragmentChangeState.GALLERY)
+    }
+
+    private fun initFlash() {
+        if (cameraView.cameraInfo.value?.supportedFlash?.isNotEmpty() == true) {
+            val flash = cameraView.cameraInfo.value?.supportedFlash?.firstOrNull()!!
+            currentFlash = flash
+            torchSwitch.isVisible = true
+            torchSwitch.setImageResource(flash.iconRes)
+            torchSwitch.contentDescription = getString(flash.descriptionRes)
+        } else {
+            currentFlash = FlashDelegate.NoFlash
+            torchSwitch.isVisible = false
+        }
     }
 
     private fun nextFlash() {

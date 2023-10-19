@@ -20,28 +20,40 @@ sealed class FlashDelegate {
 
         abstract val orderValue: Int
 
-        object Off : HasFlash() {
+        data object Off : HasFlash() {
             override val iconRes: Int = R.drawable.ic_photo_flash_off
             override val descriptionRes: Int = R.string.photo_torch_off_description
             override val orderValue: Int = 0
         }
 
-        object On : HasFlash() {
+        data object On : HasFlash() {
             override val iconRes: Int = R.drawable.ic_photo_flash_on
             override val descriptionRes: Int = R.string.photo_torch_on_description
             override val orderValue: Int = 1
         }
 
-        object Auto : HasFlash() {
+        data object Auto : HasFlash() {
             override val iconRes: Int = R.drawable.ic_photo_flash_auto
             override val descriptionRes: Int = R.string.photo_torch_auto_description
             override val orderValue: Int = 2
         }
 
-        object Torch : HasFlash() {
+        data object Torch : HasFlash() {
             override val iconRes: Int = R.drawable.ic_photo_flash_torch
             override val descriptionRes: Int = R.string.photo_torch_torch_description
             override val orderValue: Int = 3
+        }
+
+        data class OffOnMainCamera(val cameraId: String) : HasFlash() {
+            override val iconRes: Int = R.drawable.ic_photo_flash_off
+            override val descriptionRes: Int = R.string.photo_torch_off_description
+            override val orderValue: Int = 4
+        }
+
+        data class TorchOnMainCamera(val cameraId: String) : HasFlash() {
+            override val iconRes: Int = R.drawable.ic_photo_flash_torch
+            override val descriptionRes: Int = R.string.photo_torch_torch_description
+            override val orderValue: Int = 4
         }
     }
 }

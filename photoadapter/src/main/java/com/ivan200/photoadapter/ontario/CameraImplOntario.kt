@@ -203,6 +203,8 @@ class CameraImplOntario @JvmOverloads constructor(
             FlashDelegate.HasFlash.Off -> Flash.OFF
             FlashDelegate.HasFlash.On -> Flash.ON
             FlashDelegate.HasFlash.Torch -> Flash.TORCH
+            is FlashDelegate.HasFlash.OffOnMainCamera -> Flash.OFF
+            is FlashDelegate.HasFlash.TorchOnMainCamera -> Flash.OFF
         }
         this.flash = newFlash
     }

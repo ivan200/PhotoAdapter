@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
+import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.util.AttributeSet
 import android.util.Range
@@ -89,6 +90,8 @@ class CameraXView @JvmOverloads constructor(
     override val state: LiveData<CameraViewState> = _state
 
     private val cameraLifecycleObserver = CameraLifecycleObserver()
+    var currentFlash: FlashDelegate? = null
+
     private var lifecycleOwner: LifecycleOwner? = null
 
     private var analysis: ImageAnalysis? = null
@@ -151,8 +154,19 @@ class CameraXView @JvmOverloads constructor(
                 imageCapture?.flashMode = ImageCapture.FLASH_MODE_OFF
                 camera?.cameraControl?.enableTorch(true)
             }
+
+            is FlashDelegate.HasFlash.TorchOnMainCamera -> toggleMainFlash(true, flash.cameraId)
+            is FlashDelegate.HasFlash.OffOnMainCamera -> toggleMainFlash(false, flash.cameraId)
+        }
+        currentFlash = flash
+    }
+
+    fun toggleMainFlash(enabled: Boolean, cameraId: String) = runCatching {
+        ContextCompat.getSystemService(context, CameraManager::class.java)?.apply {
+            setTorchMode(cameraId, enabled)
         }
     }
+
 
     override fun setScaleType(scale: ScaleDelegate) {
         when (scale) {
@@ -160,6 +174,7 @@ class CameraXView @JvmOverloads constructor(
                 viewFinder.scaleType = PreviewView.ScaleType.FIT_CENTER
                 blurView.scaleType = ImageView.ScaleType.FIT_CENTER
             }
+
             FILL -> {
                 viewFinder.scaleType = PreviewView.ScaleType.FILL_CENTER
                 blurView.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -258,10 +273,20 @@ class CameraXView @JvmOverloads constructor(
                     rotationDetector.enable()
                     setUiOnPermission()
                 }
-                Lifecycle.Event.ON_STOP -> rotationDetector.disable()
+
+                Lifecycle.Event.ON_STOP -> {
+                    rotationDetector.disable()
+                    checkDisableFlash()
+                }
+
                 else -> Unit
             }
         }
+    }
+
+    fun checkDisableFlash() {
+        val flash = currentFlash
+        if (flash is FlashDelegate.HasFlash.TorchOnMainCamera) toggleMainFlash(false, flash.cameraId)
     }
 
     override fun restart() {
@@ -439,15 +464,23 @@ class CameraXView @JvmOverloads constructor(
 
     override val cameraInfo: LiveData<SimpleCameraInfo> get() = changeCameraProvider.cameraInfo
     override val cameraInfoList: Map<FacingDelegate, List<SimpleCameraInfo>> get() = changeCameraProvider.cameraInfoList
-    override fun changeFacing() = showBlur(changeCameraProvider::toggleFacing)
 
-    override fun changeSameFacingCamera() = changeCameraProvider.toggleSameFacingCamera()
+    override fun changeFacing() {
+        showBlur(changeCameraProvider::toggleFacing)
+        checkDisableFlash()
+    }
+
+    override fun changeSameFacingCamera() {
+        changeCameraProvider.toggleSameFacingCamera()
+        checkDisableFlash()
+    }
 
     override fun selectCamera(camera: SimpleCameraInfo) {
         if (camera != changeCameraProvider.cameraInfo.value) {
             showBlur {
                 changeCameraProvider.selectCamera(camera)
             }
+            checkDisableFlash()
         }
     }
 
@@ -469,6 +502,9 @@ class CameraXView @JvmOverloads constructor(
                 onNext.invoke()
             } else {
                 blurView.isVisible = true
+
+                //TODO Отделить Glide от либы
+
                 Glide.with(context)
                     .load(blur)
                     .listener(SimpleRequestListener {

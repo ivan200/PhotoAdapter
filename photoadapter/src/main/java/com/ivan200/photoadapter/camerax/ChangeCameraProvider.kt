@@ -156,9 +156,28 @@ class ChangeCameraProvider {
                     focal = getFocalLength(characteristics),
                     supportedFps = getAvailableFps(characteristics),
                     name = cameraInfo?.cameraId.orEmpty(),
-                    nameSelected = cameraInfo?.cameraId.orEmpty()
+                    nameSelected = cameraInfo?.cameraId.orEmpty(),
                 )
             )
+        }
+
+
+        //enable flash in other cameras
+        if (cameras.any { it.hasFlashUnit == true && it.cameraFacing == FacingDelegate.BACK }
+            && cameras.any { it.hasFlashUnit == false && it.cameraFacing == FacingDelegate.BACK }) {
+            val cameraWithFlashUnit = cameras.first { it.hasFlashUnit == true && it.cameraFacing == FacingDelegate.BACK }
+
+            for ((index, simpleCameraInfo) in cameras.withIndex()) {
+                if (simpleCameraInfo.hasFlashUnit == false && simpleCameraInfo.cameraFacing == FacingDelegate.BACK) {
+                    cameras[index] = cameras[index].copy(
+                        hasFlashUnit = true,
+                        supportedFlash = listOf(
+                            FlashDelegate.HasFlash.OffOnMainCamera(cameraWithFlashUnit.cameraId),
+                            FlashDelegate.HasFlash.TorchOnMainCamera(cameraWithFlashUnit.cameraId)
+                        )
+                    )
+                }
+            }
         }
 
         return cameras.groupBy { it.cameraFacing }.mapValues { cameraList ->
@@ -178,17 +197,10 @@ class ChangeCameraProvider {
             val cameraZoom = simpleCameraInfo.zoomValue()
             val name = if (canCountZoom) getCameraName(cameraZoom, mainZoomValue) else (index + 1).toString()
             val nameSelected = if (canCountZoom) getCameraNameSelected(cameraZoom, mainZoomValue) else (index + 1).toString()
-            SimpleCameraInfo(
-                simpleCameraInfo.cameraId,
-                simpleCameraInfo.cameraFacing,
-                simpleCameraInfo.hasFlashUnit,
-                simpleCameraInfo.supportedFlash,
-                simpleCameraInfo.physicalSize,
-                simpleCameraInfo.fov,
-                simpleCameraInfo.focal,
-                simpleCameraInfo.supportedFps,
-                name,
-                nameSelected
+
+            simpleCameraInfo.copy(
+                name = name,
+                nameSelected = nameSelected
             )
         }
     }
@@ -283,4 +295,5 @@ class ChangeCameraProvider {
             fArr[0]
         } else 0f
     }
+
 }
