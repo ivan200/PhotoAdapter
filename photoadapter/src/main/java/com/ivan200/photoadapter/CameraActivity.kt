@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.IntentCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -22,7 +23,6 @@ import com.ivan200.photoadapter.utils.ApplyInsetsListener
 import com.ivan200.photoadapter.utils.SaveUtils
 import com.ivan200.photoadapter.utils.SavedStateUtils.lazySavedStateViewModel
 import com.ivan200.photoadapter.utils.hideSystemUI
-import com.ivan200.photoadapter.utils.parcelableCompat
 
 @Suppress("MemberVisibilityCanBePrivate")
 class CameraActivity : AppCompatActivity() {
@@ -35,7 +35,9 @@ class CameraActivity : AppCompatActivity() {
     val frameCamera: FrameLayout get() = findViewById(R.id.frame_camera)
     val frameGallery: FrameLayout get() = findViewById(R.id.frame_gallery)
 
-    val cameraBuilder: CameraBuilder by lazy { intent.parcelableCompat(KEY_CAMERA_BUILDER)!! }
+    val cameraBuilder: CameraBuilder by lazy {
+        IntentCompat.getParcelableExtra(intent, KEY_CAMERA_BUILDER, CameraBuilder::class.java)!!
+    }
 
     lateinit var permissionsDelegate: PermissionsDelegate
 

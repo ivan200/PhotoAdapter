@@ -16,7 +16,7 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-sdk tools:overrideLibrary="com.otaliastudios.cameraview" />
+    <uses-sdk tools:overrideLibrary="com.otaliastudios.cameraview, androidx.camera.video, androidx.camera.core, androidx.camera.view, androidx.camera.camera2, androidx.camera.lifecycle, androidx.annotation.experimental, androidx.exifinterface" />
 
     <supports-screens
         android:anyDensity="true"

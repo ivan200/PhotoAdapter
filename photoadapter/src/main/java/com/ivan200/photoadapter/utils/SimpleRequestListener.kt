@@ -16,7 +16,7 @@ class SimpleRequestListener(private val onResult: (Boolean) -> Unit) : RequestLi
     override fun onLoadFailed(
         e: GlideException?,
         model: Any?,
-        target: Target<Drawable>?,
+        target: Target<Drawable>,
         isFirstResource: Boolean
     ): Boolean {
         onResult.invoke(false)
@@ -24,10 +24,10 @@ class SimpleRequestListener(private val onResult: (Boolean) -> Unit) : RequestLi
     }
 
     override fun onResourceReady(
-        resource: Drawable?,
-        model: Any?,
+        resource: Drawable,
+        model: Any,
         target: Target<Drawable>?,
-        dataSource: DataSource?,
+        dataSource: DataSource,
         isFirstResource: Boolean
     ): Boolean {
         onResult.invoke(true)

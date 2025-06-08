@@ -6,14 +6,10 @@ import android.animation.Animator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
-import android.os.Build.VERSION_CODES.TIRAMISU
-import android.os.Bundle
-import android.os.Parcelable
 import android.util.TypedValue
 import android.view.Display
 import android.view.Surface
@@ -30,7 +26,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import com.ivan200.photoadapter.R
-import java.io.Serializable
 import java.lang.ref.WeakReference
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -67,8 +62,10 @@ fun <T : Activity> T.unlockOrientation() {
 
 @Suppress("DEPRECATION")
 val Context.displayCompat: Display?
-    get() = if (SDK_INT >= Build.VERSION_CODES.R) display else null
-        ?: ContextCompat.getSystemService(this, WindowManager::class.java)?.defaultDisplay
+    get() {
+        val display = if (SDK_INT >= Build.VERSION_CODES.R) display else null
+        return display ?: ContextCompat.getSystemService(this, WindowManager::class.java)?.defaultDisplay
+    }
 
 @Suppress("DEPRECATION")
 fun <T : Activity> T.hideSystemUI() {
@@ -221,28 +218,6 @@ fun Number.dpToPx(context: Context? = null): Float {
     val res = context?.resources ?: android.content.res.Resources.getSystem()
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), res.displayMetrics)
 }
-
-
-inline fun <reified T : Serializable> Bundle.serializableCompat(key: String): T? = when {
-    SDK_INT >= TIRAMISU -> getSerializable(key, T::class.java)
-    else -> @Suppress("DEPRECATION") getSerializable(key) as? T
-}
-
-inline fun <reified T : Parcelable> Intent.parcelableCompat(key: String): T? = when {
-    SDK_INT >= TIRAMISU -> getParcelableExtra(key, T::class.java)
-    else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
-}
-
-inline fun <reified T : Parcelable> Bundle.parcelableArrayCompat(key: String): Array<out T>? = when {
-    SDK_INT >= TIRAMISU -> getParcelableArray(key, T::class.java)
-    else -> @Suppress("DEPRECATION") getParcelableArray(key)?.filterIsInstance<T>()?.toTypedArray()
-}
-
-inline fun <reified T : Parcelable> Intent.parcelableArrayCompat(key: String): Array<out T>? = when {
-    SDK_INT >= TIRAMISU -> getParcelableArrayExtra(key, T::class.java)
-    else -> @Suppress("DEPRECATION") getParcelableArrayExtra(key)?.filterIsInstance<T>()?.toTypedArray()
-}
-
 
 //
 //Logger

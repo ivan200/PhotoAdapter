@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = ("com.ivan200.photoadapterexample")
-    compileSdk = libs.versions.compileSdkVersion.get().toInt()
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "com.ivan200.photoadapterexample"
-        minSdk = libs.versions.minSdkVersion.get().toInt()
-        targetSdk = libs.versions.targetSdkVersion.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
         vectorDrawables.useSupportLibrary = true

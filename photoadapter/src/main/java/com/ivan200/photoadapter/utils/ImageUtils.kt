@@ -166,10 +166,11 @@ object ImageUtils {
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     fun blurBitmap(bitmap: Bitmap?, applicationContext: Context, radius: Float): Bitmap? {
-        if (bitmap == null) return null
+        val config = bitmap?.config
+        if (bitmap == null || config == null) return null
         try {
             // Create the output bitmap
-            val output = Bitmap.createBitmap(bitmap.width, bitmap.height, bitmap.config)
+            val output = Bitmap.createBitmap(bitmap.width, bitmap.height, config)
 
             // Blur the image
             val rsContext = RenderScript.create(applicationContext, RenderScript.ContextType.DEBUG)

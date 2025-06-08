@@ -11,10 +11,10 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IntRange
+import androidx.core.content.IntentCompat
 import androidx.fragment.app.Fragment
 import com.ivan200.photoadapter.utils.CameraImplSelector
 import com.ivan200.photoadapter.utils.SaveTo
-import com.ivan200.photoadapter.utils.parcelableArrayCompat
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -117,7 +117,9 @@ data class CameraBuilder constructor(
             when (result.resultCode) {
                 Activity.RESULT_CANCELED -> callback.onCancel()
                 Activity.RESULT_OK -> {
-                    val uris = result.data?.parcelableArrayCompat<Uri>(CameraActivity.photosExtraName)?.toList().orEmpty()
+                    val uris = result.data
+                        ?.let { IntentCompat.getParcelableArrayExtra(it, CameraActivity.photosExtraName, Uri::class.java) }
+                        ?.filterIsInstance<Uri>().orEmpty()
                     callback.onImagesTaken(uris)
                 }
 

@@ -22,6 +22,7 @@ import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.camera.camera2.interop.Camera2Interop
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraUnavailableException
 import androidx.camera.core.ImageAnalysis
@@ -32,6 +33,9 @@ import androidx.camera.core.InitializationException
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
 import androidx.camera.core.UseCase
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -59,7 +63,6 @@ import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.camerax.touch.TouchHandler
 import com.ivan200.photoadapter.utils.ImageUtils
-import com.ivan200.photoadapter.utils.ImageUtils.scaleDown
 import com.ivan200.photoadapter.utils.SaveUtils
 import com.ivan200.photoadapter.utils.SimpleRequestListener
 import com.ivan200.photoadapter.utils.dpToPx
@@ -305,6 +308,14 @@ class CameraXView @JvmOverloads constructor(
         _state.postValue(CameraViewState.Error(reason, ex))
     }
 
+    fun aspectRatioSelector(@AspectRatio.Ratio preferredAspectRatio: Int): ResolutionSelector {
+        return ResolutionSelector.Builder()
+            .setAspectRatioStrategy(
+                AspectRatioStrategy(preferredAspectRatio, AspectRatioStrategy.FALLBACK_RULE_AUTO)
+            )
+            .build()
+    }
+
     private fun bindCameraUseCases(cameraInfo: SimpleCameraInfo) {
         if (lifecycleOwner == null) return
 
@@ -316,7 +327,7 @@ class CameraXView @JvmOverloads constructor(
 
 
         val previewBuilder = Preview.Builder().apply {
-            setTargetAspectRatio(cameraRatio)
+            setResolutionSelector(aspectRatioSelector(cameraRatio))
             setTargetRotation(rotation)
         }
 
@@ -340,19 +351,30 @@ class CameraXView @JvmOverloads constructor(
                 builder.outputJpegQuality?.let {
                     setJpegQuality(it)
                 }
-                if (builder.fullScreenMode) {
-                    val screenSize = Point(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels)
-                    val scaledSize = screenSize.scaleDown(builder.maxWidth, builder.maxHeight)
-                    if (screenSize != scaledSize) {
-                        setTargetResolution(Size(scaledSize.x, scaledSize.y))
-                    } else {
-                        val pictureRatio = ImageUtils.aspectRatio(screenSize.toPointF())
-                        setTargetAspectRatio(pictureRatio)
-                    }
-                } else {
-                    val pictureRatio = ImageUtils.aspectRatio(cameraSize)
-                    setTargetAspectRatio(pictureRatio)
-                }
+                val screenSize = Point(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels)
+                val pictureAspect = if (builder.fullScreenMode) screenSize.toPointF() else cameraSize
+                val pictureRatio = ImageUtils.aspectRatio(pictureAspect)
+                setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setAspectRatioStrategy(
+                            AspectRatioStrategy(pictureRatio, AspectRatioStrategy.FALLBACK_RULE_AUTO)
+                        )
+                        .apply {
+                            if (builder.maxWidth != null
+                                && builder.maxHeight != null
+                                && builder.maxWidth!! > 0
+                                && builder.maxHeight!! > 0
+                            ) {
+                                setResolutionStrategy(
+                                    ResolutionStrategy(
+                                        Size(builder.maxWidth!!, builder.maxHeight!!),
+                                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER
+                                    )
+                                )
+                            }
+                        }
+                        .build()
+                )
             }.build()
 
         cameraProvider?.let {

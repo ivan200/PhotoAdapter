@@ -7,9 +7,9 @@ plugins {
 
 android {
     namespace = ("com.ivan200.photoadapter")
-    compileSdk = libs.versions.compileSdkVersion.get().toInt()
+    compileSdk = libs.versions.compileSdk.get().toInt()
     defaultConfig {
-        minSdk = libs.versions.minSdkVersion.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled = true
     }
@@ -18,6 +18,9 @@ android {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+    }
+    kotlin {
+        jvmToolchain(17)
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
