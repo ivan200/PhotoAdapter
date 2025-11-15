@@ -14,17 +14,23 @@ import android.util.TypedValue
 import android.view.Display
 import android.view.Surface
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.RelativeLayout
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.annotation.IdRes
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
+import androidx.fragment.app.Fragment
 import com.ivan200.photoadapter.R
 import java.lang.ref.WeakReference
 import java.util.logging.Level
@@ -116,15 +122,30 @@ fun <T : Activity> T.showSystemUI() {
     }
 }
 
-internal fun View.padBottomViewWithInsets(insets: WindowInsetsCompat) {
-    val land = this.resources.getBoolean(R.bool.is_land)
-    val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-    this.setPadding(
-        if (land) 0 else systemBars.left,
-        if (land) systemBars.top else 0,
-        systemBars.right,
-        systemBars.bottom
-    )
+//internal fun View.padBottomViewWithInsets(insets: WindowInsetsCompat) {
+//    val land = this.resources.getBoolean(R.bool.is_land)
+//    val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+//    this.setPadding(
+//        if (land) 0 else systemBars.left,
+//        if (land) systemBars.top else 0,
+//        systemBars.right,
+//        systemBars.bottom
+//    )
+//}
+
+internal fun Fragment.updateInsets(insets: WindowInsetsCompat) {
+    val insetsBars = insets.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars())
+    val insetsCutout = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
+    val unionInsets = Insets.max(insetsBars, insetsCutout)
+    upd(R.id.inset_left) { width = unionInsets.left }
+    upd(R.id.inset_right) { width = unionInsets.right }
+    upd(R.id.inset_top) { height = unionInsets.top }
+    upd(R.id.inset_bottom) { height = unionInsets.bottom }
+}
+
+
+internal fun Fragment.upd(@IdRes viewId: Int, block: ViewGroup.LayoutParams.() -> Unit) {
+    requireView().findViewById<FrameLayout>(viewId).updateLayoutParams<RelativeLayout.LayoutParams>(block = block)
 }
 
 internal fun View.padTopViewWithInsets(insets: WindowInsetsCompat) {

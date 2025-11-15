@@ -23,6 +23,9 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
         val space = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80f, resources.displayMetrics).toInt()
         listView.addItemDecoration(SpacesItemDecoration(space))
+//        val appbar = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32f, resources.displayMetrics).toInt()
+
+//        listView.setPadding(0, appbar,0,0)
     }
 
     private class SpacesItemDecoration(private val space: Int) : ItemDecoration() {

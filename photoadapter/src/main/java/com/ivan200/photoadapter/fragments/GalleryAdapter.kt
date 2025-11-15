@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.github.chrisbanes.photoview.PhotoView
 import com.ivan200.photoadapter.PictureInfo
+import com.ivan200.photoadapter.base.ScaleDelegate
 import com.ivan200.photoadapter.fragments.GalleryAdapter.PagerVH
 import com.ivan200.photoadapter.utils.SimpleDiffUtilCallback
 import com.ivan200.photoadapter.utils.SimpleRequestListener
@@ -52,6 +53,18 @@ class GalleryAdapter(private var onCurrentPageLoaded: ((PictureInfo) -> Unit)? =
     override fun getItemCount(): Int = images.count()
 
     override fun onBindViewHolder(holder: PagerVH, position: Int) {
+        when (images[position].scale) {
+            ScaleDelegate.FIT -> {
+                (holder.itemView as PhotoView).scaleType = ImageView.ScaleType.FIT_CENTER
+            }
+
+            ScaleDelegate.FILL -> {
+                (holder.itemView as PhotoView).scaleType = ImageView.ScaleType.CENTER_CROP //TODO ПОЧИНИТЬ кроп
+            }
+        }
+//        (holder.itemView as PhotoView).setImageURI(images[position].file.toUri())
+//        onCurrentPageLoaded?.invoke(images[position])
+
         Glide.with(holder.itemView)
             .load(images[position].file)
             .listener(SimpleRequestListener {

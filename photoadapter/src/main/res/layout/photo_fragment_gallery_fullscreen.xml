@@ -44,10 +44,6 @@
         android:id="@+id/pager_images"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/action_layout_gallery"
-        android:layout_below="@id/inset_top"
-        android:layout_toLeftOf="@id/inset_right"
-        android:layout_toRightOf="@id/inset_left"
         android:background="@color/color_camera_layout"
         android:orientation="horizontal" />
 

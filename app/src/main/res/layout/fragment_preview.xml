@@ -1,6 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.viewpager2.widget.ViewPager2 xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/pager_preview_images"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_camera_background" />
+    android:background="?android:colorBackground"
+    tools:ignore="RtlHardcoded">
+
+    <FrameLayout
+        android:id="@+id/inset_top"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true"
+        tools:layout_height="20dp" />
+
+    <FrameLayout
+        android:id="@+id/inset_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentBottom="true"
+        tools:layout_height="20dp" />
+
+    <FrameLayout
+        android:id="@+id/inset_left"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_above="@id/inset_bottom"
+        android:layout_below="@id/inset_top"
+        android:layout_alignParentLeft="true"
+        tools:layout_width="20dp" />
+
+    <FrameLayout
+        android:id="@+id/inset_right"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_above="@id/inset_bottom"
+        android:layout_below="@id/inset_top"
+        android:layout_alignParentRight="true"
+        tools:layout_width="20dp" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/action_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/inset_top"
+        android:layout_toLeftOf="@id/inset_right"
+        android:layout_toRightOf="@id/inset_left" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pager_preview_images"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/inset_bottom"
+        android:layout_below="@id/action_bar"
+        android:layout_toLeftOf="@id/inset_right"
+        android:layout_toRightOf="@id/inset_left"
+        android:background="@color/color_camera_background" />
+
+</RelativeLayout>

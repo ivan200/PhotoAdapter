@@ -44,96 +44,73 @@
         android:id="@+id/pager_images"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/action_layout_gallery"
-        android:layout_below="@id/inset_top"
-        android:layout_toLeftOf="@id/inset_right"
-        android:layout_toRightOf="@id/inset_left"
-        android:background="@color/color_camera_layout"
-        android:orientation="horizontal" />
+        android:orientation="vertical"
+        tools:ignore="RtlHardcoded">
 
-    <me.relex.circleindicator.CircleIndicator3
-        android:id="@+id/indicator"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/size_indicators"
-        android:layout_above="@id/action_layout_gallery"
-        android:layout_toLeftOf="@id/inset_right"
-        android:layout_toRightOf="@id/inset_left"
-        android:gravity="center"
-        android:visibility="gone"
-        tools:visibility="visible" />
+    </androidx.viewpager2.widget.ViewPager2>
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btn_back"
         android:layout_width="@dimen/size_icon_bounding"
         android:layout_height="@dimen/size_icon_bounding"
-        android:layout_below="@id/inset_top"
+        android:layout_above="@id/inset_bottom"
         android:layout_toRightOf="@id/inset_left"
         android:background="?selectableItemBackgroundBorderless"
         android:clickable="true"
+        android:contentDescription="@string/button_back"
         android:focusable="true"
         android:scaleType="center"
         android:visibility="visible"
         app:srcCompat="@drawable/ic_back"
         tools:visibility="visible" />
 
+    <me.relex.circleindicator.CircleIndicator3
+        android:id="@+id/indicator"
+        android:layout_width="@dimen/size_indicators"
+        android:layout_height="match_parent"
+        android:layout_above="@id/inset_bottom"
+        android:layout_below="@id/inset_top"
+        android:layout_toLeftOf="@id/action_layout_gallery"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:ci_orientation="vertical"
+        tools:ignore="RtlHardcoded"
+        tools:visibility="visible" />
+
+
     <RelativeLayout
         android:id="@+id/action_layout_gallery"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:layout_above="@id/inset_bottom"
-        android:layout_gravity="bottom"
+        android:layout_below="@id/inset_top"
         android:layout_toLeftOf="@id/inset_right"
-
-        android:layout_toRightOf="@id/inset_left"
         android:background="@color/color_action_layout"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:visibility="visible">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/btn_accept"
-            android:layout_alignBottom="@id/btn_accept"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/btn_accept"
-            tools:ignore="RtlHardcoded">
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/btn_deletePicture"
-                android:layout_width="@dimen/size_icon_bounding"
-                android:layout_height="@dimen/size_icon_bounding"
-                android:layout_gravity="center"
-                android:background="@drawable/bg_icon_gray"
-                android:clickable="true"
-                android:contentDescription="@string/button_delete"
-                android:focusable="true"
-                android:scaleType="center"
-                app:srcCompat="@drawable/ic_photo_delete" />
-
-        </FrameLayout>
+        android:gravity="left"
+        android:orientation="vertical"
+        android:visibility="visible"
+        tools:ignore="RtlHardcoded">
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btn_accept"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
             android:background="@color/color_transparent"
             android:clickable="true"
             android:contentDescription="@string/title_confirm"
             android:focusable="true"
-            android:paddingTop="@dimen/margin_default"
-            android:paddingBottom="@dimen/margin_default"
+            android:paddingLeft="@dimen/margin_default"
+            android:paddingRight="@dimen/margin_default"
             app:srcCompat="@drawable/ic_photo_accept_picture" />
 
         <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/btn_accept"
-            android:layout_alignBottom="@id/btn_accept"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/btn_accept"
-            android:layout_toRightOf="@id/btn_accept">
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_above="@id/btn_accept"
+            android:layout_alignLeft="@id/btn_accept"
+            android:layout_alignRight="@id/btn_accept">
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/btn_more"
@@ -148,7 +125,26 @@
                 app:srcCompat="@drawable/ic_photo_more" />
 
         </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_below="@id/btn_accept"
+            android:layout_alignLeft="@id/btn_accept"
+            android:layout_alignRight="@id/btn_accept">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_deletePicture"
+                android:layout_width="@dimen/size_icon_bounding"
+                android:layout_height="@dimen/size_icon_bounding"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_icon_gray"
+                android:clickable="true"
+                android:contentDescription="@string/button_delete"
+                android:focusable="true"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_photo_delete" />
+
+        </FrameLayout>
     </RelativeLayout>
-
 </RelativeLayout>
-

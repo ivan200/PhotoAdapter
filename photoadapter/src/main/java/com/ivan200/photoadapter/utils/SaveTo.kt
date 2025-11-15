@@ -16,7 +16,7 @@ sealed class SaveTo : Parcelable {
      * Only save into internal storage
      * context.filesDir/DCIM/
      */
-    object OnlyInternal : SaveTo()
+    data object OnlyInternal : SaveTo()
 
     /**
      * Only save into custom directory with specified [path]
@@ -32,7 +32,7 @@ sealed class SaveTo : Parcelable {
      * if success, then delete files from internal storage and return gallery uris
      * if not, internal files uri will be returned
      */
-    object ToGallery : SaveTo()
+    data object ToGallery : SaveTo()
 
     /**
      * Save to internal storage, then copy to gallery with [album] name
@@ -41,7 +41,7 @@ sealed class SaveTo : Parcelable {
      * prior to android Q there was no RELATIVE_PATH column in MediaStore
      * so we need to manually copy files into `getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)/AlbumName/`
      * folder, and if success, request gallery to find this pictures
-     * if this folder is not accesible, then we try to save file to gallery via MediaStore api without AlbumName
+     * if this folder is not accessible, then we try to save file to gallery via MediaStore api without AlbumName
      *
      * and if mediastore save will fail, so internal files uri will be returned
      */

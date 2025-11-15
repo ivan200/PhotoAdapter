@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.Navigation
@@ -22,6 +23,7 @@ import com.bumptech.glide.Glide
 import com.ivan200.photoadapterexample.Prefs
 import com.ivan200.photoadapterexample.R
 import com.ivan200.photoadapterexample.utils.SquareImageView
+import com.ivan200.photoadapterexample.utils.ViewUtils.updateInsets
 
 //
 // Created by Ivan200 on 14.11.2019.
@@ -34,8 +36,8 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery), MenuProvider {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mActivity.setSupportActionBar(requireView().findViewById(R.id.action_bar))
         mActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
         mActivity.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         mActivity.title = getString(R.string.gallery)
 
@@ -44,6 +46,11 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery), MenuProvider {
 
         orientation = resources.configuration.orientation
         setRecycler()
+
+        ViewCompat.setOnApplyWindowInsetsListener(requireView()) { _, insets ->
+            updateInsets(insets)
+            return@setOnApplyWindowInsetsListener insets
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

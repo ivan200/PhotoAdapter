@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.ivan200.photoadapter.base.FragmentChangeState
+import com.ivan200.photoadapter.base.ScaleDelegate
 import com.ivan200.photoadapter.utils.Event
 import com.ivan200.photoadapter.utils.SavedStateUtils
 import com.ivan200.photoadapter.utils.SavedStateUtils.SavedLiveData
@@ -94,7 +95,7 @@ class CameraViewModel(handle: SavedStateHandle) : ViewModel() {
         }
     }
 
-    //При изменении разреений на камеру, нужно перезапустить камеру
+    //При изменении разрешений на камеру, нужно перезапустить камеру
     private val _restartCamera = MutableLiveData<Event<Boolean>>()
     val restartCamera: LiveData<Event<Boolean>> = _restartCamera
     fun restartCamera() {
@@ -124,8 +125,8 @@ class CameraViewModel(handle: SavedStateHandle) : ViewModel() {
         }
     }
 
-    fun onFileSaved(fileToSave: File) {
-        _pictures.value!!.add(imageNumber, PictureInfo(fileToSave))
+    fun onFileSaved(fileToSave: File, currentScale: ScaleDelegate) {
+        _pictures.value!!.add(imageNumber, PictureInfo(fileToSave, currentScale))
         _pictures.value = _pictures.value   //this need to call liveData update
     }
 

@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +19,7 @@ import com.bumptech.glide.Glide
 import com.github.chrisbanes.photoview.PhotoView
 import com.ivan200.photoadapterexample.Prefs
 import com.ivan200.photoadapterexample.R
+import com.ivan200.photoadapterexample.utils.ViewUtils.updateInsets
 
 class PreviewFragment : Fragment(R.layout.fragment_preview), MenuProvider {
     private val pagerImages get() = requireView().findViewById<ViewPager2>(R.id.pager_preview_images)
@@ -26,7 +28,7 @@ class PreviewFragment : Fragment(R.layout.fragment_preview), MenuProvider {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        mActivity.setSupportActionBar(requireView().findViewById(R.id.action_bar))
         mActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mActivity.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         mActivity.title = getString(R.string.preview)
@@ -34,6 +36,11 @@ class PreviewFragment : Fragment(R.layout.fragment_preview), MenuProvider {
         pagerAdapter = PreviewAdapter(Prefs(requireContext()).sortedImages)
         pagerImages.adapter = pagerAdapter
         pagerImages.setCurrentItem(Prefs(requireContext()).imagePreviewNumber, false)
+
+        ViewCompat.setOnApplyWindowInsetsListener(requireView()) { _, insets ->
+            updateInsets(insets)
+            return@setOnApplyWindowInsetsListener insets
+        }
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}

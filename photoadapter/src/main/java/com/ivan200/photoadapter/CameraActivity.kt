@@ -10,6 +10,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.IntentCompat
 import androidx.core.view.ViewCompat
@@ -67,11 +68,20 @@ class CameraActivity : AppCompatActivity() {
         }
         permissionsDelegate.initWithBuilder(cameraBuilder)
 
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                this@CameraActivity.handleOnBackPressed()
-            }
-        })
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    this@CameraActivity.handleOnBackPressed()
+                }
+            })
+        }
+        enableEdgeToEdge()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        super.onBackPressed()
+        handleOnBackPressed()
     }
 
     val pageLoadedObserver = Observer<PictureInfo> {

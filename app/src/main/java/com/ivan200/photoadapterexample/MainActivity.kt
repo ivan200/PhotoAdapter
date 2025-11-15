@@ -2,6 +2,7 @@ package com.ivan200.photoadapterexample
 
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 
@@ -16,6 +17,8 @@ class MainActivity : AppCompatActivity() {
                 this@MainActivity.handleOnBackPressed()
             }
         })
+
+        enableEdgeToEdge()
     }
 
     override fun setTitle(title: CharSequence) {

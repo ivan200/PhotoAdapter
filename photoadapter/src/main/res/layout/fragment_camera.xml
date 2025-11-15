@@ -4,19 +4,49 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_camera_background">
+    android:background="@color/color_camera_background"
+    tools:ignore="RtlHardcoded">
 
-    <View
-        android:id="@+id/statusView"
+    <FrameLayout
+        android:id="@+id/inset_top"
         android:layout_width="match_parent"
-        android:layout_height="0dp" />
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true"
+        tools:layout_height="20dp" />
+
+    <FrameLayout
+        android:id="@+id/inset_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentBottom="true"
+        tools:layout_height="20dp" />
+
+    <FrameLayout
+        android:id="@+id/inset_left"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_above="@id/inset_bottom"
+        android:layout_below="@id/inset_top"
+        android:layout_alignParentLeft="true"
+        tools:layout_width="20dp" />
+
+    <FrameLayout
+        android:id="@+id/inset_right"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_above="@id/inset_bottom"
+        android:layout_below="@id/inset_top"
+        android:layout_alignParentRight="true"
+        tools:layout_width="20dp" />
 
     <FrameLayout
         android:id="@+id/cameraFrame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/action_layout"
-        android:layout_below="@id/statusView"
+        android:layout_below="@id/inset_top"
+        android:layout_toLeftOf="@id/inset_right"
+        android:layout_toRightOf="@id/inset_left"
         android:gravity="center"
         tools:visibility="visible">
 
@@ -37,13 +67,11 @@
 
     </FrameLayout>
 
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/statusView"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_below="@id/inset_top"
+        android:layout_toLeftOf="@id/inset_right"
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatImageButton
@@ -79,7 +107,8 @@
         android:id="@+id/btn_back"
         android:layout_width="@dimen/size_icon_bounding"
         android:layout_height="@dimen/size_icon_bounding"
-        android:layout_below="@id/statusView"
+        android:layout_below="@id/inset_top"
+        android:layout_toRightOf="@id/inset_left"
         android:background="?selectableItemBackgroundBorderless"
         android:clickable="true"
         android:contentDescription="@string/button_back"
@@ -97,29 +126,40 @@
         android:background="@color/color_camera_background"
         android:visibility="gone" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/select_camera_recycler"
-        android:layout_width="wrap_content"
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/action_layout"
-        android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/margin_default"
-        android:background="@drawable/cameras_bg"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:itemCount="2"
-        tools:listitem="@layout/select_camera_cell"
-        tools:orientation="horizontal"
-        tools:scrollbars="horizontal"
-        tools:visibility="visible" />
+        android:layout_toLeftOf="@id/inset_right"
+        android:layout_toRightOf="@id/inset_left">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/select_camera_recycler"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/cameras_bg"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:itemCount="2"
+            tools:listitem="@layout/select_camera_cell"
+            tools:orientation="horizontal"
+            tools:scrollbars="horizontal"
+            tools:visibility="visible" />
+
+    </FrameLayout>
 
     <RelativeLayout
         android:id="@+id/action_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@id/inset_bottom"
         android:layout_gravity="bottom"
+        android:layout_toLeftOf="@id/inset_right"
+        android:layout_toRightOf="@id/inset_left"
         android:background="@color/color_action_layout"
         android:gravity="center_vertical"
         android:orientation="horizontal"

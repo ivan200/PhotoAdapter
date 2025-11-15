@@ -90,6 +90,13 @@ class CameraImplOntario @JvmOverloads constructor(
         }
         playSounds = false
         preview = Preview.GL_SURFACE
+
+//      Падает на эмуляторе:
+//        java.lang.IllegalArgumentException: No config chosen
+//        at android.opengl.GLSurfaceView$BaseConfigChooser.chooseConfig(GLSurfaceView.java:874)
+//        at android.opengl.GLSurfaceView$EglHelper.start(GLSurfaceView.java:1024)
+//        at android.opengl.GLSurfaceView$GLThread.guardedRun(GLSurfaceView.java:1401)
+//        at android.opengl.GLSurfaceView$GLThread.run(GLSurfaceView.java:1240)
         setRequestPermissions(false)
     }
 

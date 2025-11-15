@@ -43,11 +43,6 @@
         android:id="@+id/cameraFrame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/inset_bottom"
-        android:layout_below="@id/inset_top"
-        android:layout_toStartOf="@id/action_layout"
-        android:layout_toLeftOf="@id/action_layout"
-        android:layout_toRightOf="@id/inset_left"
         android:gravity="center"
         tools:visibility="visible">
 
@@ -56,38 +51,28 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:keepScreenOn="true"
-            android:visibility="visible"
-            tools:visibility="visible" />
-
-        <TextView
-            android:id="@+id/initText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/camera_init_text"
-            android:textColor="@android:color/white" />
+            android:visibility="visible" />
 
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/initText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/action_layout"
+        android:layout_below="@id/inset_top"
+        android:layout_toLeftOf="@id/inset_right"
+        android:layout_toRightOf="@id/inset_left"
+        android:gravity="center"
+        android:text="@string/camera_init_text"
+        android:textColor="@android:color/white" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/inset_top"
-        android:layout_toRightOf="@id/inset_left"
-        android:orientation="vertical">
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btn_fit"
-            android:layout_width="@dimen/size_icon_bounding"
-            android:layout_height="@dimen/size_icon_bounding"
-            android:background="?selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:contentDescription="@string/photo_scale_type_fit"
-            android:focusable="true"
-            android:scaleType="center"
-            android:visibility="gone"
-            app:srcCompat="@drawable/ic_photo_fill"
-            tools:visibility="visible" />
+        android:layout_toLeftOf="@id/inset_right"
+        android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/torch_switch"
@@ -102,6 +87,19 @@
             app:srcCompat="@drawable/ic_photo_flash_off"
             tools:visibility="visible" />
 
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn_fit"
+            android:layout_width="@dimen/size_icon_bounding"
+            android:layout_height="@dimen/size_icon_bounding"
+            android:background="?selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/photo_scale_type_fit"
+            android:focusable="true"
+            android:scaleType="center"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_photo_fill"
+            tools:visibility="visible" />
+
     </LinearLayout>
 
 
@@ -109,7 +107,7 @@
         android:id="@+id/btn_back"
         android:layout_width="@dimen/size_icon_bounding"
         android:layout_height="@dimen/size_icon_bounding"
-        android:layout_above="@id/inset_bottom"
+        android:layout_below="@id/inset_top"
         android:layout_toRightOf="@id/inset_left"
         android:background="?selectableItemBackgroundBorderless"
         android:clickable="true"
@@ -129,93 +127,51 @@
         android:visibility="gone" />
 
     <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_above="@id/inset_bottom"
-        android:layout_below="@id/inset_top"
-        android:layout_marginRight="@dimen/margin_default"
-        android:layout_toLeftOf="@id/action_layout">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/action_layout"
+        android:layout_marginBottom="@dimen/margin_default"
+        android:layout_toLeftOf="@id/inset_right"
+        android:layout_toRightOf="@id/inset_left">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/select_camera_recycler"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center_vertical"
-            android:layout_toLeftOf="@id/action_layout"
+            android:layout_gravity="center_horizontal"
             android:background="@drawable/cameras_bg"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:reverseLayout="true"
             tools:itemCount="2"
             tools:listitem="@layout/select_camera_cell"
-            tools:orientation="vertical"
-            tools:scrollbars="vertical"
+            tools:orientation="horizontal"
+            tools:scrollbars="horizontal"
             tools:visibility="visible" />
 
     </FrameLayout>
 
-
     <RelativeLayout
         android:id="@+id/action_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_above="@id/inset_bottom"
-        android:layout_below="@id/inset_top"
+        android:layout_gravity="bottom"
         android:layout_toLeftOf="@id/inset_right"
+        android:layout_toRightOf="@id/inset_left"
         android:background="@color/color_action_layout"
-        android:gravity="left"
-        android:orientation="vertical"
-        android:visibility="visible"
-        tools:ignore="RtlHardcoded">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="visible">
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/capture"
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:background="@color/color_transparent"
-            android:clickable="true"
-            android:contentDescription="@string/photo_capture_description"
-            android:focusable="true"
-            android:paddingLeft="@dimen/margin_default"
-            android:paddingRight="@dimen/margin_default"
-            app:srcCompat="@drawable/ic_photo_take_picture" />
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_above="@id/capture"
-            android:layout_alignStart="@id/capture"
-            android:layout_alignLeft="@id/capture"
-            android:layout_alignEnd="@id/capture"
-            android:layout_alignRight="@id/capture"
-            android:orientation="vertical">
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/result"
-                android:layout_width="@dimen/size_icon_bounding"
-                android:layout_height="@dimen/size_icon_bounding"
-                android:layout_gravity="center"
-                android:background="?selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:contentDescription="@string/photo_result"
-                android:focusable="true"
-                android:scaleType="fitCenter"
-                android:visibility="gone"
-                tools:visibility="visible" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_below="@id/capture"
-            android:layout_alignStart="@id/capture"
-            android:layout_alignLeft="@id/capture"
-            android:layout_alignEnd="@id/capture"
-            android:layout_alignRight="@id/capture"
-            android:orientation="vertical">
+            android:layout_alignTop="@id/capture"
+            android:layout_alignBottom="@id/capture"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/capture"
+            android:layout_toLeftOf="@id/capture">
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/switch_camera"
@@ -229,8 +185,47 @@
                 android:scaleType="center"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_photo_camera_rear"
-                app:tint="@android:color/white"
                 tools:visibility="visible" />
+        </FrameLayout>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/capture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@color/color_transparent"
+            android:clickable="true"
+            android:contentDescription="@string/photo_capture_description"
+            android:focusable="true"
+            android:paddingTop="@dimen/margin_default"
+            android:paddingBottom="@dimen/margin_default"
+            app:srcCompat="@drawable/ic_photo_take_picture" />
+
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/capture"
+            android:layout_alignBottom="@id/capture"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/capture"
+            android:layout_toRightOf="@id/capture"
+            android:gravity="center">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/result"
+                android:layout_width="@dimen/size_icon_bounding"
+                android:layout_height="@dimen/size_icon_bounding"
+                android:layout_gravity="center"
+                android:background="?selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="@string/photo_result"
+                android:focusable="true"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
         </FrameLayout>
     </RelativeLayout>
 </RelativeLayout>
+

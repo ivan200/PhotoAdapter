@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -16,6 +17,7 @@ import com.ivan200.photoadapter.utils.SaveTo
 import com.ivan200.photoadapter.utils.SaveUtils
 import com.ivan200.photoadapterexample.Prefs
 import com.ivan200.photoadapterexample.R
+import com.ivan200.photoadapterexample.utils.ViewUtils.updateInsets
 
 class MainFragment : Fragment(R.layout.fragment_main), CameraBuilder.ImagesTakenCallback {
     private val navigateGallery = Navigation.createNavigateOnClickListener(R.id.action_mainFragment_to_galleryFragment)
@@ -43,14 +45,20 @@ class MainFragment : Fragment(R.layout.fragment_main), CameraBuilder.ImagesTaken
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mActivity.setSupportActionBar(requireView().findViewById(R.id.action_bar))
         mActivity.supportActionBar?.setDisplayHomeAsUpEnabled(false)
         mActivity.title = getString(R.string.app_name)
+
         fabGallery.setOnClickListener(navigateGallery::onClick)
 
         fabPhoto.setOnClickListener {
             updateCameraBuilder()
             permissionsDelegate.initWithBuilder(cameraBuilder)
             permissionsDelegate.queryPermissionsOnStart()
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(requireView()) { _, insets ->
+            updateInsets(insets)
+            return@setOnApplyWindowInsetsListener insets
         }
     }
 

@@ -1,11 +1,11 @@
 package com.ivan200.photoadapter.camerax
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
 import android.hardware.camera2.CameraManager
@@ -39,7 +39,6 @@ import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.toPointF
 import androidx.core.net.toFile
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -316,6 +315,7 @@ class CameraXView @JvmOverloads constructor(
             .build()
     }
 
+    @SuppressLint("UnsafeOptInUsageError")
     private fun bindCameraUseCases(cameraInfo: SimpleCameraInfo) {
         if (lifecycleOwner == null) return
 
@@ -331,9 +331,9 @@ class CameraXView @JvmOverloads constructor(
             setTargetRotation(rotation)
         }
 
-        val fps60 = cameraInfo.supportedFps.filter { (it.first > 30 && it.first <= 60) || (it.last > 30 && it.last <= 60) }
+        val fps60 = cameraInfo.supportedFps.filter { (it.first in 31..60) || (it.last in 31..60) }
         if (fps60.isNotEmpty()) {
-            val sorted = fps60.sortedWith(compareByDescending<IntRange>(IntRange::last).thenByDescending(IntRange::first))
+            val sorted = fps60.sortedWith(compareByDescending(IntRange::last).thenByDescending(IntRange::first))
             val maxRange = sorted.first()
 
             Camera2Interop.Extender(previewBuilder)
@@ -341,7 +341,7 @@ class CameraXView @JvmOverloads constructor(
         }
 
         preview = previewBuilder.build().apply {
-            setSurfaceProvider(viewFinder.surfaceProvider)
+            surfaceProvider = viewFinder.surfaceProvider
         }
 
         imageCapture = ImageCapture.Builder()
@@ -351,9 +351,7 @@ class CameraXView @JvmOverloads constructor(
                 builder.outputJpegQuality?.let {
                     setJpegQuality(it)
                 }
-                val screenSize = Point(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels)
-                val pictureAspect = if (builder.fullScreenMode) screenSize.toPointF() else cameraSize
-                val pictureRatio = ImageUtils.aspectRatio(pictureAspect)
+                val pictureRatio = ImageUtils.aspectRatio(cameraSize)
                 setResolutionSelector(
                     ResolutionSelector.Builder()
                         .setAspectRatioStrategy(

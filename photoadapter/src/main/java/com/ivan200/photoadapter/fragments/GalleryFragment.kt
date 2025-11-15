@@ -3,7 +3,9 @@ package com.ivan200.photoadapter.fragments
 import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.RelativeLayout
 import androidx.core.graphics.alpha
@@ -20,17 +22,16 @@ import com.ivan200.photoadapter.base.FragmentChangeState
 import com.ivan200.photoadapter.utils.ApplyInsetsListener
 import com.ivan200.photoadapter.utils.getColorCompat
 import com.ivan200.photoadapter.utils.onClick
-import com.ivan200.photoadapter.utils.padBottomViewWithInsets
-import com.ivan200.photoadapter.utils.padTopViewWithInsets
 import com.ivan200.photoadapter.utils.rotateItems
 import com.ivan200.photoadapter.utils.simulateClick
+import com.ivan200.photoadapter.utils.updateInsets
 import me.relex.circleindicator.CircleIndicator3
 
 //
 // Created by Ivan200 on 16.10.2019.
 //
 @Suppress("unused")
-class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsListener {
+class GalleryFragment : Fragment(), ApplyInsetsListener {
 
     private val cameraViewModel: CameraViewModel by lazy {
         ViewModelProvider(activity as CameraActivity)[CameraViewModel::class.java]
@@ -38,7 +39,6 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
     private lateinit var cameraBuilder: CameraBuilder
 
     private val pagerImages get() = requireView().findViewById<ViewPager2>(R.id.pager_images)
-    private val statusView get() = requireView().findViewById<View>(R.id.statusView)
     private val btnAccept get() = requireView().findViewById<ImageButton>(R.id.btn_accept)
     private val btnDelete get() = requireView().findViewById<ImageButton>(R.id.btn_deletePicture)
     private val btnMore get() = requireView().findViewById<ImageButton>(R.id.btn_more)
@@ -50,10 +50,18 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
 
     private var insets: WindowInsetsCompat? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val id = if (cameraBuilder.fullScreenMode) R.layout.photo_fragment_gallery_fullscreen else R.layout.photo_fragment_gallery
+        return inflater.inflate(id, container, false)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
         pagerAdapter = GalleryAdapter(cameraViewModel::updateOnCurrentPageLoaded)
 
         pagerImages.adapter = pagerAdapter
@@ -65,12 +73,6 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
         })
 
         if (cameraBuilder.fullScreenMode) {
-            // Очищаем значение обозначающее что вью галереи должно быть над панелью кнопок
-            (pagerImages.layoutParams as? RelativeLayout.LayoutParams)?.apply {
-                arrayOf(RelativeLayout.BELOW, RelativeLayout.ABOVE, RelativeLayout.LEFT_OF, RelativeLayout.RIGHT_OF).forEach {
-                    addRule(it, 0)
-                }
-            }
             val alpha = view.context.getColorCompat(R.color.circle_icon_fullscreen_transparency).alpha
             btnMore.background.alpha = alpha
             btnDelete.background.alpha = alpha
@@ -151,10 +153,7 @@ class GalleryFragment : Fragment(R.layout.photo_fragment_gallery), ApplyInsetsLi
     }
 
     private fun setWindowInsets(insets: WindowInsetsCompat) {
-        actionLayout.padBottomViewWithInsets(insets)
-        if (!cameraBuilder.fullScreenMode) {
-            statusView.padTopViewWithInsets(insets)
-        }
+        updateInsets(insets)
     }
 
     private fun showDialogDeletePage(onOk: () -> Unit) {

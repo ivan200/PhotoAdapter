@@ -5,15 +5,19 @@ import android.content.Intent
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.LOLLIPOP
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.graphics.alpha
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,7 +35,8 @@ import com.ivan200.photoadapter.base.CameraViewState
 import com.ivan200.photoadapter.base.FlashDelegate
 import com.ivan200.photoadapter.base.FragmentChangeState
 import com.ivan200.photoadapter.base.ScaleDelegate
-import com.ivan200.photoadapter.base.ScaleDelegate.*
+import com.ivan200.photoadapter.base.ScaleDelegate.FILL
+import com.ivan200.photoadapter.base.ScaleDelegate.FIT
 import com.ivan200.photoadapter.base.SimpleCameraInfo
 import com.ivan200.photoadapter.base.TakePictureResult
 import com.ivan200.photoadapter.utils.ANIMATION_FAST_MILLIS
@@ -41,11 +46,10 @@ import com.ivan200.photoadapter.utils.animateFadeVisibility
 import com.ivan200.photoadapter.utils.getColorCompat
 import com.ivan200.photoadapter.utils.lockOrientation
 import com.ivan200.photoadapter.utils.onClick
-import com.ivan200.photoadapter.utils.padBottomViewWithInsets
-import com.ivan200.photoadapter.utils.padTopViewWithInsets
 import com.ivan200.photoadapter.utils.rotateItems
 import com.ivan200.photoadapter.utils.simulateClick
 import com.ivan200.photoadapter.utils.unlockOrientation
+import com.ivan200.photoadapter.utils.updateInsets
 import java.lang.ref.WeakReference
 
 
@@ -53,13 +57,12 @@ import java.lang.ref.WeakReference
 // Created by Ivan200 on 15.10.2019.
 //
 @Suppress("unused")
-class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
+class CameraFragment : Fragment(), ApplyInsetsListener {
 
     private val flashView get() = requireView().findViewById<View>(R.id.flashView)
     private val cameraView get() = requireView().findViewById<CameraView>(R.id.cameraView)
     private val cameraFrame get() = requireView().findViewById<FrameLayout>(R.id.cameraFrame)
     private val initText get() = requireView().findViewById<TextView>(R.id.initText)
-    private val statusView get() = requireView().findViewById<View>(R.id.statusView)
     private val switchCamera get() = requireView().findViewById<ImageButton>(R.id.switch_camera)
     private val capture get() = requireView().findViewById<ImageButton>(R.id.capture)
     private val torchSwitch get() = requireView().findViewById<ImageButton>(R.id.torch_switch)
@@ -85,6 +88,11 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         cameraBuilder = (activity as? CameraActivity)?.cameraBuilder ?: CameraBuilder()
 
         CameraView.cameraSelector = cameraBuilder.cameraImplSelector
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val id = if (cameraBuilder.fullScreenMode) R.layout.fragment_camera_fullscreen else R.layout.fragment_camera
+        return inflater.inflate(id, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -198,6 +206,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         camerasRecycler.adapter = camerasAdapter
         camerasRecycler.itemAnimator = null
 
+        currentScale = if (cameraBuilder.fillPreview) FILL else FIT
+
         if (cameraBuilder.allowToggleFit) {
             buttonFit.isVisible = true
             setScaleTypeIcon(cameraView.scaleType)
@@ -206,6 +216,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                     FIT -> FILL
                     FILL -> FIT
                 }
+                currentScale = newScaleType
                 cameraView.setScaleType(newScaleType)
                 setScaleTypeIcon(newScaleType)
             }
@@ -257,6 +268,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
         }
     }
 
+    var currentScale = ScaleDelegate.FIT
+
     private fun setScaleTypeIcon(scaleType: ScaleDelegate) {
         buttonFit.setImageResource(scaleType.iconRes)
         buttonFit.contentDescription = getString(scaleType.descriptionRes)
@@ -280,10 +293,11 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
     }
 
     private fun setWindowInsets(insets: WindowInsetsCompat) {
-        actionLayout.padBottomViewWithInsets(insets)
-        if (!cameraBuilder.fullScreenMode) {
-            statusView.padTopViewWithInsets(insets)
-        }
+        updateInsets(insets)
+    }
+
+    fun upd(@IdRes viewId: Int, block: ViewGroup.LayoutParams.() -> Unit) {
+        requireView().findViewById<FrameLayout>(viewId).updateLayoutParams<RelativeLayout.LayoutParams>(block = block)
     }
 
     private fun takePicture() {
@@ -380,7 +394,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera), ApplyInsetsListener {
                 }
             }
             is TakePictureResult.ImageTaken -> {
-                cameraViewModel.onFileSaved(result.file)
+                cameraViewModel.onFileSaved(result.file, currentScale)
             }
         }
     }
